@@ -768,7 +768,7 @@ function FooterSection() {
 
 // **************** MAIN ENTRY *****************
 
-export const LpIta = (): JSX.Element => {
+export default function LpIta() {
   return (
     <div className="bg-white flex flex-row justify-center w-full" data-model-id="1:2">
       <div className="bg-white w-full max-w-[1728px] relative">
@@ -793,5 +793,3 @@ export const LpIta = (): JSX.Element => {
     </div>
   );
 };
-
-export default LpIta;
