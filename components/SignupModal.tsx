@@ -294,7 +294,7 @@ export function SignupModal() {
                       id="terms"
                       checked={acceptedTerms}
                       onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-                      className="mt-1 border-2 border-[#5e17eb] data-[state=checked]:border-[#5e17eb] data-[state=checked]:text-black rounded-md data-[state=checked]:bg-[#5e17eb]"
+                      className="mt-1 border-2 border-[#5e17eb] data-[state=checked]:border-[#5e17eb] data-[state=checked]:text-white rounded-md data-[state=checked]:bg-[#5e17eb]"
                     />
                     <label
                       htmlFor="terms"

@@ -184,7 +184,7 @@ export default function SignupPage() {
                 color="indigo"
                 checked={acceptedTerms}
                 onCheckedChange={(checked) => setAcceptedTerms(!!checked)}
-                className="mt-1 border-2 border-[#5e17eb] data-[state=checked]:border-[#5e17eb] data-[state=checked]:text-black rounded-md data-[state=checked]:bg-[#5e17eb]"
+                className="mt-1 border-2 border-[#5e17eb] data-[state=checked]:border-[#5e17eb] data-[state=checked]:text-white rounded-md data-[state=checked]:bg-[#5e17eb]"
               />
               <label htmlFor="terms" className="text-sm text-gray-600 leading-tight mt-0.5">
                 I accept the{" "}
