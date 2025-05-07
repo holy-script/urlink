@@ -11,88 +11,85 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import Link from "next/link";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { SignupModal } from "@/components/SignupModal";
 
 const featureData = [
   {
     feature: "Free activation",
-    urlink: "✅ Yes",
+    URLINK: "✅ Yes",
     competitors: "❌ No, often paid",
   },
   {
     feature: "Initial free clicks",
-    urlink: "✅ 500",
+    URLINK: "✅ 500",
     competitors: "❌ No free credit",
   },
   {
     feature: "Payment model",
-    urlink: "✅ PPC – Pay only for received clicks",
+    URLINK: "✅ PPC – Pay only for received clicks",
     competitors: "❌ Fixed subscription or hidden costs",
   },
   {
     feature: "Free UTM management",
-    urlink: "✅ Included",
+    URLINK: "✅ Included",
     competitors: "❌ Often paid service",
   },
   {
     feature: "Intuitive interface",
-    urlink: "✅ Clean and simple design",
+    URLINK: "✅ Clean and simple design",
     competitors: "❌ Complex or outdated",
   },
   {
     feature: "Marketing optimization",
-    urlink: "✅ Advanced and customizable tracking",
+    URLINK: "✅ Advanced and customizable tracking",
     competitors: "❌ Limited or extra cost",
   },
 ];
 
 const faqData = [
-  { question: "Is Urlink really free?" },
-  { question: "How does the PPC payment system work?" },
-  { question: "Can I track my link performance?" },
-  { question: "Does Urlink support deep linking?" },
-  { question: "Is there a limit to the number of links I can create?" },
-  { question: "Can I customize the generated links?" },
-  { question: "Does Urlink work with ad campaigns?" },
-  { question: "How can I get started?" },
+  {
+    question: "Is URLINK really free?",
+    answer: "Yes! Start with 500 free clicks and only pay for additional clicks when you need them. No subscription required."
+  },
+  {
+    question: "How does the PPC payment system work?",
+    answer: "Pay-per-click means you only pay for actual clicks beyond your free limit. Each additional click costs €0.003, billed monthly."
+  },
+  {
+    question: "Can I track my link performance?",
+    answer: "Yes! Get detailed analytics including click counts, geographic data, and device types in real-time."
+  },
+  {
+    question: "Does URLINK support deep linking?",
+    answer: "Yes, we support deep linking for major platforms including Instagram, TikTok, YouTube, and more."
+  },
+  {
+    question: "Is there a limit to the number of links I can create?",
+    answer: "No, create unlimited links! You only pay for clicks, not link creation."
+  },
+  {
+    question: "Can I customize the generated links?",
+    answer: "Yes, customize your links with UTM parameters and set specific behaviors for different platforms."
+  },
+  {
+    question: "Does URLINK work with ad campaigns?",
+    answer: "Absolutely! URLINK is perfect for tracking and optimizing ad campaigns across all platforms."
+  },
+  {
+    question: "How can I get started?",
+    answer: "Simply sign up for free, paste your first link, and start tracking! No credit card required."
+  },
 ];
 
 const testimonialData = [
   {
-    rating: 5,
-    title: "Perfect for marketing campaigns!",
-    content:
-      '"Finally, a deeplink service that doesn\'t force you to pay a fixed subscription! With Urlink, I can manage my links smartly and pay only for actual clicks. Free UTM management is an incredible added value!"',
+    highlighted: "Finally a deeplink service that doesn’t force you into a fixed subscription!",
+    content: " With Urlink, I can manage my links smartly and only pay for actual clicks. The free UTM management is an incredible added value!",
     author: "Marco R.",
-    position: "CEO of GrowthLab – 200K followers on IG",
-    image: "/image-2.png",
-  },
-  {
-    rating: 5,
-    title: "Simple, intuitive, and convenient",
-    content:
-      '"I\'ve tried several similar services, but Urlink is the most intuitive. The platform is clean and easy to use, and the free activation with 500 clicks included is perfect for testing without risks. I recommend it to anyone doing digital marketing!"',
-    author: "Giulia M.",
-    position: "Founder of SocialBoost – 180K followers on IG",
-    image: "/image-3.png",
-  },
-  {
-    rating: 5,
-    title: "Finally a transparent service!",
-    content:
-      '"Unlike competitors, Urlink has no hidden costs or expensive plans. The PPC model lets me control the budget based on real needs. Plus, free UTM analysis helps me optimize campaigns with no extra costs!"',
-    author: "Luca D.",
-    position: "Digital Strategist – 220K followers on IG",
-    image: "/image-4.png",
-  },
-  {
-    rating: 5,
-    title: "Great for those wanting immediate results",
-    content:
-      '"With Urlink I improved conversions without spending a fortune. The advanced tracking and intuitive platform design make everything easier. Perfect for anyone needing a professional service without complications!"',
-    author: "Francesca P.",
-    position: "E-commerce Expert – 250K followers on IG",
-    image: "/image-5.png",
-  },
+    image: "/image-2.png"
+  }
 ];
 
 const benefitsData = [
@@ -118,7 +115,7 @@ const benefitsData = [
     id: 4,
     title: "Free UTM management",
     description:
-      "With Urlink you can create, track and analyze UTMs at no cost, unlike many competitors who charge for this service.",
+      "With URLINK you can create, track and analyze UTMs at no cost, unlike many competitors who charge for this service.",
   },
 ];
 
@@ -143,7 +140,7 @@ function HeaderSection() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" className="text-white text-xl">
+        <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD]">
           FAQ
         </Button>
         <div className="relative">
@@ -151,16 +148,22 @@ function HeaderSection() {
             variant="ghost"
             className="bg-[#5e17eb] rounded-lg text-white text-xl flex items-center gap-2"
           >
-            <img className="w-[25px] h-[25px]" alt="Group" src="/group-5.png" />
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13.0001 25C16.5568 25 19.4401 19.6274 19.4401 13C19.4401 6.37258 16.5568 1 13.0001 1C9.44334 1 6.56006 6.37258 6.56006 13C6.56006 19.6274 9.44334 25 13.0001 25Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 17.8H24M2 8.2H24M13 1V25" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13 25C19.6274 25 25 19.6274 25 13C25 6.37258 19.6274 1 13 1C6.37258 1 1 6.37258 1 13C1 19.6274 6.37258 25 13 25Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             EN
             <img className="w-3.5 h-[7px]" alt="Vector" src="/vector-2-1.svg" />
           </Button>
         </div>
-        <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl">
+        <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl hover:bg-[#5418CD]">
           Log in
         </Button>
-        <Button variant="outline" className="border-white text-white text-xl">
-          Register free
+        <Button variant="outline" className="border-white text-white text-xl hover:bg-white hover:text-[#5e17eb]">
+          <Link href="/signup">
+            Register free
+          </Link>
         </Button>
       </div>
     </header>
@@ -186,20 +189,17 @@ function UrlShortenerForm() {
 
             <div className="mt-8 w-full relative">
               <Input
-                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#a9a9a9]"
+                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[#a9a9a9] border-2 border-[#f7f7f7] focus:border-[#5e17eb]"
                 placeholder="Paste here"
               />
-              <img
+              {/* <img
                 className="absolute w-px h-10 top-4 left-5 object-cover"
                 alt="Line"
                 src="/line-1.svg"
-              />
+              /> */}
             </div>
 
-            <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-xl">
-              <img className="w-6 h-6" alt="Group" src="/group-22.png" />
-              Get your new link
-            </Button>
+            <SignupModal />
           </div>
         </CardContent>
       </Card>
@@ -212,17 +212,29 @@ function HeroSection() {
     <section className="relative w-full h-[1489px]">
       <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_40px_40px] py-16">
         <HeaderSection />
-        <UrlShortenerForm />
         <div className="mt-8">
           <h1 className="font-bold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px]">
             <div>
               Create your deeplink now and
             </div>
             <div>
-              start making <span className="underline">$money</span>🤑
+              start making{" "}
+              <span className="relative group">
+                <span className="relative z-10">
+                  <span className="relative"></span>
+                  $money
+                  <div
+                    className="absolute bottom-0 left-1 w-full h-[2px] bg-white transition-[height,background-color] duration-300 ease-in-out group-hover:h-[5px] group-hover:bg-[#42c97a]"
+                  />
+                </span>
+                <span className="ml-2 inline-block group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300 ease-in-out">
+                  🤑
+                </span>
+              </span>
             </div>
           </h1>
         </div>
+        <UrlShortenerForm />
         <div className="mt-10">
           <p className="font-semibold text-white text-xl text-center tracking-[-0.20px]">
             Sign up for free and get:
@@ -287,7 +299,7 @@ function HeroSection() {
             🚀
           </span>
           <p className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px]">
-            Urlink makes browsing faster and more effective with <br /> smart deeplinks,
+            URLINK makes browsing faster and more effective with <br /> smart deeplinks,
             improving user experience, <br /> conversions, and marketing campaigns.
           </p>
           <span className="font-bold text-[#4e4e4e] text-8xl tracking-[-0.96px]">
@@ -372,7 +384,7 @@ function ComparisonSection() {
               </React.Fragment>
             ))}
           </div>
-          <div className="w-[582px] flex flex-col justify-between pt-11 pb-10">
+          <div className="w-[582px] bg-white rounded-[32px] shadow-lg flex flex-col justify-between p-10 pt-11">
             <div className="flex items-center h-[32px]">
               <img className="w-[31px] h-[31px]" alt="Group" src="/group-3-1.png" />
               <span className="ml-2 font-['Verdana-Bold'] font-bold text-[#5e17eb] text-[26.3px] tracking-[-0.26px]">
@@ -384,17 +396,17 @@ function ComparisonSection() {
                 <Separator className="my-4" />
                 <div className="flex items-center gap-4">
                   <span className="font-semibold text-nero text-xl leading-8">
-                    {item.urlink.split(" ")[0]}
+                    {item.URLINK.split(" ")[0]}
                   </span>
                   <span className="font-normal text-[#4e4e4e] text-xl leading-8">
-                    {item.urlink.split(" ").slice(1).join(" ")}
+                    {item.URLINK.split(" ").slice(1).join(" ")}
                   </span>
                 </div>
               </React.Fragment>
             ))}
           </div>
-          <div className="w-[420px] flex flex-col justify-between py-10">
-            <div className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px]">
+          <div className="w-[420px] flex flex-col justify-between py-10 ml-8">
+            <div className="font-bold text-[#4e4e4e] text-2xl text-left tracking-[-0.24px]">
               Competitors
             </div>
             {featureData.map((item, index) => (
@@ -413,6 +425,29 @@ function ComparisonSection() {
           </div>
         </div>
       </div>
+      <div className="flex justify-center mt-8">
+        <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+          <span className="flex items-center">
+            Create your free account now
+            <span
+              className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
+            >
+              <svg
+                width="19"
+                height="16"
+                viewBox="0 0 19 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18.7086 8.70711C19.0991 8.31658 19.0991 7.68342 18.7086 7.29289L12.3446 0.928932C11.9541 0.538408 11.3209 0.538408 10.9304 0.928932C10.5399 1.31946 10.5399 1.95262 10.9304 2.34315L16.5873 8L10.9304 13.6569C10.5399 14.0474 10.5399 14.6805 10.9304 15.0711C11.3209 15.4616 11.9541 15.4616 12.3446 15.0711L18.7086 8.70711ZM0.00146484 9H18.0015V7H0.00146484V9Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </span>
+        </Button>
+      </div>
     </section>
   );
 }
@@ -420,80 +455,18 @@ function ComparisonSection() {
 function VideoSection() {
   return (
     <section className="mt-[100px] px-36 relative">
-      <div className="w-[125px] h-[134px] absolute top-[105px] left-[145px]">
-        <img
-          className="w-[76px] h-[113px] absolute top-[21px] left-[38px]"
-          alt="Vector"
-          src="/vector-6-1.svg"
-        />
-        <div className="absolute top-0 left-0 font-medium text-[#4e4e4e] text-sm tracking-[-0.14px] leading-[14px]">
-          <span>urlink</span> in 3 minutes
-        </div>
-      </div>
-      <div className="w-[1178px] h-[734px] bg-[#4e4e4e] rounded-[40px] border-[16px] border-solid border-[#f7f7f7] shadow-ombra relative mx-auto">
-        <img
-          className="absolute w-[1166px] h-[722px] -top-2 -left-2.5"
-          alt="Image"
-          src="/image-1.png"
-        />
-        <img
-          className="absolute w-[356px] h-[356px] top-[330px] right-[52px]"
-          alt="Img"
-          src="/img-8d428958dd17-1-1.png"
-        />
-        <div className="absolute w-full h-28 bottom-0 bg-[#42c97a] rounded-[40px_40px_24px_24px] rotate-180">
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-180">
-            <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px]">
-              30k in 2 minutes with URLINK 🤯
-            </h2>
-          </div>
-          <img
-            className="absolute w-[139px] h-[45px] bottom-4 left-8 rotate-180"
-            alt="Group"
-            src="/group-25.png"
-          />
-        </div>
-        <div className="absolute w-full h-32 top-0 left-0 rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[rgba(0,0,0,0.6)] to-transparent">
-          <div className="flex items-center p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-[#5e17eb] rounded-full flex items-center justify-center">
-                <img className="w-7 h-7" alt="Group" src="/group-3-2.png" />
-              </div>
-              <span className="ml-4 font-medium text-white text-base tracking-[-0.16px] text-shadow">
-                URLINK OFFICIAL
-              </span>
-            </div>
-            <div className="ml-auto flex items-center gap-6">
-              <div className="flex flex-col items-center">
-                <img className="w-5 h-5" alt="Vector" src="/vector-2.svg" />
-                <span className="text-shadow font-medium text-white text-sm tracking-[-0.14px]">
-                  Watch Later
-                </span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img className="w-[21px] h-[17px]" alt="Vector" src="/vector.svg" />
-                <span className="text-shadow font-medium text-white text-sm tracking-[-0.14px]">
-                  Share
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <img
-          className="absolute w-[91px] h-16 top-[319px] left-[527px]"
-          alt="Group"
-          src="/group-26.png"
-        />
-        <img
-          className="absolute w-[19px] h-[23px] top-[260px] left-[672px]"
-          alt="Vector"
-          src="/vector-1.svg"
-        />
-      </div>
-      <div className="flex justify-center mt-16">
-        <Button className="bg-[#42c97a] text-white text-xl">
-          Create your free account now
-        </Button>
+      <div className="w-full max-w-[1178px] mx-auto">
+        <iframe
+          className="w-full h-[734px] rounded-[40px] border-[2px] border-solid border-[#5e17eb] shadow-md"
+          style={{
+            border: "2px solid #5e17eb",
+            boxShadow: "0 0 0 16px #f7f7f7",
+          }}
+          src="https://www.youtube.com/embed/23ZUf8QFHxY"
+          title="URLINK in 3 minutes"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
       </div>
     </section>
   );
@@ -502,9 +475,14 @@ function VideoSection() {
 function FeaturesSection() {
   return (
     <section className="mt-[100px] px-36">
-      <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-16">
-        Why choose Urlink?
-      </h2>
+      <div>
+        <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-4">
+          Why choose URLINK?
+        </h2>
+        <div className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mb-12">
+          Discover the exclusive benefits of URLINK with <br /> a smooth experience optimized for your digital <br /> marketing.
+        </div>
+      </div>
       <div className="flex gap-16">
         <div className="w-1/2">
           <Accordion type="single" collapsible className="w-full">
@@ -513,7 +491,7 @@ function FeaturesSection() {
                 1. 💰 Pay only for clicks
               </AccordionTrigger>
               <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
-                Urlink is a PPC service: no subscriptions, you pay only for actual clicks on your links.
+                URLINK is a PPC service: no subscriptions, you pay only for actual clicks on your links.
               </AccordionContent>
             </AccordionItem>
             <Separator className="my-2" />
@@ -522,7 +500,7 @@ function FeaturesSection() {
                 2. 📊 Free UTMs & advanced tracking
               </AccordionTrigger>
               <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
-                With Urlink you can create, track and analyze UTMs at no extra cost.
+                With URLINK you can create, track and analyze UTMs at no extra cost.
               </AccordionContent>
             </AccordionItem>
             <Separator className="my-2" />
@@ -551,32 +529,33 @@ function FeaturesSection() {
 function TestimonialSection({ idx }: { idx: number; }) {
   const t = testimonialData[idx];
   return (
-    <section className="mt-[100px] flex justify-center">
-      <Card className="bg-[#f7f7f7] rounded-[40px] shadow-ombra p-8 flex flex-col items-center gap-3">
-        <div className="flex">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <img
-              key={star}
-              className="w-[21px] h-5"
-              alt="Star"
-              src="/star-2.svg"
-            />
-          ))}
+    <section className="mt-[144px] mb-[200px] flex justify-center px-6">
+      <div className="flex max-w-5xl items-start gap-10">
+        {/* Image */}
+        <img
+          src={t.image}
+          alt={t.author}
+          className="w-[164px] h-[164px] object-cover rounded-[20px] mt-4"
+        />
+
+        {/* Text Content */}
+        <div className="flex flex-col">
+          {/* Quote Icon */}
+          <span className="text-[124px] text-[#5e17eb] leading-none mb-2 h-12
+          ">”</span>
+
+          {/* Main Text */}
+          <p className="text-base leading-7 text-[#4e4e4e] max-w-[35vw]">
+            <span className="font-bold text-[#5e17eb]">
+              {t.highlighted}
+            </span>{" "}
+            {t.content}
+          </p>
+
+          {/* Author */}
+          <p className="mt-2 italic font-medium text-[#4e4e4e]">– {t.author}</p>
         </div>
-        <h3 className="font-semibold text-[#4e4e4e] text-base text-center">
-          {t.title}
-        </h3>
-        <p className="w-[493px] font-normal text-[#4e4e4e] text-base text-center">
-          {t.content}
-        </p>
-        <div className="flex items-center">
-          <img className="w-14 h-14 object-cover" alt="Image" src={t.image} />
-          <div className="ml-4">
-            <p className="font-medium text-[#4e4e4e] text-base">{t.author}</p>
-            <p className="font-normal text-[#4e4e4e] text-sm">{t.position}</p>
-          </div>
-        </div>
-      </Card>
+      </div>
     </section>
   );
 }
@@ -586,16 +565,39 @@ function DashboardPreviewSection() {
     <section className="mt-[100px] relative">
       <div className="w-full h-[804px] rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
         <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px] pt-[103px]">
-          Why choose Urlink?
+          Why choose URLINK?
         </h2>
         <p className="w-[586px] font-normal text-[#f7f7f7] text-xl text-center tracking-[-0.20px] mx-auto mt-4">
-          Discover Urlink's exclusive benefits with a smooth experience optimized for your digital marketing.
+          Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.
         </p>
         <img
-          className="w-[1162px] h-[658px] mx-auto mt-[103px] object-cover"
+          className="w-[80vw] mx-auto mt-[103px] object-cover"
           alt="Dashboard link"
           src="/dashboard---link-performance-1.png"
         />
+      </div>
+      <div className="mt-[403px] flex justify-center">
+        <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+          <span className="flex items-center">
+            Create your free account now
+            <span
+              className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
+            >
+              <svg
+                width="19"
+                height="16"
+                viewBox="0 0 19 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M18.7086 8.70711C19.0991 8.31658 19.0991 7.68342 18.7086 7.29289L12.3446 0.928932C11.9541 0.538408 11.3209 0.538408 10.9304 0.928932C10.5399 1.31946 10.5399 1.95262 10.9304 2.34315L16.5873 8L10.9304 13.6569C10.5399 14.0474 10.5399 14.6805 10.9304 15.0711C11.3209 15.4616 11.9541 15.4616 12.3446 15.0711L18.7086 8.70711ZM0.00146484 9H18.0015V7H0.00146484V9Z"
+                  fill="white"
+                />
+              </svg>
+            </span>
+          </span>
+        </Button>
       </div>
     </section>
   );
@@ -608,18 +610,18 @@ function CTASection() {
         Choose the most convenient and transparent solution for your business!
       </h2>
       <p className="w-[598px] font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-8">
-        With Urlink you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
+        With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
       </p>
       <div className="mt-16 relative">
-        <Card className="w-[855px] h-[437px] bg-[#5e17eb] rounded-[40px] border shadow-ombra">
+        <Card className="w-[855px] h-fit bg-[#5e17eb] rounded-[40px] border shadow-ombra">
           <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb]">
             THE WISEST CHOICE
           </Badge>
-          <CardContent className="flex flex-col items-center pt-16">
+          <CardContent className="flex flex-col items-center pt-12">
             <h3 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px]">
               Account
             </h3>
-            <div className="flex flex-col items-center gap-2 mt-8">
+            <div className="flex flex-col items-center gap-2 mt-4">
               {pricingFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center">
                   <img className="w-3.5 h-2.5 mr-2" alt="Layer" src="/layer2.svg" />
@@ -629,10 +631,30 @@ function CTASection() {
                 </div>
               ))}
             </div>
-            <Button className="mt-16 bg-[#42c97a] text-white text-xl w-[445px]">
-              Create your account now
-            </Button>
-            <p className="font-normal text-[#f7f7f7] text-sm text-center tracking-[-0.14px] mt-4">
+            <div className="flex justify-center">
+              <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+                <span className="flex items-center">
+                  Create your free account now
+                  <span
+                    className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
+                  >
+                    <svg
+                      width="19"
+                      height="16"
+                      viewBox="0 0 19 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M18.7086 8.70711C19.0991 8.31658 19.0991 7.68342 18.7086 7.29289L12.3446 0.928932C11.9541 0.538408 11.3209 0.538408 10.9304 0.928932C10.5399 1.31946 10.5399 1.95262 10.9304 2.34315L16.5873 8L10.9304 13.6569C10.5399 14.0474 10.5399 14.6805 10.9304 15.0711C11.3209 15.4616 11.9541 15.4616 12.3446 15.0711L18.7086 8.70711ZM0.00146484 9H18.0015V7H0.00146484V9Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </span>
+                </span>
+              </Button>
+            </div>
+            <p className="text-[#f7f7f7] text-center tracking-[-0.04px] mt-4">
               Free forever. No hidden costs. Ever.
             </p>
           </CardContent>
@@ -644,31 +666,26 @@ function CTASection() {
 
 function FAQSection() {
   return (
-    <section className="mt-[100px] px-36">
-      <div className="mb-4">
-        <span className="font-semibold text-[#5e17eb] text-xl tracking-[-0.20px]">
-          FAQ
-        </span>
-        <p className="font-normal text-[#4e4e4e] text-xl tracking-[-0.20px] mt-2">
-          Also known as Frequently Asked Questions 🇮🇹
-        </p>
-      </div>
-      <h2 className="font-bold text-[#4e4e4e] text-[40px] tracking-[-0.40px] mt-8">
+    <section className="mt-[100px] px-[20vw]">
+      <span className="font-semibold text-[#5e17eb] text-xl tracking-[-0.20px]">
+        FAQ
+      </span>
+      <h2 className="font-bold text-[#4e4e4e] text-[40px] tracking-[-0.40px] mt-2">
         Frequently Asked Questions
       </h2>
-      <div className="mt-8">
-        <Accordion type="single" collapsible className="w-full">
+      <div className="mt-8 flex flex-col items-center">
+        <Accordion type="single" collapsible className="w-4/5">
           {faqData.map((faq, index) => (
             <AccordionItem
               key={index}
               value={`item-${index + 1}`}
               className="border-b border-[#e5e5e5]"
             >
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl flex justify-between">
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl flex justify-between hover:text-[#5e17eb]">
                 {faq.question}
               </AccordionTrigger>
               <AccordionContent className="text-[#4e4e4e] text-base">
-                Answer to question {index + 1}
+                {faq.answer}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -751,14 +768,14 @@ function FooterSection() {
         </div>
       </div>
       <div className="flex items-center mt-32">
-        <img className="w-8 h-8" alt="Img" src="/img-eb741659992c-1-1.png" />
+        <img className="w-8 h-8 rounded-full border-2 border-[#f7f7f7]" alt="Img" src="/img-eb741659992c-1-1.png" />
         <p className="ml-3 font-normal text-[#f7f7f7] text-sm tracking-[-0.14px]">
-          <span>Hi 👋 I am</span>
-          <span className="font-semibold underline"> Riccard</span>
+          <span>Hi 👋 I am{' '}</span>
+          <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
           <span>
-            o the creator of Urlink. Follow my other projects on
+            ,{' '}the creator of URLINK. Follow my other projects on{' '}
           </span>
-          <span className="font-semibold underline"> Instagram</span>
+          <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>Instagram</Link></span>
           <span>.</span>
         </p>
       </div>
@@ -775,19 +792,19 @@ export default function LpIta() {
         <HeroSection />
         <BenefitsSection />
         <ComparisonSection />
+        <TestimonialSection idx={0} />
         <VideoSection />
         <FeaturesSection />
         <TestimonialSection idx={0} />
         <DashboardPreviewSection />
         <div
-          className="mt-[260px]"
+          className="mt-[144px]"
         >
-          <TestimonialSection idx={1} />
         </div>
         <CTASection />
-        {/* <TestimonialSection idx={2} /> */}
+        <TestimonialSection idx={0} />
         <FAQSection />
-        {/* <TestimonialSection idx={3} /> */}
+        <TestimonialSection idx={0} />
         <FooterSection />
       </div>
     </div>
