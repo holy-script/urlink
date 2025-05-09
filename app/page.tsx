@@ -134,10 +134,7 @@ function HeaderSection() {
   return (
     <header className="flex justify-between items-center px-36">
       <div className="flex items-center">
-        <img className="w-12 h-12" alt="Group" src="/group-3.png" />
-        <span className="ml-4 font-['Verdana-Bold'] font-bold text-white text-[41px] tracking-[-0.41px]">
-          URLINK
-        </span>
+        <img className="" alt="Group" src="/urlinklogo-white.svg" />
       </div>
 
       <div className="flex items-center gap-4">
@@ -454,10 +451,7 @@ function ComparisonSection() {
           </div>
           <div className="w-[582px] bg-white rounded-[32px] shadow-lg flex flex-col justify-between p-10 pt-11">
             <div className="flex items-center h-[32px]">
-              <img className="w-[31px] h-[31px]" alt="Group" src="/group-3-1.png" />
-              <span className="ml-2 font-['Verdana-Bold'] font-bold text-[#5e17eb] text-[26.3px] tracking-[-0.26px]">
-                URLINK
-              </span>
+              <img className="w-36" alt="Group" src="/urlinklogo-purple.svg" />
             </div>
             {featureData.map((item, index) => (
               <React.Fragment key={index}>
@@ -774,13 +768,10 @@ function FooterSection() {
     <footer className="mt-[100px] bg-[#5e17eb] rounded-[40px_40px_0px_0px] py-16 px-36">
       <div className="flex justify-between items-start w-full">
         <div className="w-1/3">
-          <div className="flex items-center">
-            <img className="w-9 h-9" alt="Group" src="/group-3-3.png" />
-            <span className="ml-2 font-['Verdana-Bold'] font-bold text-[#f7f7f7] text-[30.8px] tracking-[-0.31px]">
-              URLINK
-            </span>
+          <div className="flex items-center -mt-10">
+            <img className="" alt="Group" src="/urlinklogo-white.svg" />
           </div>
-          <p className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px] mt-8">
+          <p className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
             The smart solution for your links. <br /> Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀
           </p>
         </div>
