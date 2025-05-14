@@ -433,68 +433,105 @@ function ComparisonSection() {
         <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-16">
           How does URLINK differ from competitors?
         </h2>
-        <div className="flex">
-          <div className="w-[396px] flex flex-col justify-between py-10">
-            <div className="font-bold text-transparent text-2xl">
-              Feature
-            </div>
-            {featureData.map((item, index) => (
-              <React.Fragment key={index}>
-                <Separator className="my-4" />
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold text-[#4e4e4e] text-xl leading-8">
-                    {item.feature}
-                  </span>
+        <table
+          className="w-full border-separate"
+          style={{ borderSpacing: 0, borderCollapse: "separate" }}
+        >
+          <thead>
+            <tr>
+              <th className="w-[396px] text-left pb-4 font-bold text-transparent text-2xl">
+                Feature
+              </th>
+              <th className="w-[582px] text-left pb-4 bg-white rounded-tl-[32px] rounded-tr-[32px]">
+                <div className="pl-10">
+                  <img
+                    className="w-36"
+                    alt="URLINK Logo"
+                    src="/urlinklogo-purple.svg"
+                  />
                 </div>
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="w-[582px] bg-white rounded-[32px] shadow-lg flex flex-col justify-between p-10 pt-11">
-            <div className="flex items-center h-[32px]">
-              <img className="w-36" alt="Group" src="/urlinklogo-purple.svg" />
-            </div>
-            {featureData.map((item, index) => (
-              <React.Fragment key={index}>
-                <Separator className="my-4" />
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold text-nero text-xl leading-8">
-                    {item.URLINK.split(" ")[0]}
-                  </span>
-                  <span className="font-normal text-[#4e4e4e] text-xl leading-8">
-                    {item.URLINK.split(" ").slice(1).join(" ")}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="w-[420px] flex flex-col justify-between py-10 ml-8">
-            <div className="font-bold text-[#4e4e4e] text-2xl text-left tracking-[-0.24px]">
-              Competitors
-            </div>
-            {featureData.map((item, index) => (
-              <React.Fragment key={index}>
-                <Separator className="my-4" />
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold text-nero text-xl leading-8">
-                    {item.competitors.split(" ")[0]}
-                  </span>
-                  <span className="font-normal text-[#4e4e4e] text-xl leading-8">
-                    {item.competitors.split(" ").slice(1).join(" ")}
-                  </span>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
+              </th>
+              <th className="w-[420px] text-left pb-4 pl-8 font-bold text-[#4e4e4e] text-2xl tracking-[-0.24px]">
+                Competitors
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {featureData.map((item, index) => {
+              const isFirst = index === 0;
+              const isLast = index === featureData.length - 1;
+              // Row divider color
+              const borderClass = isFirst
+                ? "border-t-2"
+                : "border-t";
+              const borderColor = isFirst
+                ? "border-[#5e17eb]"
+                : "border-gray-300";
+              // Only apply border-radius on the very first and last rows of the URLINK column (not on the purple divider row)
+              const urlinkTdStyle =
+                isLast
+                  ? {
+                    borderBottomLeftRadius: 32,
+                    borderBottomRightRadius: 32,
+                  }
+                  : {};
+              return (
+                <tr key={index}>
+                  {/* Feature */}
+                  <td className={`py-4 ${borderClass} ${borderColor}`}>
+                    <span className="font-semibold text-[#4e4e4e] text-xl leading-8">
+                      {item.feature}
+                    </span>
+                  </td>
+                  {/* URLINK (card column) */}
+                  <td
+                    className={`py-4 bg-white ${borderClass} ${borderColor}`}
+                    style={urlinkTdStyle}
+                  >
+                    <div className="pl-10 flex items-center gap-4">
+                      <span className="font-semibold text-nero text-xl leading-8">
+                        {item.URLINK.split(" ")[0]}
+                      </span>
+                      <span className="font-normal text-[#4e4e4e] text-xl leading-8 pr-2">
+                        {item.URLINK.split(" ").slice(1).join(" ")}
+                      </span>
+                    </div>
+                  </td>
+                  {/* Competitors */}
+                  <td className={`py-4 pl-8 ${borderClass} ${borderColor}`}>
+                    <span className="font-semibold text-nero text-xl leading-8">
+                      {item.competitors.split(" ")[0]}
+                    </span>
+                    <span className="font-normal text-[#4e4e4e] text-xl leading-8 px-2">
+                      {item.competitors.split(" ").slice(1).join(" ")}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            {/* Add a hidden row for the top rounded corners of the card */}
+            <tr>
+              <td></td>
+              <td
+                style={{
+                  borderTopLeftRadius: 32,
+                  borderTopRightRadius: 32,
+                }}
+              ></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
+
       <div className="flex justify-center mt-8">
         <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
               Create your free account now
-              <span
-                className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
-              >
+              <span className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4">
                 <svg
                   width="19"
                   height="16"
@@ -515,6 +552,7 @@ function ComparisonSection() {
     </section>
   );
 }
+
 
 function VideoSection() {
   return (
