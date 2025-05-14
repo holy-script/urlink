@@ -424,9 +424,12 @@ function BenefitsSection() {
         </div>
       </div>
       <div className="flex justify-center mt-16">
-        <span className="font-bold text-[#4e4e4e] text-8xl text-center tracking-[-0.96px]">
-          🫶
-        </span>
+        <Image
+          src={'/heart-hands_1faf6.png'}
+          alt="Heart Hands"
+          width={100}
+          height={100}
+        />
       </div>
       {/* <div className="flex justify-center mt-16">
         <Button className="bg-[#42c97a] text-white text-xl">
@@ -453,17 +456,19 @@ function ComparisonSection() {
               <th className="w-[396px] text-left pb-4 font-bold text-transparent text-2xl">
                 Feature
               </th>
-              <th className="w-[582px] text-left pb-4 bg-white rounded-tl-[32px] rounded-tr-[32px]">
-                <div className="pl-10">
+              <th className="w-[582px] text-left bg-white rounded-tl-[32px] rounded-tr-[32px]">
+                <div className="flex items-center w-full h-full justify-start">
                   <img
-                    className="w-36"
+                    className="w-36 ml-8"
                     alt="URLINK Logo"
                     src="/urlinklogo-purple.svg"
                   />
                 </div>
               </th>
               <th className="w-[420px] text-left pb-4 pl-8 font-bold text-[#4e4e4e] text-2xl tracking-[-0.24px]">
-                Competitors
+                <div className="flex items-center w-full h-full justify-start">
+                  Competitors
+                </div>
               </th>
             </tr>
           </thead>
