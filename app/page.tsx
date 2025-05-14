@@ -244,7 +244,7 @@ function UrlShortenerForm() {
             <h2 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px]">
               Paste your loooong link below.
             </h2>
-            <p className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-2">
+            <p className="font-light text-[#4e4e4e] text-lg text-center tracking-[-0.20px] mt-2">
               <span className="tracking-[-0.04px]">
                 We’ll shorten it for you.{" "}
               </span>
@@ -254,7 +254,7 @@ function UrlShortenerForm() {
 
             <div className="mt-8 w-full relative">
               <Input
-                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-bold"
+                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-normal"
                 placeholder="Paste here"
               />
               {/* <img
@@ -339,7 +339,7 @@ function HeroSection() {
               <p className="font-medium text-[#200062] text-sm tracking-[-0.14px]">
                 Best deeplink tool I’ve ever used. Well done 👏
               </p>
-              <p className="font-normal text-[#200062] text-sm">
+              <p className="font-light text-[#200062] text-sm">
                 Antonio M. - NoProb CEO
               </p>
             </div>
@@ -363,7 +363,7 @@ function HeroSection() {
           <span className="font-bold text-[#4e4e4e] text-8xl tracking-[-0.96px]">
             🚀
           </span>
-          <p className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px]">
+          <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px]">
             URLINK makes browsing faster and more effective with <br /> smart deeplinks,
             improving user experience, <br /> conversions, and marketing campaigns.
           </p>
@@ -388,7 +388,7 @@ function BenefitsSection() {
             <h3 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px] mt-4">
               {benefit.title}
             </h3>
-            <p className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4">
+            <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4">
               {benefit.description}
             </p>
           </div>
@@ -407,7 +407,7 @@ function BenefitsSection() {
           <h3 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px] mt-4">
             {benefitsData[3].title}
           </h3>
-          <p className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4 w-[420px]">
+          <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4 w-[420px]">
             {benefitsData[3].description}
           </p>
         </div>
@@ -492,7 +492,7 @@ function ComparisonSection() {
                       <span className="font-semibold text-nero text-xl leading-8">
                         {item.URLINK.split(" ")[0]}
                       </span>
-                      <span className="font-normal text-[#4e4e4e] text-xl leading-8 pr-2">
+                      <span className="font-light text-[#4e4e4e] text-xl leading-8 pr-2">
                         {item.URLINK.split(" ").slice(1).join(" ")}
                       </span>
                     </div>
@@ -502,7 +502,7 @@ function ComparisonSection() {
                     <span className="font-semibold text-nero text-xl leading-8">
                       {item.competitors.split(" ")[0]}
                     </span>
-                    <span className="font-normal text-[#4e4e4e] text-xl leading-8 px-2">
+                    <span className="font-light text-[#4e4e4e] text-xl leading-8 px-2">
                       {item.competitors.split(" ").slice(1).join(" ")}
                     </span>
                   </td>
@@ -580,7 +580,7 @@ function FeaturesSection() {
         <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-4">
           Why choose URLINK?
         </h2>
-        <div className="font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mb-12">
+        <div className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mb-12">
           Discover the exclusive benefits of URLINK with <br /> a smooth experience optimized for your digital <br /> marketing.
         </div>
       </div>
@@ -668,7 +668,7 @@ function DashboardPreviewSection() {
         <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px] pt-[103px]">
           Why choose URLINK?
         </h2>
-        <p className="w-[586px] font-normal text-[#f7f7f7] text-xl text-center tracking-[-0.20px] mx-auto mt-4">
+        <p className="w-[586px] font-light text-[#f7f7f7] text-xl text-center tracking-[-0.20px] mx-auto mt-4">
           Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.
         </p>
         <img
@@ -712,7 +712,7 @@ function CTASection() {
       <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] w-[856px]">
         Choose the most convenient and transparent solution for your business!
       </h2>
-      <p className="w-[598px] font-normal text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-8">
+      <p className="w-[598px] font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-8">
         With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
       </p>
       <div className="mt-16 relative">
@@ -728,7 +728,7 @@ function CTASection() {
               {pricingFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center">
                   <img className="w-3.5 h-2.5 mr-2" alt="Layer" src="/layer2.svg" />
-                  <span className="font-normal text-[#f7f7f7] text-xl text-center tracking-[-0.20px]">
+                  <span className="font-light text-[#f7f7f7] text-xl text-center tracking-[-0.20px]">
                     {feature}
                   </span>
                 </div>
@@ -808,7 +808,7 @@ function FooterSection() {
           <div className="flex items-center -mt-10">
             <img className="" alt="Group" src="/urlinklogo-white.svg" />
           </div>
-          <p className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+          <p className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
             The smart solution for your links. <br /> Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀
           </p>
         </div>
@@ -819,17 +819,17 @@ function FooterSection() {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Support
                 </a>
               </li>
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Affiliate
                 </a>
               </li>
@@ -841,17 +841,17 @@ function FooterSection() {
             </h3>
             <ul className="mt-4 space-y-4">
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Terms & Conditions
                 </a>
               </li>
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="#" className="font-normal text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
                   Cookie Policy
                 </a>
               </li>
@@ -898,7 +898,7 @@ function FooterSection() {
       </div>
       <div className="flex items-center mt-16">
         <img className="w-8 h-8 rounded-full" alt="Img" src="/img-eb741659992c-1-1.png" />
-        <p className="ml-3 font-normal text-[#f7f7f7] text-sm tracking-[-0.14px]">
+        <p className="ml-3 font-light text-[#f7f7f7] text-sm tracking-[-0.14px]">
           <span>Hi 👋 I am{' '}</span>
           <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
           <span>
