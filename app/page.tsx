@@ -238,7 +238,7 @@ function HeaderSection() {
 function UrlShortenerForm() {
   return (
     <div className="flex flex-col items-center mt-24">
-      <Card className="w-1/2 h-fit bg-white rounded-2xl shadow-ombra">
+      <Card className="w-1/2 h-fit bg-white rounded-2xl">
         <CardContent>
           <div className="flex flex-col items-center pt-12 px-8">
             <h2 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px]">
@@ -254,7 +254,7 @@ function UrlShortenerForm() {
 
             <div className="mt-8 w-full relative">
               <Input
-                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[#a9a9a9] border-2 border-[#f7f7f7] focus:border-[#5e17eb]"
+                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-bold"
                 placeholder="Paste here"
               />
               {/* <img
@@ -429,7 +429,7 @@ function BenefitsSection() {
 function ComparisonSection() {
   return (
     <section className="mt-[100px] px-36">
-      <div className="bg-[#f7f7f7] rounded-[32px] shadow-ombra p-10">
+      <div className="bg-[#f7f7f7] rounded-[32px] p-10">
         <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-16">
           How does URLINK differ from competitors?
         </h2>
@@ -552,7 +552,6 @@ function ComparisonSection() {
     </section>
   );
 }
-
 
 function VideoSection() {
   return (
@@ -717,7 +716,7 @@ function CTASection() {
         With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
       </p>
       <div className="mt-16 relative">
-        <Card className="w-[855px] h-fit bg-[#5e17eb] rounded-[40px] border shadow-ombra">
+        <Card className="w-[855px] h-fit bg-[#5e17eb] rounded-[40px] border">
           <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb]">
             THE WISEST CHOICE
           </Badge>

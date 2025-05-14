@@ -1,5 +1,5 @@
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import "./globals.css";
@@ -14,8 +14,13 @@ export const metadata = {
   description: "Create your deeplink now and start making $money🤑",
 };
 
-const geistSans = Geist({
-  display: "swap",
+// const geistSans = Geist({
+//   display: "swap",
+//   subsets: ["latin"],
+// });
+
+const poppins = Poppins({
+  weight: "600",
   subsets: ["latin"],
 });
 
@@ -25,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
+    <html lang="en" className={poppins.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"
