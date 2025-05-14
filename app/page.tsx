@@ -735,10 +735,10 @@ function CTASection() {
         With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
       </p>
       <div className="mt-16 relative">
-        <Card className="w-[855px] h-fit bg-[#5e17eb] rounded-[40px] border">
-          <Badge className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb]">
+        <Card className="w-[598px] h-fit bg-[#5e17eb] rounded-[40px] border">
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb]">
             THE WISEST CHOICE
-          </Badge>
+          </div>
           <CardContent className="flex flex-col items-center pt-12">
             <h3 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px]">
               Account
