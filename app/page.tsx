@@ -395,12 +395,23 @@ function BenefitsSection() {
         ))}
       </div>
       <div className="flex flex-col justify-center items-center mt-16">
-        <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-8">
-          <h2 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px]">
+        <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-8 rounded-full">
+          <h2 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px] px-4">
             Here’s a special tip for you
           </h2>
         </div>
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center relative">
+          <div className="absolute -top-4 left-0">
+            <svg width="31" height="109" viewBox="0 0 31 109" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30.4338 1.78853C30.8693 1.54893 31.0281 1.00166 30.7885 0.566165C30.5489 0.130669 30.0017 -0.0281353 29.5662 0.211465L30.4338 1.78853ZM30.3494 104.829C30.8075 104.636 31.0224 104.109 30.8294 103.651L27.6844 96.1861C27.4914 95.728 26.9636 95.5131 26.5055 95.7061C26.0475 95.8991 25.8326 96.4269 26.0256 96.885L28.8212 103.52L22.1861 106.316C21.728 106.509 21.5131 107.036 21.7061 107.494C21.8991 107.953 22.4269 108.167 22.8849 107.974L30.3494 104.829ZM29.5662 0.211465C13.7918 8.89017 2.24749 30.3063 0.369538 51.8053C-1.51306 73.3575 6.30313 95.324 29.6606 104.834L30.3394 103.166C7.94328 94.0483 0.324426 73.0069 2.16271 51.962C4.00563 30.864 15.3381 10.0939 30.4338 1.78853L29.5662 0.211465Z" fill="#5E17EB" />
+            </svg>
+
+          </div>
+          <div className="absolute -top-4 right-0">
+            <svg width="31" height="109" viewBox="0 0 31 109" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0.566166 1.78853C0.130671 1.54893 -0.0281334 1.00166 0.211466 0.566165C0.451067 0.130669 0.998341 -0.0281353 1.43384 0.211465L0.566166 1.78853ZM0.650553 104.829C0.192493 104.636 -0.0223827 104.109 0.170612 103.651L3.31565 96.1861C3.50864 95.728 4.03643 95.5131 4.49449 95.7061C4.95255 95.8991 5.16742 96.4269 4.97443 96.885L2.17884 103.52L8.81395 106.316C9.27201 106.509 9.48688 107.036 9.29389 107.494C9.10089 107.953 8.57311 108.167 8.11505 107.974L0.650553 104.829ZM1.43384 0.211465C17.2082 8.89017 28.7525 30.3063 30.6305 51.8053C32.5131 73.3575 24.6969 95.324 1.33937 104.834L0.660631 103.166C23.0567 94.0483 30.6756 73.0069 28.8373 51.962C26.9944 30.864 15.6619 10.0939 0.566166 1.78853L1.43384 0.211465Z" fill="#5E17EB" />
+            </svg>
+          </div>
           <span className="font-bold text-[#5e17eb] text-[40px] text-center tracking-[-0.40px]">
             4
           </span>
@@ -429,7 +440,7 @@ function BenefitsSection() {
 function ComparisonSection() {
   return (
     <section className="mt-[100px] px-36">
-      <div className="bg-[#f7f7f7] rounded-[32px] p-10">
+      <div className="bg-[#f7f7f7] rounded-[32px] p-10 shadow-md">
         <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-16">
           How does URLINK differ from competitors?
         </h2>
@@ -555,8 +566,16 @@ function ComparisonSection() {
 
 function VideoSection() {
   return (
-    <section className="mt-[100px] px-36 relative">
-      <div className="w-full max-w-[1178px] mx-auto">
+    <section className="mt-[100px] px-36">
+      <div className="max-w-[1178px] w-[70vw] mx-auto relative">
+        <div className="absolute top-20 -left-24">
+          <p className="font-normal text-black -ml-24">
+            Urlink in few minutes
+          </p>
+          <svg width="64" height="100" viewBox="0 0 64 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.38031 1.68638C4.48328 1.2001 4.17255 0.722425 3.68628 0.619452C3.20001 0.516479 2.72233 0.827204 2.61935 1.31348L4.38031 1.68638ZM63.7002 93.3785C64.046 93.0214 64.0368 92.4516 63.6796 92.1059L57.8603 86.4716C57.5032 86.1259 56.9334 86.1351 56.5876 86.4922C56.2419 86.8493 56.2511 87.4191 56.6082 87.7648L61.781 92.773L56.7728 97.9458C56.427 98.3029 56.4362 98.8727 56.7933 99.2184C57.1504 99.5642 57.7202 99.555 58.066 99.1979L63.7002 93.3785ZM2.61935 1.31348C-1.91787 22.7397 0.630946 45.9811 10.5936 63.8023C20.5798 81.6656 38.0112 94.0573 63.0682 93.6523L63.0391 91.8526C38.7023 92.2459 21.8569 80.2614 12.1647 62.9239C2.4489 45.5443 -0.0822958 22.7602 4.38031 1.68638L2.61935 1.31348Z" fill="#5E17EB" />
+          </svg>
+        </div>
         <iframe
           className="w-full h-[734px] rounded-[40px] border-[2px] border-solid border-[#5e17eb] shadow-md"
           style={{
