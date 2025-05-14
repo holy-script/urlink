@@ -688,7 +688,7 @@ function TestimonialSection({ idx }: { idx: number; }) {
 function DashboardPreviewSection() {
   return (
     <section className="mt-8 relative">
-      <div className="w-full h-[804px] rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
+      <div className="w-full h-fit rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
         <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px] pt-[103px]">
           Why choose URLINK?
         </h2>
@@ -700,7 +700,7 @@ function DashboardPreviewSection() {
           alt="Dashboard link"
           src="/dashboard---link-performance-1.png"
         />
-        <div className="mt-8 flex justify-center">
+        <div className="mt-12 flex justify-center">
           <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
             <Link href="/signup">
               <span className="flex items-center">
@@ -732,7 +732,7 @@ function DashboardPreviewSection() {
 
 function CTASection() {
   return (
-    <section className="mt-56 flex flex-col items-center">
+    <section className="mt-16 flex flex-col items-center">
       <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] w-[856px]">
         Choose the most convenient and transparent solution for your business!
       </h2>
@@ -944,10 +944,6 @@ export default function LpIta() {
         <FeaturesSection />
         <TestimonialSection idx={0} />
         <DashboardPreviewSection />
-        <div
-          className="mt-[144px]"
-        >
-        </div>
         <CTASection />
         <TestimonialSection idx={0} />
         <FAQSection />
