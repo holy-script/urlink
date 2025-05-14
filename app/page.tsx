@@ -138,7 +138,7 @@ function HeaderSection() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD]">
+        <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD] hover:text-white">
           FAQ
         </Button>
         <div className="relative">
@@ -220,7 +220,7 @@ function HeaderSection() {
             </SelectContent>
           </Select>
         </div>
-        <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl hover:bg-[#5418CD]">
+        <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl hover:bg-[#5418CD] hover:text-white">
           <Link href="/login">
             Login
           </Link>
