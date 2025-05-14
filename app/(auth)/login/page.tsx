@@ -100,7 +100,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex">
       {/* Left Column - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           <Link href="/" className="flex items-center gap-3 mb-12">
             <div className="h-12 w-12 rounded-md bg-[#5e17eb] flex items-center justify-center p-2">
               <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -190,78 +190,16 @@ export default function LoginPage() {
             <span className="text-[#5e17eb]">Sign In with Google</span>
           </Button>
           <p className="text-sm text-center text-gray-600 mt-8">
-            Don't have an account?{" "}
+            <Link href='/' className="text-[#5e17eb] hover:underline">
+              ← Back to homepage
+            </Link>
+            <span className="mx-4">
+              Don't have an account?
+            </span>
             <Link href="/signup" className="text-[#5e17eb] hover:underline">
               Sign Up for free
             </Link>
           </p>
-        </div>
-      </div>
-      {/* Right Column - Content */}
-      <div className="hidden lg:block w-[600px] bg-[#5e17eb] p-8 text-white">
-        <div className="h-full flex flex-col">
-          <div className="flex-1">
-            <h2 className="text-3xl font-bold mb-8">
-              Everything you need to grow your audience
-            </h2>
-            <ul className="space-y-6">
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-400/20 flex items-center justify-center mr-3">
-                  <Check className="w-4 h-4 text-green-400" />
-                </div>
-                <span>Track your links with real-time analytics</span>
-              </li>
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-400/20 flex items-center justify-center mr-3">
-                  <Check className="w-4 h-4 text-green-400" />
-                </div>
-                <span>Create custom QR codes for any platform</span>
-              </li>
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-400/20 flex items-center justify-center mr-3">
-                  <Check className="w-4 h-4 text-green-400" />
-                </div>
-                <span>Auto-redirect users to the right app</span>
-              </li>
-              <li className="flex items-center">
-                <div className="w-6 h-6 rounded-full bg-green-400/20 flex items-center justify-center mr-3">
-                  <Check className="w-4 h-4 text-green-400" />
-                </div>
-                <span>500 free clicks included</span>
-              </li>
-            </ul>
-          </div>
-          <div className="mt-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTestimonial}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4"
-              >
-                <p className="text-white/90 italic mb-4">
-                  "{testimonials[currentTestimonial].quote}"
-                </p>
-                <div className="flex items-center">
-                  <img
-                    src={testimonials[currentTestimonial].image}
-                    alt={testimonials[currentTestimonial].author}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="ml-3">
-                    <p className="font-medium">
-                      {testimonials[currentTestimonial].author}
-                    </p>
-                    <p className="text-sm text-white/75">
-                      {testimonials[currentTestimonial].role}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
         </div>
       </div>
     </div>

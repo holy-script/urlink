@@ -100,7 +100,7 @@ export default function SignupPage() {
     <div className="min-h-screen flex">
       {/* Left Column - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           <Link href="/" className="flex items-center gap-3 mb-12">
             <div className="h-12 w-12 rounded-md bg-[#5e17eb] flex items-center justify-center p-2">
               <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -225,9 +225,14 @@ export default function SignupPage() {
             <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5" />
             <span className="text-[#5e17eb]">Sign up with Google</span>
           </Button>
-          <p className="text-sm text-center text-gray-600 mt-8">
-            Already have an account?{" "}
-            <Link href="/login" className="text-[#5e17eb] hover:underline">
+          <p className="text-sm text-center text-gray-600 mt-8 pr-2">
+            <Link href='/' className="text-[#5e17eb] hover:underline">
+              ← Back to homepage
+            </Link>
+            <span className="mx-4">
+              Already have an account?
+            </span>
+            <Link href="/login" className="text-[#5e17eb] hover:underline pr-4">
               Sign in
             </Link>
           </p>

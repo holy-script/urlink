@@ -275,7 +275,7 @@ function UrlShortenerForm() {
 function HeroSection() {
   return (
     <section className="relative w-full h-[1489px]">
-      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_40px_40px] py-16">
+      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_40px_40px] py-8">
         <HeaderSection />
         <div className="mt-8">
           <h1 className="font-bold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px]">
@@ -566,7 +566,7 @@ function ComparisonSection() {
 
 function VideoSection() {
   return (
-    <section className="mt-[100px] px-36">
+    <section className="mt-16 px-36">
       <div className="max-w-[1178px] w-[70vw] mx-auto relative">
         <div className="absolute top-20 -left-24">
           <p className="font-normal text-black -ml-24">
@@ -649,7 +649,7 @@ function FeaturesSection() {
 function TestimonialSection({ idx }: { idx: number; }) {
   const t = testimonialData[idx];
   return (
-    <section className="mt-[144px] mb-[200px] flex justify-center px-6">
+    <section className="mt-16 mb-32 flex justify-center px-6">
       <div className="flex max-w-5xl items-start gap-10">
         {/* Image */}
         <img
@@ -682,7 +682,7 @@ function TestimonialSection({ idx }: { idx: number; }) {
 
 function DashboardPreviewSection() {
   return (
-    <section className="mt-[100px] relative">
+    <section className="mt-8 relative">
       <div className="w-full h-[804px] rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
         <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px] pt-[103px]">
           Why choose URLINK?
@@ -691,35 +691,35 @@ function DashboardPreviewSection() {
           Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.
         </p>
         <img
-          className="w-[80vw] mx-auto mt-[103px] object-cover"
+          className="w-[80vw] mx-auto mt-16 object-cover"
           alt="Dashboard link"
           src="/dashboard---link-performance-1.png"
         />
-      </div>
-      <div className="mt-[403px] flex justify-center">
-        <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
-          <Link href="/signup">
-            <span className="flex items-center">
-              Create your free account now
-              <span
-                className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
-              >
-                <svg
-                  width="19"
-                  height="16"
-                  viewBox="0 0 19 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+        <div className="mt-8 flex justify-center">
+          <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+            <Link href="/signup">
+              <span className="flex items-center">
+                Create your free account now
+                <span
+                  className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
                 >
-                  <path
-                    d="M18.7086 8.70711C19.0991 8.31658 19.0991 7.68342 18.7086 7.29289L12.3446 0.928932C11.9541 0.538408 11.3209 0.538408 10.9304 0.928932C10.5399 1.31946 10.5399 1.95262 10.9304 2.34315L16.5873 8L10.9304 13.6569C10.5399 14.0474 10.5399 14.6805 10.9304 15.0711C11.3209 15.4616 11.9541 15.4616 12.3446 15.0711L18.7086 8.70711ZM0.00146484 9H18.0015V7H0.00146484V9Z"
-                    fill="white"
-                  />
-                </svg>
+                  <svg
+                    width="19"
+                    height="16"
+                    viewBox="0 0 19 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18.7086 8.70711C19.0991 8.31658 19.0991 7.68342 18.7086 7.29289L12.3446 0.928932C11.9541 0.538408 11.3209 0.538408 10.9304 0.928932C10.5399 1.31946 10.5399 1.95262 10.9304 2.34315L16.5873 8L10.9304 13.6569C10.5399 14.0474 10.5399 14.6805 10.9304 15.0711C11.3209 15.4616 11.9541 15.4616 12.3446 15.0711L18.7086 8.70711ZM0.00146484 9H18.0015V7H0.00146484V9Z"
+                      fill="white"
+                    />
+                  </svg>
+                </span>
               </span>
-            </span>
-          </Link>
-        </Button>
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -727,7 +727,7 @@ function DashboardPreviewSection() {
 
 function CTASection() {
   return (
-    <section className="mt-[100px] flex flex-col items-center">
+    <section className="mt-56 flex flex-col items-center">
       <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] w-[856px]">
         Choose the most convenient and transparent solution for your business!
       </h2>
@@ -898,12 +898,6 @@ function FooterSection() {
                 </svg>
 
               </Link>
-              <Link href="https://www.youtube.com">
-                <svg width="36" height="25" viewBox="0 0 36 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M34.594 3.83591C34.1907 2.32908 33.0064 1.14493 31.4996 0.741573C28.7713 0.00976584 17.8257 0.00976562 17.8257 0.00976562C17.8257 0.00976562 6.88037 0.00976584 4.15194 0.741573C2.64512 1.14493 1.46097 2.32908 1.05761 3.83591C0.325806 6.56433 0.325806 12.2603 0.325806 12.2603C0.325806 12.2603 0.325806 17.9564 1.05761 20.6848C1.46097 22.1916 2.64512 23.3758 4.15194 23.7791C6.88037 24.5109 17.8257 24.5109 17.8257 24.5109C17.8257 24.5109 28.7713 24.5109 31.4996 23.7791C33.0064 23.3758 34.1907 22.1916 34.594 20.6848C35.3258 17.9564 35.3258 12.2603 35.3258 12.2603C35.3258 12.2603 35.3229 6.56433 34.594 3.83591Z" fill="#F7F7F7" />
-                  <path d="M14.3229 17.5105L23.4157 12.2612L14.3229 7.01172V17.5105Z" fill="#5E17EB" />
-                </svg>
-              </Link>
               <Link href="https://www.tiktok.com">
                 <svg width="21" height="24" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6.39173 12.1265C4.57698 12.1265 3.07898 13.6327 3.07898 15.4475C3.07898 16.711 3.81748 17.8088 4.86515 18.36C4.4749 17.8193 4.24215 17.1572 4.24215 16.4409C4.24215 14.6261 5.71856 13.1497 7.53331 13.1497C7.87223 13.1497 8.19715 13.2057 8.50456 13.302V9.30496C8.18665 9.26179 7.86348 9.23438 7.53331 9.23438C7.47615 9.23438 7.42015 9.23729 7.36298 9.23846H7.34781L7.33731 12.2648C7.0299 12.1685 6.73065 12.126 6.39173 12.126V12.1265Z" fill="#F7F7F7" />
@@ -919,7 +913,7 @@ function FooterSection() {
         <img className="w-8 h-8 rounded-full" alt="Img" src="/img-eb741659992c-1-1.png" />
         <p className="ml-3 font-light text-[#f7f7f7] text-sm tracking-[-0.14px]">
           <span>Hi 👋 I am{' '}</span>
-          <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
+          <span className="font-semibold"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
           <span>
             ,{' '}the creator of URLINK. Follow my other projects on{' '}
           </span>
