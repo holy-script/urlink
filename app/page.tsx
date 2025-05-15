@@ -1,26 +1,17 @@
-import React from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { SignupModal } from "@/components/SignupModal";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,7 +144,9 @@ function HeaderSection() {
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-4">
         <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD] hover:text-white">
-          FAQ
+          <Link href="#faq">
+            FAQ
+          </Link>
         </Button>
         <div className="relative">
           <LanguageSelect />
@@ -181,7 +174,9 @@ function HeaderSection() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 bg-[#5e17eb] text-white border-white">
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              FAQ
+              <Link href="#faq" className="w-full">
+                FAQ
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
               <Link href="/login" className="w-full">
@@ -754,7 +749,7 @@ function CTASection() {
 
 function FAQSection() {
   return (
-    <section className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
+    <section id="faq" className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
       <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
         FAQ
       </span>
