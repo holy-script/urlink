@@ -1,4 +1,4 @@
-import React, { JSX } from "react";
+import React from "react";
 import {
   Accordion,
   AccordionContent,
@@ -12,9 +12,22 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Menu } from "lucide-react";
 import { SignupModal } from "@/components/SignupModal";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LanguageSelect } from "@/components/LanguageSelect";
 
 const featureData = [
   {
@@ -86,7 +99,7 @@ const faqData = [
 
 const testimonialData = [
   {
-    highlighted: "Finally a deeplink service that doesn’t force you into a fixed subscription!",
+    highlighted: "Finally a deeplink service that doesn't force you into a fixed subscription!",
     content: " With Urlink, I can manage my links smartly and only pay for actual clicks. The free UTM management is an incredible added value!",
     author: "Marco R.",
     image: "/image-2.png"
@@ -132,93 +145,18 @@ const pricingFeatures = [
 
 function HeaderSection() {
   return (
-    <header className="flex justify-between items-center px-36">
+    <header className="flex justify-between items-center px-4 sm:px-8 md:px-16 lg:px-36 py-4">
       <div className="flex items-center">
-        <img className="" alt="Group" src="/urlinklogo-white.svg" />
+        <img className="h-16 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Desktop Navigation */}
+      <div className="hidden md:flex items-center gap-4">
         <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD] hover:text-white">
           FAQ
         </Button>
         <div className="relative">
-          <Select>
-            <SelectTrigger className="bg-[#5e17eb] rounded-lg text-white text-xl flex items-center gap-2 w-[100px] h-[50px] pl-4 pr-2 focus:ring-0">
-              <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13.0001 25C16.5568 25 19.4401 19.6274 19.4401 13C19.4401 6.37258 16.5568 1 13.0001 1C9.44334 1 6.56006 6.37258 6.56006 13C6.56006 19.6274 9.44334 25 13.0001 25Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M2 17.8H24M2 8.2H24M13 1V25" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M13 25C19.6274 25 25 19.6274 25 13C25 6.37258 19.6274 1 13 1C6.37258 1 1 6.37258 1 13C1 19.6274 6.37258 25 13 25Z" stroke="white" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <SelectValue placeholder="EN" />
-              <span className="absolute right-0">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M4.66699 6.66699L8.00033 10.0003L11.3337 6.66699" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl shadow-lg mt-2 bg-white p-2 z-30">
-              <SelectItem
-                value="EN"
-                className="flex items-center px-2 py-1 text-[#4f4f4f] data-[highlighted]:bg-[#f7f7f7] data-[highlighted]:text-[#5e17eb] rounded-md gap-14 transition-all duration-200 data-[highlighted]:bg-[rgb(94,23,235,0.15)]"
-              >
-                <div className="flex items-center gap-2 text-xl">
-                  <span className="font-bold text-inherit">EN</span>
-                  <span className="text-inherit">- English</span>
-                </div>
-                <span className="ml-auto text-inherit">
-                  <Check size={16} />
-                </span>
-              </SelectItem>
-              <SelectItem
-                value="IT"
-                className="flex items-center px-2 py-1 text-[#4f4f4f] data-[highlighted]:bg-[#f7f7f7] data-[highlighted]:text-[#5e17eb] rounded-md gap-14 transition-all duration-200 data-[highlighted]:bg-[rgb(94,23,235,0.15)]"
-              >
-                <div className="flex items-center gap-2 text-xl">
-                  <span className="font-bold text-inherit">IT</span>
-                  <span className="text-inherit">- Italian</span>
-                </div>
-                <span className="ml-auto text-inherit">
-                  <Check size={16} />
-                </span>
-              </SelectItem>
-              <SelectItem
-                value="DE"
-                className="flex items-center px-2 py-1 text-[#4f4f4f] data-[highlighted]:bg-[#f7f7f7] data-[highlighted]:text-[#5e17eb] rounded-md gap-14 transition-all duration-200 data-[highlighted]:bg-[rgb(94,23,235,0.15)]"
-              >
-                <div className="flex items-center gap-2 text-xl">
-                  <span className="font-bold text-inherit">DE</span>
-                  <span className="text-inherit">- German</span>
-                </div>
-                <span className="ml-auto text-inherit">
-                  <Check size={16} />
-                </span>
-              </SelectItem>
-              <SelectItem
-                value="FR"
-                className="flex items-center px-2 py-1 text-[#4f4f4f] data-[highlighted]:bg-[#f7f7f7] data-[highlighted]:text-[#5e17eb] rounded-md gap-14 transition-all duration-200 data-[highlighted]:bg-[rgb(94,23,235,0.15)]"
-              >
-                <div className="flex items-center gap-2 text-xl">
-                  <span className="font-bold text-inherit">FR</span>
-                  <span className="text-inherit">- French</span>
-                </div>
-                <span className="ml-auto text-inherit">
-                  <Check size={16} />
-                </span>
-              </SelectItem>
-              <SelectItem
-                value="ES"
-                className="flex items-center px-2 py-1 text-[#4f4f4f] data-[highlighted]:bg-[#f7f7f7] data-[highlighted]:text-[#5e17eb] rounded-md gap-14 transition-all duration-200 data-[highlighted]:bg-[rgb(94,23,235,0.15)]"
-              >
-                <div className="flex items-center gap-2 text-xl">
-                  <span className="font-bold text-inherit">ES</span>
-                  <span className="text-inherit">- Spanish</span>
-                </div>
-                <span className="ml-auto text-inherit">
-                  <Check size={16} />
-                </span>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <LanguageSelect />
         </div>
         <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl hover:bg-[#5418CD] hover:text-white">
           <Link href="/login">
@@ -231,37 +169,59 @@ function HeaderSection() {
           </Link>
         </Button>
       </div>
-    </header >
+
+      {/* Mobile Hamburger Menu */}
+      <div className="md:hidden flex items-center gap-4">
+        <LanguageSelect />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-white">
+              <Menu size={24} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 bg-[#5e17eb] text-white border-white">
+            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
+              FAQ
+            </DropdownMenuItem>
+            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
+              <Link href="/login" className="w-full">
+                Login
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
+              <Link href="/signup" className="w-full">
+                Register free
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
   );
 }
 
 function UrlShortenerForm() {
   return (
-    <div className="flex flex-col items-center mt-24">
-      <Card className="w-1/2 h-fit bg-white rounded-2xl">
+    <div className="flex flex-col items-center mt-8 md:mt-24 px-4">
+      <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
-          <div className="flex flex-col items-center pt-12 px-8">
-            <h2 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px]">
+          <div className="flex flex-col items-center pt-8 md:pt-12 px-4 md:px-8">
+            <h2 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px]">
               Paste your loooong link below.
             </h2>
-            <p className="font-light text-[#4e4e4e] text-lg text-center tracking-[-0.20px] mt-2">
+            <p className="font-light text-[#4e4e4e] text-base md:text-lg text-center tracking-[-0.20px] mt-2">
               <span className="tracking-[-0.04px]">
-                We’ll shorten it for you.{" "}
+                We'll shorten it for you.{" "}
               </span>
               <span className="tracking-[-0.04px] underline">Free</span>
               <span className="tracking-[-0.04px]">.</span>
             </p>
 
-            <div className="mt-8 w-full relative">
+            <div className="mt-6 md:mt-8 w-full relative">
               <Input
-                className="h-[72px] bg-[#f7f7f7] rounded-2xl pl-10 text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-normal"
+                className="h-[60px] md:h-[72px] bg-[#f7f7f7] rounded-2xl pl-6 md:pl-10 text-lg md:text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-normal"
                 placeholder="Paste here"
               />
-              {/* <img
-                className="absolute w-px h-10 top-4 left-5 object-cover"
-                alt="Line"
-                src="/line-1.svg"
-              /> */}
             </div>
 
             <SignupModal />
@@ -274,11 +234,11 @@ function UrlShortenerForm() {
 
 function HeroSection() {
   return (
-    <section className="relative w-full h-[1489px]">
-      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_40px_40px] py-8">
+    <section className="relative w-full h-fit overflow-hidden">
+      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-4 md:py-8">
         <HeaderSection />
-        <div className="mt-8">
-          <h1 className="font-bold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px]">
+        <div className="mt-4 md:mt-8 px-4">
+          <h1 className="font-bold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px]">
             <div>
               Create your deeplink now and
             </div>
@@ -300,16 +260,16 @@ function HeroSection() {
           </h1>
         </div>
         <UrlShortenerForm />
-        <div className="mt-10">
-          <p className="font-semibold text-white text-xl text-center tracking-[-0.20px]">
+        <div className="mt-6 md:mt-10 px-4">
+          <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
             Sign up for free and get:
           </p>
-          <div className="flex items-center justify-center gap-6 mt-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mt-4">
             <div className="flex items-center">
               <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
                 <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
               </div>
-              <span className="ml-2 font-light text-white text-xl">
+              <span className="ml-2 font-light text-white text-lg md:text-xl">
                 Unlimited links
               </span>
             </div>
@@ -317,7 +277,7 @@ function HeroSection() {
               <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
                 <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
               </div>
-              <span className="ml-2 font-light text-white text-xl">
+              <span className="ml-2 font-light text-white text-lg md:text-xl">
                 500 free clicks
               </span>
             </div>
@@ -325,49 +285,49 @@ function HeroSection() {
               <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
                 <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
               </div>
-              <span className="ml-2 font-light text-white text-xl">
+              <span className="ml-2 font-light text-white text-lg md:text-xl">
                 UTMs included
               </span>
             </div>
           </div>
         </div>
-        <div className="mt-10 w-full flex flex-col justify-center items-center">
+        <div className="mt-8 md:mt-10 w-full flex flex-col justify-center items-center px-4">
           <Image width={14} height={7} className="w-[14px] h-[7px]" alt="Vector" src="/vector-6.svg" />
-          <div className="inline-flex items-center gap-3 pl-1 pr-4 py-1 bg-[#f7f7f7] rounded-[56px] w-fit mt-2">
-            <Image width={48} height={48} className="w-12 h-12 object-cover rounded-full" alt="Image" src="/image.png" />
-            <div>
-              <p className="font-medium text-[#200062] text-sm tracking-[-0.14px]">
-                Best deeplink tool I’ve ever used. Well done 👏
+          <div className="inline-flex items-center gap-3 pl-1 pr-4 py-1 bg-[#f7f7f7] rounded-[56px] w-fit mt-2 max-w-full">
+            <Image width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full" alt="Image" src="/image.png" />
+            <div className="overflow-hidden">
+              <p className="font-medium text-[#200062] text-xs md:text-sm tracking-[-0.14px] truncate">
+                Best deeplink tool I've ever used. Well done 👏
               </p>
-              <p className="font-light text-[#200062] text-sm">
+              <p className="font-light text-[#200062] text-xs md:text-sm truncate">
                 Antonio M. - NoProb CEO
               </p>
             </div>
           </div>
         </div>
-        <div className="flex justify-between items-center w-full mt-14 px-36">
-          <img className="h-8" alt="Group" src="/group-12.png" />
-          <img className="h-8" alt="Group" src="/group-14.png" />
-          <img className="h-12" alt="Group" src="/group-16.png" />
-          <img className="h-8" alt="Group" src="/group-13.png" />
-          <img className="h-10" alt="Group" src="/group-15.png" />
-          <img className="h-8" alt="Group" src="/group-17.png" />
+        <div className="flex flex-wrap justify-center md:justify-between items-center w-full mt-8 md:mt-14 px-4 md:px-8 lg:px-36 gap-4">
+          <img className="h-6 md:h-8" alt="Group" src="/group-12.png" />
+          <img className="h-6 md:h-8" alt="Group" src="/group-14.png" />
+          <img className="h-8 md:h-12" alt="Group" src="/group-16.png" />
+          <img className="h-6 md:h-8" alt="Group" src="/group-13.png" />
+          <img className="h-8 md:h-10" alt="Group" src="/group-15.png" />
+          <img className="h-6 md:h-8" alt="Group" src="/group-17.png" />
         </div>
       </div>
       {/* Floating callout text and emoji */}
-      <div className="flex flex-col">
-        <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mt-24">
-          Ok, but what are the <br /> benefits of URLINK?
+      <div className="flex flex-col px-4">
+        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-12 md:mt-24">
+          Ok, but what are the <br className="md:block hidden" /> benefits of URLINK?
         </h2>
-        <div className="flex flex-row items-center justify-evenly mt-12">
-          <span className="font-bold text-[#4e4e4e] text-8xl tracking-[-0.96px]">
+        <div className="flex flex-col md:flex-row items-center justify-evenly mt-8 md:mt-12 gap-6">
+          <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px]">
             🚀
           </span>
-          <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px]">
-            URLINK makes browsing faster and more effective with <br /> smart deeplinks,
-            improving user experience, <br /> conversions, and marketing campaigns.
+          <p className="font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px]">
+            URLINK makes browsing faster and more effective with <br className="hidden md:block" /> smart deeplinks,
+            improving user experience, <br className="hidden md:block" /> conversions, and marketing campaigns.
           </p>
-          <span className="font-bold text-[#4e4e4e] text-8xl tracking-[-0.96px]">
+          <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px] hidden md:block">
             🤯
           </span>
         </div>
@@ -378,172 +338,169 @@ function HeroSection() {
 
 function BenefitsSection() {
   return (
-    <section className="relative mt-14 px-36">
-      <div className="grid grid-cols-3 gap-16 mt-16">
+    <section className="relative mt-8 md:mt-14 px-4 sm:px-8 md:px-16 lg:px-36">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-16 mt-8 md:mt-16">
         {benefitsData.slice(0, 3).map((benefit) => (
           <div key={benefit.id} className="flex flex-col items-center">
-            <span className="font-bold text-[#5e17eb] text-[40px] text-center tracking-[-0.40px]">
+            <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
               {benefit.id}
             </span>
-            <h3 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px] mt-4">
+            <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
               {benefit.title}
             </h3>
-            <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4">
+            <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4">
               {benefit.description}
             </p>
           </div>
         ))}
       </div>
-      <div className="flex flex-col justify-center items-center mt-16">
-        <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-8 rounded-full">
-          <h2 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px] px-4">
-            Here’s a special tip for you
+      <div className="flex flex-col justify-center items-center mt-12 md:mt-16">
+        <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-6 md:mb-8 rounded-full">
+          <h2 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px] px-4">
+            Here's a special tip for you
           </h2>
         </div>
         <div className="flex flex-col items-center relative">
-          <div className="absolute -top-4 left-0">
+          <div className="absolute -top-4 left-0 hidden md:block">
             <svg width="31" height="109" viewBox="0 0 31 109" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M30.4338 1.78853C30.8693 1.54893 31.0281 1.00166 30.7885 0.566165C30.5489 0.130669 30.0017 -0.0281353 29.5662 0.211465L30.4338 1.78853ZM30.3494 104.829C30.8075 104.636 31.0224 104.109 30.8294 103.651L27.6844 96.1861C27.4914 95.728 26.9636 95.5131 26.5055 95.7061C26.0475 95.8991 25.8326 96.4269 26.0256 96.885L28.8212 103.52L22.1861 106.316C21.728 106.509 21.5131 107.036 21.7061 107.494C21.8991 107.953 22.4269 108.167 22.8849 107.974L30.3494 104.829ZM29.5662 0.211465C13.7918 8.89017 2.24749 30.3063 0.369538 51.8053C-1.51306 73.3575 6.30313 95.324 29.6606 104.834L30.3394 103.166C7.94328 94.0483 0.324426 73.0069 2.16271 51.962C4.00563 30.864 15.3381 10.0939 30.4338 1.78853L29.5662 0.211465Z" fill="#5E17EB" />
             </svg>
-
           </div>
-          <div className="absolute -top-4 right-0">
+          <div className="absolute -top-4 right-0 hidden md:block">
             <svg width="31" height="109" viewBox="0 0 31 109" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M0.566166 1.78853C0.130671 1.54893 -0.0281334 1.00166 0.211466 0.566165C0.451067 0.130669 0.998341 -0.0281353 1.43384 0.211465L0.566166 1.78853ZM0.650553 104.829C0.192493 104.636 -0.0223827 104.109 0.170612 103.651L3.31565 96.1861C3.50864 95.728 4.03643 95.5131 4.49449 95.7061C4.95255 95.8991 5.16742 96.4269 4.97443 96.885L2.17884 103.52L8.81395 106.316C9.27201 106.509 9.48688 107.036 9.29389 107.494C9.10089 107.953 8.57311 108.167 8.11505 107.974L0.650553 104.829ZM1.43384 0.211465C17.2082 8.89017 28.7525 30.3063 30.6305 51.8053C32.5131 73.3575 24.6969 95.324 1.33937 104.834L0.660631 103.166C23.0567 94.0483 30.6756 73.0069 28.8373 51.962C26.9944 30.864 15.6619 10.0939 0.566166 1.78853L1.43384 0.211465Z" fill="#5E17EB" />
             </svg>
           </div>
-          <span className="font-bold text-[#5e17eb] text-[40px] text-center tracking-[-0.40px]">
+          <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
             4
           </span>
-          <h3 className="font-bold text-[#4e4e4e] text-2xl text-center tracking-[-0.24px] mt-4">
+          <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
             {benefitsData[3].title}
           </h3>
-          <p className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-4 w-[420px]">
+          <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
             {benefitsData[3].description}
           </p>
         </div>
       </div>
-      <div className="flex justify-center mt-16">
+      <div className="flex justify-center mt-12 md:mt-16">
         <Image
           src={'/heart-hands_1faf6.png'}
           alt="Heart Hands"
-          width={100}
-          height={100}
+          width={80}
+          height={80}
+          className="w-20 h-20 md:w-[100px] md:h-[100px]"
         />
       </div>
-      {/* <div className="flex justify-center mt-16">
-        <Button className="bg-[#42c97a] text-white text-xl">
-          Create your free account now
-        </Button>
-      </div> */}
     </section>
   );
 }
 
 function ComparisonSection() {
   return (
-    <section className="mt-[100px] px-36">
-      <div className="bg-[#f7f7f7] rounded-[32px] p-10 shadow-md">
-        <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-16">
+    <section className="mt-8 md:mt-12 px-4 sm:px-8 md:px-16 lg:px-36">
+      <div className="bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] p-4 md:p-10 shadow-md">
+        <h2 className="font-extrabold text-[#5e17eb] text-2xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-8 md:mb-16">
           How does URLINK differ from competitors?
         </h2>
-        <table
-          className="w-full border-separate"
-          style={{ borderSpacing: 0, borderCollapse: "separate" }}
-        >
-          <thead>
-            <tr>
-              <th className="w-[396px] text-left pb-4 font-bold text-transparent text-2xl">
-                Feature
-              </th>
-              <th className="w-[582px] text-left bg-white rounded-tl-[32px] rounded-tr-[32px]">
-                <div className="flex items-center w-full h-full justify-start">
-                  <img
-                    className="w-36 ml-8"
-                    alt="URLINK Logo"
-                    src="/urlinklogo-purple.svg"
-                  />
-                </div>
-              </th>
-              <th className="w-[420px] text-left pb-4 pl-8 font-bold text-[#4e4e4e] text-2xl tracking-[-0.24px]">
-                <div className="flex items-center w-full h-full justify-start">
-                  Competitors
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {featureData.map((item, index) => {
-              const isFirst = index === 0;
-              const isLast = index === featureData.length - 1;
-              // Row divider color
-              const borderClass = isFirst
-                ? "border-t-2"
-                : "border-t";
-              const borderColor = isFirst
-                ? "border-[#5e17eb]"
-                : "border-gray-300";
-              // Only apply border-radius on the very first and last rows of the URLINK column (not on the purple divider row)
-              const urlinkTdStyle =
-                isLast
-                  ? {
-                    borderBottomLeftRadius: 32,
-                    borderBottomRightRadius: 32,
-                  }
-                  : {};
-              return (
-                <tr key={index}>
-                  {/* Feature */}
-                  <td className={`py-4 ${borderClass} ${borderColor}`}>
-                    <span className="font-semibold text-[#4e4e4e] text-xl leading-8">
-                      {item.feature}
-                    </span>
-                  </td>
-                  {/* URLINK (card column) */}
-                  <td
-                    className={`py-4 bg-white ${borderClass} ${borderColor}`}
-                    style={urlinkTdStyle}
-                  >
-                    <div className="pl-10 flex items-center gap-4">
-                      <span className="font-semibold text-nero text-xl leading-8">
-                        {item.URLINK.split(" ")[0]}
+        <div className="overflow-x-auto">
+          <table
+            className="w-full border-separate min-w-[600px]"
+            style={{ borderSpacing: 0, borderCollapse: "separate" }}
+          >
+            <thead>
+              <tr>
+                <th className="w-[396px] text-left pb-4 font-bold text-transparent text-2xl">
+                  Feature
+                </th>
+                <th className="w-[582px] text-left bg-white rounded-tl-[16px] md:rounded-tl-[32px] rounded-tr-[16px] md:rounded-tr-[32px]">
+                  <div className="flex items-center w-full h-full justify-start">
+                    <img
+                      className="w-24 md:w-36 ml-4 md:ml-8"
+                      alt="URLINK Logo"
+                      src="/urlinklogo-purple.svg"
+                    />
+                  </div>
+                </th>
+                <th className="w-[420px] text-left pb-4 pl-4 md:pl-8 font-bold text-[#4e4e4e] text-lg md:text-2xl tracking-[-0.24px]">
+                  <div className="flex items-center w-full h-full justify-start">
+                    Competitors
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {featureData.map((item, index) => {
+                const isFirst = index === 0;
+                const isLast = index === featureData.length - 1;
+                // Row divider color
+                const borderClass = isFirst
+                  ? "border-t-2"
+                  : "border-t";
+                const borderColor = isFirst
+                  ? "border-[#5e17eb]"
+                  : "border-gray-300";
+                // Only apply border-radius on the very first and last rows of the URLINK column (not on the purple divider row)
+                const urlinkTdStyle =
+                  isLast
+                    ? {
+                      borderBottomLeftRadius: 16,
+                      borderBottomRightRadius: 16,
+                    }
+                    : {};
+                return (
+                  <tr key={index}>
+                    {/* Feature */}
+                    <td className={`py-3 md:py-4 ${borderClass} ${borderColor}`}>
+                      <span className="font-semibold text-[#4e4e4e] text-base md:text-xl leading-8">
+                        {item.feature}
                       </span>
-                      <span className="font-light text-[#4e4e4e] text-xl leading-8 pr-2">
-                        {item.URLINK.split(" ").slice(1).join(" ")}
+                    </td>
+                    {/* URLINK (card column) */}
+                    <td
+                      className={`py-3 md:py-4 bg-white ${borderClass} ${borderColor}`}
+                      style={urlinkTdStyle}
+                    >
+                      <div className="pl-4 md:pl-10 flex items-center gap-2 md:gap-4">
+                        <span className="font-semibold text-nero text-base md:text-xl leading-8">
+                          {item.URLINK.split(" ")[0]}
+                        </span>
+                        <span className="font-light text-[#4e4e4e] text-base md:text-xl leading-8 pr-2">
+                          {item.URLINK.split(" ").slice(1).join(" ")}
+                        </span>
+                      </div>
+                    </td>
+                    {/* Competitors */}
+                    <td className={`py-3 md:py-4 pl-4 md:pl-8 ${borderClass} ${borderColor}`}>
+                      <span className="font-semibold text-nero text-base md:text-xl leading-8">
+                        {item.competitors.split(" ")[0]}
                       </span>
-                    </div>
-                  </td>
-                  {/* Competitors */}
-                  <td className={`py-4 pl-8 ${borderClass} ${borderColor}`}>
-                    <span className="font-semibold text-nero text-xl leading-8">
-                      {item.competitors.split(" ")[0]}
-                    </span>
-                    <span className="font-light text-[#4e4e4e] text-xl leading-8 px-2">
-                      {item.competitors.split(" ").slice(1).join(" ")}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-          <tfoot>
-            {/* Add a hidden row for the top rounded corners of the card */}
-            <tr>
-              <td></td>
-              <td
-                style={{
-                  borderTopLeftRadius: 32,
-                  borderTopRightRadius: 32,
-                }}
-              ></td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
+                      <span className="font-light text-[#4e4e4e] text-base md:text-xl leading-8 px-2">
+                        {item.competitors.split(" ").slice(1).join(" ")}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+            <tfoot>
+              {/* Add a hidden row for the top rounded corners of the card */}
+              <tr>
+                <td></td>
+                <td
+                  style={{
+                    borderTopLeftRadius: 16,
+                    borderTopRightRadius: 16,
+                  }}
+                ></td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
       <div className="flex justify-center mt-8">
-        <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+        <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
               Create your free account now
@@ -571,9 +528,9 @@ function ComparisonSection() {
 
 function VideoSection() {
   return (
-    <section className="mt-16 px-36">
-      <div className="max-w-[1178px] w-[70vw] mx-auto relative">
-        <div className="absolute top-20 -left-24">
+    <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
+      <div className="w-full mx-auto relative">
+        <div className="absolute top-8 md:top-20 -left-8 md:left-32 hidden md:block">
           <p className="font-normal text-black -ml-24">
             Urlink in few minutes
           </p>
@@ -582,10 +539,13 @@ function VideoSection() {
           </svg>
         </div>
         <iframe
-          className="w-full h-[734px] rounded-[40px] border-[2px] border-solid border-[#5e17eb] shadow-md"
+          className="mx-auto block rounded-[20px] md:rounded-[40px] border-[2px] border-solid border-[#5e17eb] shadow-md"
           style={{
             border: "2px solid #5e17eb",
-            boxShadow: "0 0 0 16px #f7f7f7",
+            boxShadow: "0 0 0 8px #f7f7f7",
+            width: "100%",
+            maxWidth: "min(90%, 1000px)",
+            aspectRatio: "16/9"
           }}
           src="https://www.youtube.com/embed/23ZUf8QFHxY"
           title="URLINK in 3 minutes"
@@ -599,20 +559,20 @@ function VideoSection() {
 
 function FeaturesSection() {
   return (
-    <section className="mt-[100px] px-36">
+    <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
       <div>
-        <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] mb-4">
+        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-4">
           Why choose URLINK?
         </h2>
-        <div className="font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mb-12">
-          Discover the exclusive benefits of URLINK with <br /> a smooth experience optimized for your digital <br /> marketing.
+        <div className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mb-8 md:mb-12">
+          Discover the exclusive benefits of URLINK with <br className="hidden md:block" /> a smooth experience optimized for your digital <br className="hidden md:block" /> marketing.
         </div>
       </div>
-      <div className="flex gap-16">
-        <div className="w-1/2">
+      <div className="flex flex-col md:flex-row gap-8 md:gap-16">
+        <div className="w-full md:w-1/2">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl">
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
                 1. 💰 Pay only for clicks
               </AccordionTrigger>
               <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
@@ -621,7 +581,7 @@ function FeaturesSection() {
             </AccordionItem>
             <Separator className="my-2" />
             <AccordionItem value="item-2" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl">
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
                 2. 📊 Free UTMs & advanced tracking
               </AccordionTrigger>
               <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
@@ -630,7 +590,7 @@ function FeaturesSection() {
             </AccordionItem>
             <Separator className="my-2" />
             <AccordionItem value="item-3" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl">
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
                 3. ⚡ Intuitive and fast platform
               </AccordionTrigger>
               <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
@@ -639,9 +599,9 @@ function FeaturesSection() {
             </AccordionItem>
           </Accordion>
         </div>
-        <div className="w-1/2 flex justify-center">
+        <div className="w-full md:w-1/2 flex justify-center">
           <Image width={436} height={436}
-            className="w-[436px] h-[436px] object-cover border-[16px] border-[#f7f7f7] rounded-[40px] shadow-md"
+            className="w-full max-w-[300px] md:max-w-[436px] h-auto object-cover border-[8px] md:border-[16px] border-[#f7f7f7] rounded-[20px] md:rounded-[40px] shadow-md"
             alt="Ppc concept"
             src="/ppc-concept-illustration-1.png"
           />
@@ -654,23 +614,22 @@ function FeaturesSection() {
 function TestimonialSection({ idx }: { idx: number; }) {
   const t = testimonialData[idx];
   return (
-    <section className="mt-16 mb-32 flex justify-center px-6">
-      <div className="flex max-w-5xl items-start gap-10">
+    <section className="mt-8 md:mt-12 mb-8 md:mb-16 flex justify-center px-4 md:px-6">
+      <div className="flex flex-col md:flex-row max-w-5xl items-center md:items-start gap-6 md:gap-10">
         {/* Image */}
         <img
           src={t.image}
           alt={t.author}
-          className="w-[164px] h-[164px] object-cover rounded-[20px] mt-4"
+          className="w-[120px] h-[120px] md:w-[164px] md:h-[164px] object-cover rounded-[20px] mt-4"
         />
 
         {/* Text Content */}
         <div className="flex flex-col">
           {/* Quote Icon */}
-          <span className="text-[124px] text-[#5e17eb] leading-none mb-2 h-12
-          ">”</span>
+          <span className="hidden md:visible text-[80px] md:text-[124px] text-[#5e17eb] leading-none mb-2 h-8 md:h-12 text-center md:text-left">"</span>
 
           {/* Main Text */}
-          <p className="text-base leading-7 text-[#4e4e4e] max-w-[35vw]">
+          <p className="text-base leading-7 text-[#4e4e4e] max-w-full md:max-w-[35vw] text-center md:text-left">
             <span className="font-bold text-[#5e17eb]">
               {t.highlighted}
             </span>{" "}
@@ -678,7 +637,7 @@ function TestimonialSection({ idx }: { idx: number; }) {
           </p>
 
           {/* Author */}
-          <p className="mt-2 italic font-medium text-[#4e4e4e]">– {t.author}</p>
+          <p className="mt-2 italic font-medium text-[#4e4e4e] text-center md:text-left">– {t.author}</p>
         </div>
       </div>
     </section>
@@ -688,22 +647,22 @@ function TestimonialSection({ idx }: { idx: number; }) {
 function DashboardPreviewSection() {
   return (
     <section className="mt-8 relative">
-      <div className="w-full h-fit rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
-        <h2 className="font-extrabold text-[#f7f7f7] text-5xl text-center tracking-[-0.48px] leading-[64px] pt-[103px]">
+      <div className="w-full h-fit rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
+        <h2 className="font-extrabold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] pt-8 md:pt-[103px] px-4">
           Why choose URLINK?
         </h2>
-        <p className="w-[586px] font-light text-[#f7f7f7] text-xl text-center tracking-[-0.20px] mx-auto mt-4">
+        <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto mt-4 px-4">
           Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.
         </p>
         <img
-          className="w-[80vw] mx-auto mt-16 object-cover"
+          className="w-full md:w-[80vw] mx-auto mt-8 md:mt-16 object-cover px-4"
           alt="Dashboard link"
           src="/dashboard---link-performance-1.png"
         />
-        <div className="mt-12 flex justify-center">
-          <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
-            <Link href="/signup">
-              <span className="flex items-center">
+        <div className="mt-8 md:mt-12 flex justify-center px-4 pb-8 md:pb-0">
+          <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
+            <Link href="/signup" className="w-full text-center">
+              <span className="flex items-center justify-center">
                 Create your free account now
                 <span
                   className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
@@ -732,36 +691,36 @@ function DashboardPreviewSection() {
 
 function CTASection() {
   return (
-    <section className="mt-16 flex flex-col items-center">
-      <h2 className="font-extrabold text-[#5e17eb] text-5xl text-center tracking-[-0.48px] leading-[64px] w-[856px]">
-        Choose the most convenient and transparent solution for your business!
+    <section className="mt-8 md:mt-16 flex flex-col items-center px-4">
+      <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] w-full">
+        Choose the most convenient and <br className="hidden md:block" /> transparent solution for your <br className="hidden md:block" /> business!
       </h2>
-      <p className="w-[598px] font-light text-[#4e4e4e] text-xl text-center tracking-[-0.20px] mt-8">
-        With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?
+      <p className="w-full font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px] mt-4 md:mt-8">
+        With URLINK you get free activation, no obligations, and pay <br className="hidden md:block" /> only for actual clicks. Why pay more for the same service?
       </p>
-      <div className="mt-16 relative">
-        <Card className="w-[598px] h-fit bg-[#5e17eb] rounded-[40px] border">
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb]">
+      <div className="mt-8 md:mt-16 relative w-full flex justify-center">
+        <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32">
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-xs md:text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb] whitespace-nowrap">
             THE WISEST CHOICE
           </div>
-          <CardContent className="flex flex-col items-center pt-12">
-            <h3 className="font-bold text-[#f7f7f7] text-[40px] text-center tracking-[-0.40px]">
+          <CardContent className="flex flex-col items-center pt-8 md:pt-12">
+            <h3 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px]">
               Account
             </h3>
             <div className="flex flex-col items-center gap-2 mt-4">
               {pricingFeatures.map((feature, index) => (
                 <div key={index} className="flex items-center">
                   <img className="w-3.5 h-2.5 mr-2" alt="Layer" src="/layer2.svg" />
-                  <span className="font-light text-[#f7f7f7] text-xl text-center tracking-[-0.20px]">
+                  <span className="font-light text-[#f7f7f7] text-base md:text-xl text-center tracking-[-0.20px]">
                     {feature}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="flex justify-center">
-              <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
-                <Link href="/signup">
-                  <span className="flex items-center">
+            <div className="flex justify-center w-full">
+              <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
+                <Link href="/signup" className="w-full text-center">
+                  <span className="flex items-center justify-center">
                     Create your free account now
                     <span
                       className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
@@ -783,7 +742,7 @@ function CTASection() {
                 </Link>
               </Button>
             </div>
-            <p className="text-[#f7f7f7] text-center tracking-[-0.04px] mt-4">
+            <p className="text-[#f7f7f7] text-center tracking-[-0.04px] mt-4 text-sm md:text-base">
               Free forever. No hidden costs. Ever.
             </p>
           </CardContent>
@@ -795,25 +754,25 @@ function CTASection() {
 
 function FAQSection() {
   return (
-    <section className="mt-[100px] px-[20vw]">
-      <span className="font-semibold text-[#5e17eb] text-xl tracking-[-0.20px]">
+    <section className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
+      <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
         FAQ
       </span>
-      <h2 className="font-bold text-[#4e4e4e] text-[40px] tracking-[-0.40px] mt-2">
+      <h2 className="font-bold text-[#4e4e4e] text-2xl md:text-[40px] tracking-[-0.40px] mt-2">
         Frequently Asked Questions
       </h2>
       <div className="mt-8 flex flex-col items-center">
-        <Accordion type="single" collapsible className="w-4/5">
+        <Accordion type="single" collapsible className="w-full md:w-4/5">
           {faqData.map((faq, index) => (
             <AccordionItem
               key={index}
               value={`item-${index + 1}`}
               className="border-b border-[#e5e5e5]"
             >
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-xl flex justify-between hover:text-[#5e17eb]">
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-base md:text-xl flex justify-between hover:text-[#5e17eb] text-left">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-[#4e4e4e] text-base">
+              <AccordionContent className="text-[#4e4e4e] text-sm md:text-base">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
@@ -826,66 +785,66 @@ function FAQSection() {
 
 function FooterSection() {
   return (
-    <footer className="mt-[100px] bg-[#5e17eb] rounded-[40px_40px_0px_0px] py-16 px-36">
-      <div className="flex justify-between items-start w-full">
-        <div className="w-1/3">
-          <div className="flex items-center -mt-10">
-            <img className="" alt="Group" src="/urlinklogo-white.svg" />
+    <footer className="bg-[#5e17eb] rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] py-8 md:py-16 px-4 sm:px-8 md:px-16 lg:px-36 mt-12 md:mt-16">
+      <div className="flex flex-col md:flex-row justify-between items-center md:items-start w-full gap-8 md:gap-0">
+        <div className="w-full md:w-1/3 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start md:-mt-10">
+            <img className="h-8 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
           </div>
-          <p className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
-            The smart solution for your links. <br /> Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀
+          <p className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px] mt-4 md:mt-0">
+            The smart solution for your links. <br className="hidden md:block" /> Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀
           </p>
         </div>
-        <div className="w-fit flex justify-evenly items-start gap-16">
-          <div className="w-fit">
-            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px]">
+        <div className="w-full md:w-fit flex flex-wrap justify-around md:justify-evenly items-start gap-8 md:gap-16">
+          <div className="w-[40%] md:w-fit">
+            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
               Useful Links
             </h3>
-            <ul className="mt-4 space-y-4">
+            <ul className="mt-4 space-y-4 text-center md:text-left">
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Support
                 </a>
               </li>
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Pricing
                 </a>
               </li>
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Affiliate
                 </a>
               </li>
             </ul>
           </div>
-          <div className="w-fit">
-            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px]">
+          <div className="w-[40%] md:w-fit">
+            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
               Legal Links
             </h3>
-            <ul className="mt-4 space-y-4">
+            <ul className="mt-4 space-y-4 text-center md:text-left">
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Terms & Conditions
                 </a>
               </li>
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Privacy Policy
                 </a>
               </li>
               <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-base tracking-[-0.16px]">
+                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
                   Cookie Policy
                 </a>
               </li>
             </ul>
           </div>
-          <div className="w-fit ml-12">
+          <div className="w-full md:w-fit md:ml-0 lg:ml-12 text-center md:text-left">
             <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px]">
               Social Links
             </h3>
-            <div className="flex items-center gap-6 mt-4">
+            <div className="flex items-center justify-center md:justify-start gap-6 mt-4">
               <Link href="https://www.instagram.com/molaroriccardo/" target="_blank" rel="noopener noreferrer">
                 <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.66912 13.2605C8.66912 10.8668 10.609 8.9259 13.0026 8.9259C15.3963 8.9259 17.3372 10.8668 17.3372 13.2605C17.3372 15.6541 15.3963 17.595 13.0026 17.595C10.609 17.595 8.66912 15.6541 8.66912 13.2605ZM6.32594 13.2605C6.32594 16.948 9.31509 19.9372 13.0026 19.9372C16.6902 19.9372 19.6793 16.948 19.6793 13.2605C19.6793 9.57291 16.6902 6.58376 13.0026 6.58376C9.31509 6.58376 6.32605 9.5727 6.32605 13.2605M18.3835 6.31902C18.3833 6.62762 18.4747 6.92933 18.6461 7.18599C18.8174 7.44265 19.061 7.64274 19.3461 7.76095C19.6311 7.87916 19.9449 7.91019 20.2476 7.8501C20.5503 7.79002 20.8283 7.64153 21.0466 7.4234C21.2649 7.20527 21.4137 6.92731 21.474 6.62466C21.5343 6.32201 21.5035 6.00827 21.3856 5.72312C21.2676 5.43796 21.0677 5.19419 20.8112 5.02264C20.5546 4.85108 20.253 4.75945 19.9444 4.75933H19.9438C19.5301 4.75952 19.1334 4.92389 18.8409 5.21633C18.5483 5.50877 18.3838 5.90537 18.3835 6.31902ZM7.74958 23.8444C6.48187 23.7867 5.79283 23.5755 5.33493 23.3971C4.72787 23.1608 4.29472 22.8793 3.83932 22.4245C3.38391 21.9697 3.10202 21.537 2.86672 20.9299C2.68822 20.4722 2.47706 19.783 2.41943 18.5153C2.35639 17.1447 2.3438 16.733 2.3438 13.2607C2.3438 9.78834 2.35743 9.37776 2.41943 8.00604C2.47716 6.73833 2.68988 6.05044 2.86672 5.59139C3.10306 4.98433 3.38454 4.55118 3.83932 4.09578C4.2941 3.64037 4.72683 3.35848 5.33493 3.12318C5.79263 2.94468 6.48187 2.73352 7.74958 2.67589C9.12016 2.61285 9.53187 2.60027 13.0026 2.60027C16.4734 2.60027 16.8855 2.61368 18.2573 2.6761C19.525 2.73383 20.2129 2.94655 20.6719 3.12339C21.279 3.35868 21.7121 3.64121 22.1675 4.09599C22.6229 4.55077 22.9038 4.98453 23.1401 5.5916C23.3186 6.0493 23.5298 6.73854 23.5874 8.00625C23.6505 9.37797 23.663 9.78854 23.663 13.2609C23.663 16.7332 23.6505 17.1438 23.5874 18.5155C23.5297 19.7832 23.3175 20.4722 23.1401 20.9301C22.9038 21.5372 22.6223 21.9704 22.1675 22.4247C21.7128 22.8791 21.279 23.161 20.6719 23.3973C20.2142 23.5758 19.525 23.787 18.2573 23.8446C16.8867 23.9076 16.475 23.9202 13.0026 23.9202C9.53031 23.9202 9.11974 23.9076 7.74958 23.8446M7.64191 0.336557C6.25771 0.399593 5.31184 0.619078 4.48581 0.940503C3.63086 1.27244 2.90614 1.71775 2.18247 2.44028C1.45879 3.16281 1.01462 3.88763 0.682691 4.74362C0.361266 5.57017 0.141781 6.51552 0.0787441 7.89973C0.0146671 9.28612 0 9.72936 0 13.2605C0 16.7916 0.0146671 17.2348 0.0787441 18.6212C0.141781 20.0055 0.361266 20.9507 0.682691 21.7773C1.01462 22.6322 1.4589 23.3584 2.18247 24.0806C2.90604 24.8029 3.62982 25.2475 4.48581 25.5804C5.3134 25.9018 6.25771 26.1213 7.64191 26.1844C9.02904 26.2474 9.47154 26.2631 13.0026 26.2631C16.5337 26.2631 16.977 26.2484 18.3634 26.1844C19.7477 26.1213 20.6929 25.9018 21.5195 25.5804C22.3744 25.2475 23.0991 24.8032 23.8228 24.0806C24.5465 23.3581 24.9897 22.6322 25.3226 21.7773C25.644 20.9507 25.8645 20.0054 25.9265 18.6212C25.9896 17.2338 26.0042 16.7916 26.0042 13.2605C26.0042 9.72936 25.9896 9.28612 25.9265 7.89973C25.8635 6.51541 25.644 5.56965 25.3226 4.74362C24.9897 3.88867 24.5454 3.16396 23.8228 2.44028C23.1003 1.71661 22.3744 1.27244 21.5205 0.940503C20.6929 0.619078 19.7476 0.398553 18.3644 0.336557C16.9778 0.273208 16.5348 0.257812 13.0042 0.257812C9.47362 0.257812 9.02956 0.27248 7.64244 0.336557" fill="#F7F7F7" />
@@ -895,13 +854,11 @@ function FooterSection() {
                 <svg width="16" height="29" viewBox="0 0 16 29" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M14.6952 16.3695L15.6773 11.0215H9.96107V9.1301C9.96107 6.3042 11.0699 5.2171 13.9392 5.2171C14.8303 5.2171 15.5478 5.2388 15.9608 5.2822V0.4347C15.1782 0.217 13.2651 0 12.1563 0C6.30847 0 3.61277 2.7608 3.61277 8.7171V11.0215H0.00427246V16.3695H3.61277V28.0063C4.96657 28.3423 6.38267 28.5215 7.84007 28.5215C8.55757 28.5215 9.26527 28.4774 9.96037 28.3934V16.3695H14.6945H14.6952Z" fill="#F7F7F7" />
                 </svg>
-
               </Link>
               <Link href="https://www.x.com">
                 <svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M1.01998 0.858398L10.427 13.4367L0.960693 23.6632H3.09136L11.3793 14.7096L18.0755 23.6632H25.3258L15.3892 10.3775L24.2005 0.858398H22.0699L14.4373 9.10425L8.27021 0.858398H1.01998ZM4.15322 2.42808H7.48394L22.1921 22.0939H18.8614L4.15322 2.42808Z" fill="#F7F7F7" />
                 </svg>
-
               </Link>
               <Link href="https://www.tiktok.com">
                 <svg width="21" height="24" viewBox="0 0 21 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -914,9 +871,9 @@ function FooterSection() {
           </div>
         </div>
       </div>
-      <div className="flex items-center mt-16">
+      <div className="flex flex-col md:flex-row items-center mt-8 md:mt-16 justify-center md:justify-start">
         <img className="w-8 h-8 rounded-full" alt="Img" src="/img-eb741659992c-1-1.png" />
-        <p className="ml-3 font-light text-[#f7f7f7] text-sm tracking-[-0.14px]">
+        <p className="ml-0 md:ml-3 font-light text-[#f7f7f7] text-xs md:text-sm tracking-[-0.14px] text-center md:text-left mt-2 md:mt-0">
           <span>Hi 👋 I am{' '}</span>
           <span className="font-semibold"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
           <span>
@@ -930,26 +887,29 @@ function FooterSection() {
   );
 }
 
+
 // **************** MAIN ENTRY *****************
 
 export default function LpIta() {
   return (
-    <div className="bg-white flex flex-row justify-center w-full" data-model-id="1:2">
-      <div className="bg-white w-full max-w-[1728px] relative">
-        <HeroSection />
-        <BenefitsSection />
-        <ComparisonSection />
-        <TestimonialSection idx={0} />
-        <VideoSection />
-        <FeaturesSection />
-        <TestimonialSection idx={0} />
-        <DashboardPreviewSection />
-        <CTASection />
-        <TestimonialSection idx={0} />
-        <FAQSection />
-        <TestimonialSection idx={0} />
-        <FooterSection />
+    <>
+      <div className="bg-white flex flex-row justify-center w-full" data-model-id="1:2">
+        <div className="bg-white w-full relative">
+          <HeroSection />
+          <BenefitsSection />
+          <ComparisonSection />
+          <TestimonialSection idx={0} />
+          <VideoSection />
+          <FeaturesSection />
+          <TestimonialSection idx={0} />
+          <DashboardPreviewSection />
+          <CTASection />
+          <TestimonialSection idx={0} />
+          <FAQSection />
+          <TestimonialSection idx={0} />
+          <FooterSection />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
