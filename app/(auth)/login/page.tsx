@@ -200,6 +200,12 @@ export default function LoginPage() {
               Sign Up for free
             </Link>
           </p>
+          <p className="text-sm text-center text-gray-600 mt-4">
+            Forgot your password?{" "}
+            <Link href="/reset-password" className="text-[#5e17eb] hover:underline">
+              Reset it here
+            </Link>
+          </p>
         </div>
       </div>
     </div>
