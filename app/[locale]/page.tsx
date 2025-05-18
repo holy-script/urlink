@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import Link from "next/link";
 import { Menu } from "lucide-react";
 import { SignupModal } from "@/components/SignupModal";
 import {
@@ -19,122 +18,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LanguageSelect } from "@/components/LanguageSelect";
-
-const featureData = [
-  {
-    feature: "Free activation",
-    URLINK: "✅ Yes",
-    competitors: "❌ No, often paid",
-  },
-  {
-    feature: "Initial free clicks",
-    URLINK: "✅ 500",
-    competitors: "❌ No free credit",
-  },
-  {
-    feature: "Payment model",
-    URLINK: "✅ PPC – Pay only for received clicks",
-    competitors: "❌ Fixed subscription or hidden costs",
-  },
-  {
-    feature: "Free UTM management",
-    URLINK: "✅ Included",
-    competitors: "❌ Often paid service",
-  },
-  {
-    feature: "Intuitive interface",
-    URLINK: "✅ Clean and simple design",
-    competitors: "❌ Complex or outdated",
-  },
-  {
-    feature: "Marketing optimization",
-    URLINK: "✅ Advanced and customizable tracking",
-    competitors: "❌ Limited or extra cost",
-  },
-];
-
-const faqData = [
-  {
-    question: "Is URLINK really free?",
-    answer: "Yes! Start with 500 free clicks and only pay for additional clicks when you need them. No subscription required."
-  },
-  {
-    question: "How does the PPC payment system work?",
-    answer: "Pay-per-click means you only pay for actual clicks beyond your free limit. Each additional click costs €0.003, billed monthly."
-  },
-  {
-    question: "Can I track my link performance?",
-    answer: "Yes! Get detailed analytics including click counts, geographic data, and device types in real-time."
-  },
-  {
-    question: "Does URLINK support deep linking?",
-    answer: "Yes, we support deep linking for major platforms including Instagram, TikTok, YouTube, and more."
-  },
-  {
-    question: "Is there a limit to the number of links I can create?",
-    answer: "No, create unlimited links! You only pay for clicks, not link creation."
-  },
-  {
-    question: "Can I customize the generated links?",
-    answer: "Yes, customize your links with UTM parameters and set specific behaviors for different platforms."
-  },
-  {
-    question: "Does URLINK work with ad campaigns?",
-    answer: "Absolutely! URLINK is perfect for tracking and optimizing ad campaigns across all platforms."
-  },
-  {
-    question: "How can I get started?",
-    answer: "Simply sign up for free, paste your first link, and start tracking! No credit card required."
-  },
-];
-
-const testimonialData = [
-  {
-    highlighted: "Finally a deeplink service that doesn't force you into a fixed subscription!",
-    content: " With Urlink, I can manage my links smartly and only pay for actual clicks. The free UTM management is an incredible added value!",
-    author: "Marco R.",
-    image: "/image-2.png"
-  }
-];
-
-const benefitsData = [
-  {
-    id: 1,
-    title: "Better user experience",
-    description:
-      "Take users directly to the desired content inside an app or site, reducing unnecessary steps and increasing engagement.",
-  },
-  {
-    id: 2,
-    title: "Higher conversions",
-    description:
-      "Easier access to specific pages, such as products or promotions, improving purchase or action completion rates.",
-  },
-  {
-    id: 3,
-    title: "Marketing optimization",
-    description:
-      "Track user behavior and optimize ads, emails, or push notifications with direct and personalized links.",
-  },
-  {
-    id: 4,
-    title: "Free UTM management",
-    description:
-      "With URLINK you can create, track and analyze UTMs at no cost, unlike many competitors who charge for this service.",
-  },
-];
-
-const pricingFeatures = [
-  "Free activation",
-  "500 initial free clicks",
-  "UTM management included and free",
-  "You pay only for received clicks",
-  "Simple and fast interface",
-];
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
+import { Fragment } from "react";
 
 // ************ SECTION COMPONENTS ************
 
 function HeaderSection() {
+  const t = useTranslations('LandingPage.header');
+
   return (
     <header className="flex justify-between items-center px-4 sm:px-8 md:px-16 lg:px-36 py-4">
       <div className="flex items-center">
@@ -145,7 +37,7 @@ function HeaderSection() {
       <div className="hidden md:flex items-center gap-4">
         <Button variant="ghost" className="text-white text-xl hover:bg-[#5418CD] hover:text-white">
           <Link href="#faq">
-            FAQ
+            {t('faq')}
           </Link>
         </Button>
         <div className="relative">
@@ -153,12 +45,12 @@ function HeaderSection() {
         </div>
         <Button variant="ghost" className="bg-[#5e17eb] text-white text-xl hover:bg-[#5418CD] hover:text-white">
           <Link href="/login">
-            Login
+            {t('login')}
           </Link>
         </Button>
         <Button variant="outline" className="border-white text-white text-xl hover:bg-white hover:text-[#5e17eb]">
           <Link href="/signup">
-            Register free
+            {t('register')}
           </Link>
         </Button>
       </div>
@@ -175,17 +67,17 @@ function HeaderSection() {
           <DropdownMenuContent align="end" className="w-56 bg-[#5e17eb] text-white border-white">
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
               <Link href="#faq" className="w-full">
-                FAQ
+                {t('faq')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
               <Link href="/login" className="w-full">
-                Login
+                {t('login')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
               <Link href="/signup" className="w-full">
-                Register free
+                {t('register')}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -196,26 +88,26 @@ function HeaderSection() {
 }
 
 function UrlShortenerForm() {
+  const t = useTranslations('LandingPage.hero.form');
+
   return (
     <div className="flex flex-col items-center mt-8 md:mt-24 px-4">
       <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
           <div className="flex flex-col items-center pt-8 md:pt-12 px-4 md:px-8">
             <h2 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px]">
-              Paste your loooong link below.
+              {t('title')}
             </h2>
             <p className="font-light text-[#4e4e4e] text-base md:text-lg text-center tracking-[-0.20px] mt-2">
               <span className="tracking-[-0.04px]">
-                We'll shorten it for you.{" "}
+                {t('subtitle')}
               </span>
-              <span className="tracking-[-0.04px] underline">Free</span>
-              <span className="tracking-[-0.04px]">.</span>
             </p>
 
             <div className="mt-6 md:mt-8 w-full relative">
               <Input
                 className="h-[60px] md:h-[72px] bg-[#f7f7f7] rounded-2xl pl-6 md:pl-10 text-lg md:text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-normal"
-                placeholder="Paste here"
+                placeholder={t('placeholder')}
               />
             </div>
 
@@ -228,6 +120,10 @@ function UrlShortenerForm() {
 }
 
 function HeroSection() {
+  const t = useTranslations('LandingPage.hero');
+  // Define keys for the benefits items
+  const USPKeys = ['0', '1', '2'] as const;
+
   return (
     <section className="relative w-full h-fit overflow-hidden">
       <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-4 md:py-8">
@@ -235,10 +131,10 @@ function HeroSection() {
         <div className="mt-4 md:mt-8 px-4">
           <h1 className="font-bold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px]">
             <div>
-              Create your deeplink now and
+              {t('title.line1')}
             </div>
             <div>
-              start making{" "}
+              {t('title.line2')}{" "}
               <span className="relative group">
                 <span className="relative z-10">
                   <span className="relative"></span>
@@ -257,33 +153,19 @@ function HeroSection() {
         <UrlShortenerForm />
         <div className="mt-6 md:mt-10 px-4">
           <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
-            Sign up for free and get:
+            {t('usp.title')}
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mt-4">
-            <div className="flex items-center">
-              <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
-                <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
+            {USPKeys.map((key) => (
+              <div key={key} className="flex items-center">
+                <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
+                  <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
+                </div>
+                <span className="ml-2 font-light text-white text-lg md:text-xl">
+                  {t(`usp.items.${key}`)}
+                </span>
               </div>
-              <span className="ml-2 font-light text-white text-lg md:text-xl">
-                Unlimited links
-              </span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
-                <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
-              </div>
-              <span className="ml-2 font-light text-white text-lg md:text-xl">
-                500 free clicks
-              </span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
-                <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
-              </div>
-              <span className="ml-2 font-light text-white text-lg md:text-xl">
-                UTMs included
-              </span>
-            </div>
+            ))}
           </div>
         </div>
         <div className="mt-8 md:mt-10 w-full flex flex-col justify-center items-center px-4">
@@ -292,10 +174,10 @@ function HeroSection() {
             <Image width={48} height={48} className="w-10 h-10 md:w-12 md:h-12 object-cover rounded-full" alt="Image" src="/image.png" />
             <div className="overflow-hidden">
               <p className="font-medium text-[#200062] text-xs md:text-sm tracking-[-0.14px] truncate">
-                Best deeplink tool I've ever used. Well done 👏
+                {t('testimonial.text')}
               </p>
               <p className="font-light text-[#200062] text-xs md:text-sm truncate">
-                Antonio M. - NoProb CEO
+                {t('testimonial.author')}
               </p>
             </div>
           </div>
@@ -309,42 +191,47 @@ function HeroSection() {
           <img className="h-6 md:h-8" alt="Group" src="/group-17.png" />
         </div>
       </div>
-      {/* Floating callout text and emoji */}
+    </section>
+  );
+}
+
+function BenefitsSection() {
+  const t = useTranslations('LandingPage.benefits');
+  // Define keys for the benefits items
+  const benefitKeys = ['0', '1', '2', '3'] as const;
+
+  // Get the entire items object
+  const benefitItems = t.raw('items');
+
+  return (
+    <section className="relative mt-8 md:mt-14 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="flex flex-col px-4">
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-12 md:mt-24">
-          Ok, but what are the <br className="md:block hidden" /> benefits of URLINK?
+          {t('title')}
         </h2>
         <div className="flex flex-col md:flex-row items-center justify-evenly mt-8 md:mt-12 gap-6">
           <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px]">
             🚀
           </span>
           <p className="font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px]">
-            URLINK makes browsing faster and more effective with <br className="hidden md:block" /> smart deeplinks,
-            improving user experience, <br className="hidden md:block" /> conversions, and marketing campaigns.
+            {t('subtitle')}
           </p>
           <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px] hidden md:block">
             🤯
           </span>
         </div>
       </div>
-    </section>
-  );
-}
-
-function BenefitsSection() {
-  return (
-    <section className="relative mt-8 md:mt-14 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-16 mt-8 md:mt-16">
-        {benefitsData.slice(0, 3).map((benefit) => (
-          <div key={benefit.id} className="flex flex-col items-center">
+        {benefitKeys.slice(0, 3).map((key) => (
+          <div key={key} className="flex flex-col items-center">
             <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
-              {benefit.id}
+              {benefitItems[key].id}
             </span>
             <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
-              {benefit.title}
+              {benefitItems[key].title}
             </h3>
             <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4">
-              {benefit.description}
+              {benefitItems[key].description}
             </p>
           </div>
         ))}
@@ -352,7 +239,7 @@ function BenefitsSection() {
       <div className="flex flex-col justify-center items-center mt-12 md:mt-16">
         <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-6 md:mb-8 rounded-full">
           <h2 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px] px-4">
-            Here's a special tip for you
+            {t('specialTip')}
           </h2>
         </div>
         <div className="flex flex-col items-center relative">
@@ -370,10 +257,10 @@ function BenefitsSection() {
             4
           </span>
           <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
-            {benefitsData[3].title}
+            {benefitItems['3'].title}
           </h3>
           <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
-            {benefitsData[3].description}
+            {benefitItems['3'].description}
           </p>
         </div>
       </div>
@@ -390,12 +277,17 @@ function BenefitsSection() {
   );
 }
 
+
 function ComparisonSection() {
+  const t = useTranslations('LandingPage.comparison');
+  // Define keys for the features
+  const featureKeys = ['0', '1', '2', '3', '4', '5'] as const;
+
   return (
     <section className="mt-8 md:mt-12 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] p-4 md:p-10 shadow-md">
         <h2 className="font-extrabold text-[#5e17eb] text-2xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-8 md:mb-16">
-          How does URLINK differ from competitors?
+          {t('title')}
         </h2>
         <div className="overflow-x-auto">
           <table
@@ -424,9 +316,9 @@ function ComparisonSection() {
               </tr>
             </thead>
             <tbody>
-              {featureData.map((item, index) => {
+              {featureKeys.map((key, index) => {
                 const isFirst = index === 0;
-                const isLast = index === featureData.length - 1;
+                const isLast = index === featureKeys.length - 1;
                 // Row divider color
                 const borderClass = isFirst
                   ? "border-t-2"
@@ -443,11 +335,11 @@ function ComparisonSection() {
                     }
                     : {};
                 return (
-                  <tr key={index}>
+                  <tr key={key}>
                     {/* Feature */}
                     <td className={`py-3 md:py-4 ${borderClass} ${borderColor}`}>
                       <span className="font-semibold text-[#4e4e4e] text-base md:text-xl leading-8">
-                        {item.feature}
+                        {t(`features.${key}.feature`)}
                       </span>
                     </td>
                     {/* URLINK (card column) */}
@@ -457,20 +349,20 @@ function ComparisonSection() {
                     >
                       <div className="pl-4 md:pl-10 flex items-center gap-2 md:gap-4">
                         <span className="font-semibold text-nero text-base md:text-xl leading-8">
-                          {item.URLINK.split(" ")[0]}
+                          {t(`features.${key}.URLINK`).split(" ")[0]}
                         </span>
                         <span className="font-light text-[#4e4e4e] text-base md:text-xl leading-8 pr-2">
-                          {item.URLINK.split(" ").slice(1).join(" ")}
+                          {t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
                         </span>
                       </div>
                     </td>
                     {/* Competitors */}
                     <td className={`py-3 md:py-4 pl-4 md:pl-8 ${borderClass} ${borderColor}`}>
                       <span className="font-semibold text-nero text-base md:text-xl leading-8">
-                        {item.competitors.split(" ")[0]}
+                        {t(`features.${key}.competitors`).split(" ")[0]}
                       </span>
                       <span className="font-light text-[#4e4e4e] text-base md:text-xl leading-8 px-2">
-                        {item.competitors.split(" ").slice(1).join(" ")}
+                        {t(`features.${key}.competitors`).split(" ").slice(1).join(" ")}
                       </span>
                     </td>
                   </tr>
@@ -498,7 +390,7 @@ function ComparisonSection() {
         <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
-              Create your free account now
+              {t('cta')}
               <span className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4">
                 <svg
                   width="19"
@@ -522,12 +414,14 @@ function ComparisonSection() {
 }
 
 function VideoSection() {
+  const t = useTranslations('LandingPage');
+
   return (
     <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="w-full mx-auto relative">
         <div className="absolute top-8 md:top-20 -left-8 md:left-32 hidden md:block">
           <p className="font-normal text-black -ml-24">
-            Urlink in few minutes
+            {t('video.caption')}
           </p>
           <svg width="64" height="100" viewBox="0 0 64 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4.38031 1.68638C4.48328 1.2001 4.17255 0.722425 3.68628 0.619452C3.20001 0.516479 2.72233 0.827204 2.61935 1.31348L4.38031 1.68638ZM63.7002 93.3785C64.046 93.0214 64.0368 92.4516 63.6796 92.1059L57.8603 86.4716C57.5032 86.1259 56.9334 86.1351 56.5876 86.4922C56.2419 86.8493 56.2511 87.4191 56.6082 87.7648L61.781 92.773L56.7728 97.9458C56.427 98.3029 56.4362 98.8727 56.7933 99.2184C57.1504 99.5642 57.7202 99.555 58.066 99.1979L63.7002 93.3785ZM2.61935 1.31348C-1.91787 22.7397 0.630946 45.9811 10.5936 63.8023C20.5798 81.6656 38.0112 94.0573 63.0682 93.6523L63.0391 91.8526C38.7023 92.2459 21.8569 80.2614 12.1647 62.9239C2.4489 45.5443 -0.0822958 22.7602 4.38031 1.68638L2.61935 1.31348Z" fill="#5E17EB" />
@@ -542,8 +436,8 @@ function VideoSection() {
             maxWidth: "min(90%, 1000px)",
             aspectRatio: "16/9"
           }}
-          src="https://www.youtube.com/embed/23ZUf8QFHxY"
-          title="URLINK in 3 minutes"
+          src={t('video.embedUrl')}
+          title={t('video.title')}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         ></iframe>
@@ -552,46 +446,71 @@ function VideoSection() {
   );
 }
 
+function TestimonialSection({ idx }: { idx: number; }) {
+  const t = useTranslations('LandingPage.testimonials');
+
+  return (
+    <section className="mt-8 md:mt-12 mb-8 md:mb-16 flex justify-center px-4 md:px-6">
+      <div className="flex flex-col md:flex-row max-w-5xl items-center md:items-start gap-6 md:gap-10">
+        {/* Image */}
+        <img
+          src={`/image-${idx + 2}.png`}
+          alt={t(`${idx}.author`)}
+          className="w-[120px] h-[120px] md:w-[164px] md:h-[164px] object-cover rounded-[20px] mt-4"
+        />
+
+        {/* Text Content */}
+        <div className="flex flex-col">
+          {/* Quote Icon */}
+          <span className="hidden md:visible text-[80px] md:text-[124px] text-[#5e17eb] leading-none mb-2 h-8 md:h-12 text-center md:text-left">"</span>
+
+          {/* Main Text */}
+          <p className="text-base leading-7 text-[#4e4e4e] max-w-full md:max-w-[35vw] text-center md:text-left">
+            <span className="font-bold text-[#5e17eb]">
+              {t(`${idx}.highlighted`)}
+            </span>{" "}
+            {t(`${idx}.content`)}
+          </p>
+
+          {/* Author */}
+          <p className="mt-2 italic font-medium text-[#4e4e4e] text-center md:text-left">– {t(`${idx}.author`)}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FeaturesSection() {
+  const t = useTranslations('LandingPage.features');
+  // Define keys for the accordion items
+  const accordionKeys = ['0', '1', '2'] as const;
+
   return (
     <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
       <div>
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-4">
-          Why choose URLINK?
+          {t('title')}
         </h2>
         <div className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mb-8 md:mb-12">
-          Discover the exclusive benefits of URLINK with <br className="hidden md:block" /> a smooth experience optimized for your digital <br className="hidden md:block" /> marketing.
+          {t('subtitle')}
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-8 md:gap-16">
         <div className="w-full md:w-1/2">
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="item-1" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
-                1. 💰 Pay only for clicks
-              </AccordionTrigger>
-              <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
-                URLINK is a PPC service: no subscriptions, you pay only for actual clicks on your links.
-              </AccordionContent>
-            </AccordionItem>
-            <Separator className="my-2" />
-            <AccordionItem value="item-2" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
-                2. 📊 Free UTMs & advanced tracking
-              </AccordionTrigger>
-              <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
-                With URLINK you can create, track and analyze UTMs at no extra cost.
-              </AccordionContent>
-            </AccordionItem>
-            <Separator className="my-2" />
-            <AccordionItem value="item-3" className="border-none">
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
-                3. ⚡ Intuitive and fast platform
-              </AccordionTrigger>
-              <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
-                Simple and fast interface to manage all your links.
-              </AccordionContent>
-            </AccordionItem>
+            {accordionKeys.map((key, index) => (
+              <Fragment key={key}>
+                <AccordionItem value={`item-${index + 1}`} className="border-none">
+                  <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-lg md:text-xl">
+                    {t(`accordion.${key}.title`)}
+                  </AccordionTrigger>
+                  <AccordionContent className="pl-6 text-[#4e4e4e] text-base">
+                    {t(`accordion.${key}.content`)}
+                  </AccordionContent>
+                </AccordionItem>
+                {index < accordionKeys.length - 1 && <Separator className="my-2" />}
+              </Fragment>
+            ))}
           </Accordion>
         </div>
         <div className="w-full md:w-1/2 flex justify-center">
@@ -606,59 +525,28 @@ function FeaturesSection() {
   );
 }
 
-function TestimonialSection({ idx }: { idx: number; }) {
-  const t = testimonialData[idx];
-  return (
-    <section className="mt-8 md:mt-12 mb-8 md:mb-16 flex justify-center px-4 md:px-6">
-      <div className="flex flex-col md:flex-row max-w-5xl items-center md:items-start gap-6 md:gap-10">
-        {/* Image */}
-        <img
-          src={t.image}
-          alt={t.author}
-          className="w-[120px] h-[120px] md:w-[164px] md:h-[164px] object-cover rounded-[20px] mt-4"
-        />
-
-        {/* Text Content */}
-        <div className="flex flex-col">
-          {/* Quote Icon */}
-          <span className="hidden md:visible text-[80px] md:text-[124px] text-[#5e17eb] leading-none mb-2 h-8 md:h-12 text-center md:text-left">"</span>
-
-          {/* Main Text */}
-          <p className="text-base leading-7 text-[#4e4e4e] max-w-full md:max-w-[35vw] text-center md:text-left">
-            <span className="font-bold text-[#5e17eb]">
-              {t.highlighted}
-            </span>{" "}
-            {t.content}
-          </p>
-
-          {/* Author */}
-          <p className="mt-2 italic font-medium text-[#4e4e4e] text-center md:text-left">– {t.author}</p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function DashboardPreviewSection() {
+  const t = useTranslations('LandingPage.dashboard');
+
   return (
     <section className="mt-8 relative">
       <div className="w-full h-fit rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
         <h2 className="font-extrabold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] pt-8 md:pt-[103px] px-4">
-          Why choose URLINK?
+          {t('title')}
         </h2>
         <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto mt-4 px-4">
-          Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.
+          {t('subtitle')}
         </p>
         <img
           className="w-full md:w-[80vw] mx-auto mt-8 md:mt-16 object-cover px-4"
-          alt="Dashboard link"
+          alt={t('imageAlt') || "Dashboard preview"}
           src="/dashboard---link-performance-1.png"
         />
         <div className="mt-8 md:mt-12 flex justify-center px-4 pb-8 md:pb-0">
           <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
             <Link href="/signup" className="w-full text-center">
               <span className="flex items-center justify-center">
-                Create your free account now
+                {t('cta')}
                 <span
                   className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
                 >
@@ -684,30 +572,69 @@ function DashboardPreviewSection() {
   );
 }
 
+function FAQSection() {
+  const t = useTranslations('LandingPage.faq');
+  // Define keys for the FAQ items
+  const faqKeys = ['0', '1', '2', '3', '4', '5', '6', '7'] as const;
+
+  return (
+    <section id="faq" className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
+      <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
+        {t('title')}
+      </span>
+      <h2 className="font-bold text-[#4e4e4e] text-2xl md:text-[40px] tracking-[-0.40px] mt-2">
+        {t('subtitle')}
+      </h2>
+      <div className="mt-8 flex flex-col items-center">
+        <Accordion type="single" collapsible className="w-full md:w-4/5">
+          {faqKeys.map((key) => (
+            <AccordionItem
+              key={key}
+              value={`item-${key}`}
+              className="border-b border-[#e5e5e5]"
+            >
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-base md:text-xl flex justify-between hover:text-[#5e17eb] text-left">
+                {t(`items.${key}.question`)}
+              </AccordionTrigger>
+              <AccordionContent className="text-[#4e4e4e] text-sm md:text-base">
+                {t(`items.${key}.answer`)}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+    </section>
+  );
+}
+
 function CTASection() {
+  const t = useTranslations('LandingPage.cta');
+  // Define keys for the card features
+  const featureKeys = ['0', '1', '2', '3', '4'] as const;
+
   return (
     <section className="mt-8 md:mt-16 flex flex-col items-center px-4">
       <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] w-full">
-        Choose the most convenient and <br className="hidden md:block" /> transparent solution for your <br className="hidden md:block" /> business!
+        {t('title')}
       </h2>
       <p className="w-full font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px] mt-4 md:mt-8">
-        With URLINK you get free activation, no obligations, and pay <br className="hidden md:block" /> only for actual clicks. Why pay more for the same service?
+        {t('subtitle')}
       </p>
       <div className="mt-8 md:mt-16 relative w-full flex justify-center">
         <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32">
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-xs md:text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb] whitespace-nowrap">
-            THE WISEST CHOICE
+            {t('card.badge')}
           </div>
           <CardContent className="flex flex-col items-center pt-8 md:pt-12">
             <h3 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px]">
-              Account
+              {t('card.title')}
             </h3>
             <div className="flex flex-col items-center gap-2 mt-4">
-              {pricingFeatures.map((feature, index) => (
-                <div key={index} className="flex items-center">
+              {featureKeys.map((key) => (
+                <div key={key} className="flex items-center">
                   <img className="w-3.5 h-2.5 mr-2" alt="Layer" src="/layer2.svg" />
                   <span className="font-light text-[#f7f7f7] text-base md:text-xl text-center tracking-[-0.20px]">
-                    {feature}
+                    {t(`card.features.${key}`)}
                   </span>
                 </div>
               ))}
@@ -716,7 +643,7 @@ function CTASection() {
               <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
                 <Link href="/signup" className="w-full text-center">
                   <span className="flex items-center justify-center">
-                    Create your free account now
+                    {t('card.button')}
                     <span
                       className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
                     >
@@ -738,7 +665,7 @@ function CTASection() {
               </Button>
             </div>
             <p className="text-[#f7f7f7] text-center tracking-[-0.04px] mt-4 text-sm md:text-base">
-              Free forever. No hidden costs. Ever.
+              {t('card.disclaimer')}
             </p>
           </CardContent>
         </Card>
@@ -747,38 +674,12 @@ function CTASection() {
   );
 }
 
-function FAQSection() {
-  return (
-    <section id="faq" className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
-      <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
-        FAQ
-      </span>
-      <h2 className="font-bold text-[#4e4e4e] text-2xl md:text-[40px] tracking-[-0.40px] mt-2">
-        Frequently Asked Questions
-      </h2>
-      <div className="mt-8 flex flex-col items-center">
-        <Accordion type="single" collapsible className="w-full md:w-4/5">
-          {faqData.map((faq, index) => (
-            <AccordionItem
-              key={index}
-              value={`item-${index + 1}`}
-              className="border-b border-[#e5e5e5]"
-            >
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-base md:text-xl flex justify-between hover:text-[#5e17eb] text-left">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-[#4e4e4e] text-sm md:text-base">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-    </section>
-  );
-}
-
 function FooterSection() {
+  const t = useTranslations('LandingPage.footer');
+  // Define keys for the footer links
+  const usefulLinkKeys = ['0', '1', '2'] as const;
+  const legalLinkKeys = ['0', '1', '2'] as const;
+
   return (
     <footer className="bg-[#5e17eb] rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] py-8 md:py-16 px-4 sm:px-8 md:px-16 lg:px-36 mt-12 md:mt-16">
       <div className="flex flex-col md:flex-row justify-between items-center md:items-start w-full gap-8 md:gap-0">
@@ -787,57 +688,41 @@ function FooterSection() {
             <img className="h-8 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
           </div>
           <p className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px] mt-4 md:mt-0">
-            The smart solution for your links. <br className="hidden md:block" /> Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀
+            {t('description')}
           </p>
         </div>
         <div className="w-full md:w-fit flex flex-wrap justify-around md:justify-evenly items-start gap-8 md:gap-16">
           <div className="w-[40%] md:w-fit">
             <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
-              Useful Links
+              {t('links.useful.title')}
             </h3>
             <ul className="mt-4 space-y-4 text-center md:text-left">
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Support
-                </a>
-              </li>
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Pricing
-                </a>
-              </li>
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Affiliate
-                </a>
-              </li>
+              {usefulLinkKeys.map((key) => (
+                <li key={key}>
+                  <Link href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
+                    {t(`links.useful.items.${key}`)}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="w-[40%] md:w-fit">
             <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
-              Legal Links
+              {t('links.legal.title')}
             </h3>
             <ul className="mt-4 space-y-4 text-center md:text-left">
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Terms & Conditions
-                </a>
-              </li>
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
-                  Cookie Policy
-                </a>
-              </li>
+              {legalLinkKeys.map((key) => (
+                <li key={key}>
+                  <Link href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
+                    {t(`links.legal.items.${key}`)}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="w-full md:w-fit md:ml-0 lg:ml-12 text-center md:text-left">
             <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px]">
-              Social Links
+              {t('links.social.title')}
             </h3>
             <div className="flex items-center justify-center md:justify-start gap-6 mt-4">
               <Link href="https://www.instagram.com/molaroriccardo/" target="_blank" rel="noopener noreferrer">
@@ -869,12 +754,13 @@ function FooterSection() {
       <div className="flex flex-col md:flex-row items-center mt-8 md:mt-16 justify-center md:justify-start">
         <img className="w-8 h-8 rounded-full" alt="Img" src="/img-eb741659992c-1-1.png" />
         <p className="ml-0 md:ml-3 font-light text-[#f7f7f7] text-xs md:text-sm tracking-[-0.14px] text-center md:text-left mt-2 md:mt-0">
-          <span>Hi 👋 I am{' '}</span>
-          <span className="font-semibold"><Link href={'https://www.instagram.com/molaroriccardo/'}>Riccardo</Link></span>
+          <span>{t('creator.intro')} </span>
+          <span className="font-semibold"><Link href={'https://www.instagram.com/molaroriccardo/'}>{t('creator.name')}</Link></span>
           <span>
-            ,{' '}the creator of URLINK. Follow my other projects on{' '}
+            {t('creator.message')}
           </span>
-          <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>Instagram</Link></span>
+          {' '}
+          <span className="font-semibold underline"><Link href={'https://www.instagram.com/molaroriccardo/'}>{t('creator.platform')}</Link></span>
           <span>.</span>
         </p>
       </div>
@@ -882,10 +768,9 @@ function FooterSection() {
   );
 }
 
-
 // **************** MAIN ENTRY *****************
 
-export default function LpIta() {
+export default function LandingPage() {
   return (
     <>
       <div className="bg-white flex flex-row justify-center w-full" data-model-id="1:2">

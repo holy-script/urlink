@@ -1,20 +1,28 @@
-import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
+import createIntlMiddleware from 'next-intl/middleware';
+import { NextRequest } from "next/server";
+import { routing } from './i18n/routing';
+
+// Create the internationalization middleware
+const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  // First, handle the internationalization
+  const response = intlMiddleware(request);
+
+  // Then, update the Supabase session using the response from intlMiddleware
+  return await updateSession(request, response);
 }
 
+// Combine both matchers to ensure all necessary paths are covered
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
-     */
+    // Match all pathnames except for
+    // - API routes, trpc, Next.js internals, Vercel internals
+    // - Files with extensions
+    '/((?!api|trpc|_next|_vercel|.*\\..*).*))',
+
+    // Also include the Supabase matcher to ensure session is updated everywhere needed
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

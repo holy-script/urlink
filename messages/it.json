@@ -1,0 +1,221 @@
+{
+  "LandingPage": {
+    "header": {
+      "faq": "FAQ",
+      "login": "Login",
+      "register": "Register free"
+    },
+    "hero": {
+      "title": {
+        "line1": "Trasforma ogni link in un deep link.",
+        "line2": "start making $money"
+      },
+      "form": {
+        "title": "Paste your loooong link below.",
+        "subtitle": "We'll shorten it for you. Free.",
+        "placeholder": "Paste here"
+      },
+      "usp": {
+        "title": "Sign up for free and get:",
+        "items": {
+          "0": "Unlimited links",
+          "1": "500 free clicks",
+          "2": "UTMs included"
+        }
+      },
+      "testimonial": {
+        "text": "Best deeplink tool I've ever used. Well done 👏",
+        "author": "Antonio M. - NoProb CEO"
+      }
+    },
+    "benefits": {
+      "title": "Ok, but what are the benefits of URLINK?",
+      "subtitle": "URLINK makes browsing faster and more effective with smart deeplinks, improving user experience, conversions, and marketing campaigns.",
+      "items": {
+        "0": {
+          "id": 1,
+          "title": "Better user experience",
+          "description": "Take users directly to the desired content inside an app or site, reducing unnecessary steps and increasing engagement."
+        },
+        "1": {
+          "id": 2,
+          "title": "Higher conversions",
+          "description": "Easier access to specific pages, such as products or promotions, improving purchase or action completion rates."
+        },
+        "2": {
+          "id": 3,
+          "title": "Marketing optimization",
+          "description": "Track user behavior and optimize ads, emails, or push notifications with direct and personalized links."
+        },
+        "3": {
+          "id": 4,
+          "title": "Free UTM management",
+          "description": "With URLINK you can create, track and analyze UTMs at no cost, unlike many competitors who charge for this service."
+        }
+      },
+      "specialTip": "Here's a special tip for you"
+    },
+    "comparison": {
+      "title": "How does URLINK differ from competitors?",
+      "features": {
+        "0": {
+          "feature": "Free activation",
+          "URLINK": "✅ Yes",
+          "competitors": "❌ No, often paid"
+        },
+        "1": {
+          "feature": "Initial free clicks",
+          "URLINK": "✅ 500",
+          "competitors": "❌ No free credit"
+        },
+        "2": {
+          "feature": "Payment model",
+          "URLINK": "✅ PPC – Pay only for received clicks",
+          "competitors": "❌ Fixed subscription or hidden costs"
+        },
+        "3": {
+          "feature": "Free UTM management",
+          "URLINK": "✅ Included",
+          "competitors": "❌ Often paid service"
+        },
+        "4": {
+          "feature": "Intuitive interface",
+          "URLINK": "✅ Clean and simple design",
+          "competitors": "❌ Complex or outdated"
+        },
+        "5": {
+          "feature": "Marketing optimization",
+          "URLINK": "✅ Advanced and customizable tracking",
+          "competitors": "❌ Limited or extra cost"
+        }
+      },
+      "cta": "Create your free account now"
+    },
+    "video": {
+      "caption": "Urlink in few minutes",
+      "embedUrl": "https://www.youtube.com/embed/23ZUf8QFHxY",
+      "title": "URLINK in 3 minutes"
+    },
+    "testimonials": {
+      "0": {
+        "highlighted": "Finally a deeplink service that doesn't force you into a fixed subscription!",
+        "content": " With Urlink, I can manage my links smartly and only pay for actual clicks. The free UTM management is an incredible added value!",
+        "author": "Marco R."
+      }
+    },
+    "features": {
+      "title": "Why choose URLINK?",
+      "subtitle": "Discover the exclusive benefits of URLINK with a smooth experience optimized for your digital marketing.",
+      "accordion": {
+        "0": {
+          "title": "1. 💰 Pay only for clicks",
+          "content": "URLINK is a PPC service: no subscriptions, you pay only for actual clicks on your links."
+        },
+        "1": {
+          "title": "2. 📊 Free UTMs & advanced tracking",
+          "content": "With URLINK you can create, track and analyze UTMs at no extra cost."
+        },
+        "2": {
+          "title": "3. ⚡ Intuitive and fast platform",
+          "content": "Simple and fast interface to manage all your links."
+        }
+      }
+    },
+    "dashboard": {
+      "title": "Why choose URLINK?",
+      "subtitle": "Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.",
+      "cta": "Create your free account now",
+      "imageAlt": "Dashboard link performance preview"
+    },
+    "cta": {
+      "title": "Choose the most convenient and transparent solution for your business!",
+      "subtitle": "With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?",
+      "card": {
+        "badge": "THE WISEST CHOICE",
+        "title": "Account",
+        "features": {
+          "0": "Free activation",
+          "1": "500 initial free clicks",
+          "2": "UTM management included and free",
+          "3": "You pay only for received clicks",
+          "4": "Simple and fast interface"
+        },
+        "button": "Create your free account now",
+        "disclaimer": "Free forever. No hidden costs. Ever."
+      }
+    },
+    "faq": {
+      "title": "FAQ",
+      "subtitle": "Frequently Asked Questions",
+      "items": {
+        "0": {
+          "question": "Is URLINK really free?",
+          "answer": "Yes! Start with 500 free clicks and only pay for additional clicks when you need them. No subscription required."
+        },
+        "1": {
+          "question": "How does the PPC payment system work?",
+          "answer": "Pay-per-click means you only pay for actual clicks beyond your free limit. Each additional click costs €0.003, billed monthly."
+        },
+        "2": {
+          "question": "Can I track my link performance?",
+          "answer": "Yes! Get detailed analytics including click counts, geographic data, and device types in real-time."
+        },
+        "3": {
+          "question": "Does URLINK support deep linking?",
+          "answer": "Yes, we support deep linking for major platforms including Instagram, TikTok, YouTube, and more."
+        },
+        "4": {
+          "question": "Is there a limit to the number of links I can create?",
+          "answer": "No, create unlimited links! You only pay for clicks, not link creation."
+        },
+        "5": {
+          "question": "Can I customize the generated links?",
+          "answer": "Yes, customize your links with UTM parameters and set specific behaviors for different platforms."
+        },
+        "6": {
+          "question": "Does URLINK work with ad campaigns?",
+          "answer": "Absolutely! URLINK is perfect for tracking and optimizing ad campaigns across all platforms."
+        },
+        "7": {
+          "question": "How can I get started?",
+          "answer": "Simply sign up for free, paste your first link, and start tracking! No credit card required."
+        }
+      }
+    },
+    "footer": {
+      "description": "The smart solution for your links. Manage, track, and optimize your links with ease. You pay only for clicks received, no hidden costs. 🚀",
+      "links": {
+        "useful": {
+          "title": "Useful Links",
+          "items": {
+            "0": "Support",
+            "1": "Pricing",
+            "2": "Affiliate"
+          }
+        },
+        "legal": {
+          "title": "Legal Links",
+          "items": {
+            "0": "Terms & Conditions",
+            "1": "Privacy Policy",
+            "2": "Cookie Policy"
+          }
+        },
+        "social": {
+          "title": "Social Links"
+        }
+      },
+      "creator": {
+        "intro": "Hi 👋 I am",
+        "name": "Riccardo",
+        "message": ", the creator of URLINK. Follow my other projects on",
+        "platform": "Instagram"
+      }
+    },
+    "common": {
+      "buttons": {
+        "createAccount": "Create your free account now"
+      }
+    }
+  }
+}

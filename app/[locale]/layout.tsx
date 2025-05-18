@@ -2,7 +2,10 @@ import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
-import "./globals.css";
+import { NextIntlClientProvider, hasLocale } from 'next-intl';
+import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
+import "@/app/globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -14,23 +17,25 @@ export const metadata = {
   description: "Create your deeplink now and start making $money🤑",
 };
 
-// const geistSans = Geist({
-//   display: "swap",
-//   subsets: ["latin"],
-// });
-
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string; }>;
 }>) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
-    <html lang="en" className={poppins.className} suppressHydrationWarning>
+    <html lang={locale} className={poppins.className} suppressHydrationWarning>
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"
@@ -38,7 +43,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <NextIntlClientProvider>
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>
