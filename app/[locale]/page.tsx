@@ -122,7 +122,7 @@ function UrlShortenerForm() {
 function HeroSection() {
   const t = useTranslations('LandingPage.hero');
   // Define keys for the benefits items
-  const USPKeys = ['0', '1', '2'] as const;
+  const USPKeys = ['0', '1', '2', '3'] as const;
 
   return (
     <section className="relative w-full h-fit overflow-hidden">
@@ -155,7 +155,10 @@ function HeroSection() {
           <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
             {t('usp.title')}
           </p>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 mt-4">
+          <p className="font-light text-white text-base md:text-lg text-center tracking-[-0.20px] mt-2">
+            {t('usp.subtitle')}
+          </p>
+          <div className="flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6 mt-4">
             {USPKeys.map((key) => (
               <div key={key} className="flex items-center">
                 <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
@@ -213,9 +216,14 @@ function BenefitsSection() {
           <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px]">
             🚀
           </span>
-          <p className="font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px]">
-            {t('subtitle')}
-          </p>
+          <div>
+            <p className="font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px]">
+              {t('subtitle')}
+            </p>
+            <p className="font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px]">
+              {t('subtitle2')}
+            </p>
+          </div>
           <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px] hidden md:block">
             🤯
           </span>
@@ -230,7 +238,10 @@ function BenefitsSection() {
             <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
               {benefitItems[key].title}
             </h3>
-            <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4">
+            <p className="font-medium text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full">
+              {benefitItems[key].subtitle}
+            </p>
+            <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px]">
               {benefitItems[key].description}
             </p>
           </div>
@@ -259,7 +270,10 @@ function BenefitsSection() {
           <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
             {benefitItems['3'].title}
           </h3>
-          <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
+          <p className="font-medium text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
+            {benefitItems['3'].subtitle}
+          </p>
+          <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] w-full md:w-[420px]">
             {benefitItems['3'].description}
           </p>
         </div>
@@ -277,19 +291,20 @@ function BenefitsSection() {
   );
 }
 
-
 function ComparisonSection() {
   const t = useTranslations('LandingPage.comparison');
   // Define keys for the features
   const featureKeys = ['0', '1', '2', '3', '4', '5'] as const;
 
   return (
-    <section className="mt-8 md:mt-12 px-4 sm:px-8 md:px-16 lg:px-36">
-      <div className="bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] p-4 md:p-10 shadow-md">
+    <section className="mt-8 md:mt-12 sm:px-8 md:px-16 lg:px-36">
+      <div className="bg-transparent md:bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] md:p-10 md:shadow-md">
         <h2 className="font-extrabold text-[#5e17eb] text-2xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-8 md:mb-16">
           {t('title')}
         </h2>
-        <div className="overflow-x-auto">
+
+        {/* Desktop version - Table layout */}
+        <div className="hidden md:block">
           <table
             className="w-full border-separate min-w-[600px]"
             style={{ borderSpacing: 0, borderCollapse: "separate" }}
@@ -384,6 +399,96 @@ function ComparisonSection() {
             </tfoot>
           </table>
         </div>
+
+        {/* Mobile version - Arrow tabs on left, cards on right */}
+        <div className="md:hidden relative">
+          {/* Container for the comparison section */}
+          <div className="flex flex-row">
+            {/* Left side - Sticky feature column */}
+            <div className="absolute top-0 left-0 w-[40vw] h-full bg-transparent">
+              <div className="sticky top-8 left-0 pt-[5.5rem] pb-0.5 -mb-1">
+                {featureKeys.map((key, index) => (
+                  <div
+                    key={key}
+                    className="feature-tab mb-4 flex items-center justify-start px-8 bg-[#e6e6e6] h-16 w-full"
+                    style={{
+                      clipPath: 'polygon(0 0, 85% 0, 100% 50%, 85% 100%, 0 100%)',
+                    }}
+                  >
+                    <span className="text-[#4e4e4e] text-md font-semibold leading-tight text-pretty">
+                      {t(`features.${key}.feature`)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right side - Scrollable cards */}
+            <div className="flex flex-col items-center w-full pl-[35vw]">
+              {/* URLINK Card */}
+              <div className="bg-white rounded-l-lg pb-4 -mb-2 w-full border border-[#5e17eb]">
+                <div className="p-4 border-b border-gray-300">
+                  <img
+                    className="w-24"
+                    alt="URLINK Logo"
+                    src="/urlinklogo-purple.svg"
+                  />
+                </div>
+
+                {featureKeys.map((key, index) => {
+                  const isFirst = index === 0;
+                  const borderClass = isFirst ? "border-t-2" : "";
+                  const borderColor = isFirst ? "border-[#5e17eb]" : "";
+
+                  return (
+                    <div
+                      key={key}
+                      className={`px-4 min-h-20 max-h-20 pl-6 ${borderClass} ${borderColor} flex items-center justify-start`}
+                    >
+                      <div className="flex flex-row gap-2 items-center">
+                        <span className="font-semibold text-nero text-md break-words">
+                          {t(`features.${key}.URLINK`).split(" ")[0]}
+                        </span>
+                        <span className="font-light text-[#4e4e4e] text-lg break-words text-pretty">
+                          {" " + t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Competitors Card */}
+              <div className="bg-[#f7f7f7] border border-gray-300 rounded-l-lg w-full">
+                <div className="p-4 border-b border-gray-300">
+                  <span className="font-bold text-[#4e4e4e] text-lg">Competitors</span>
+                </div>
+
+                {featureKeys.map((key, index) => {
+                  const isFirst = index === 0;
+                  const borderClass = isFirst ? "border-t-2" : "";
+                  const borderColor = isFirst ? "border-[#5e17eb]" : "";
+
+                  return (
+                    <div
+                      key={key}
+                      className={`p-4 pl-6 min-h-20 max-h-20 ${borderClass} ${borderColor} flex items-center justify-start`}
+                    >
+                      <div className="flex flex-row gap-2 items-center">
+                        <span className="font-semibold text-nero text-md break-words">
+                          {t(`features.${key}.competitors`).split(" ")[0]}
+                        </span>
+                        <span className="font-light text-[#4e4e4e] text-md break-words text-pretty">
+                          {" " + t(`features.${key}.competitors`).split(" ").slice(1).join(" ")}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-center mt-8">
@@ -409,7 +514,7 @@ function ComparisonSection() {
           </Link>
         </Button>
       </div>
-    </section>
+    </section >
   );
 }
 
@@ -536,6 +641,9 @@ function DashboardPreviewSection() {
         </h2>
         <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto mt-4 px-4">
           {t('subtitle')}
+        </p>
+        <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto px-4">
+          {t('subtitle2')}
         </p>
         <img
           className="w-full md:w-[80vw] mx-auto mt-8 md:mt-16 object-cover px-4"

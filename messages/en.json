@@ -8,7 +8,7 @@
     "hero": {
       "title": {
         "line1": "Create your deeplink now and",
-        "line2": "start making $money"
+        "line2": "start making"
       },
       "form": {
         "title": "Paste your loooong link below.",
@@ -16,77 +16,86 @@
         "placeholder": "Paste here"
       },
       "usp": {
-        "title": "Sign up for free and get:",
+        "title": "Start free — no credit card, no subscription.",
+        "subtitle": "Get instant access to everything you need to create smart deep links and QR codes.",
         "items": {
-          "0": "Unlimited links",
-          "1": "500 free clicks",
-          "2": "UTMs included"
+          "0": "500 free clicks included",
+          "1": "Unlimited smart links & dynamic QR codes",
+          "2": "UTM builder and analytics included",
+          "3": "Pay only when you get results"
         }
       },
       "testimonial": {
-        "text": "Best deeplink tool I've ever used. Well done 👏",
-        "author": "Antonio M. - NoProb CEO"
+        "text": "Hands down the easiest way to create deep links. Clean UI, and no hidden fees. Great job.",
+        "author": "— Antonio M., CEO @ NoProb"
       }
     },
     "benefits": {
-      "title": "Ok, but what are the benefits of URLINK?",
-      "subtitle": "URLINK makes browsing faster and more effective with smart deeplinks, improving user experience, conversions, and marketing campaigns.",
+      "title": "Why marketers, creators, and brands choose URLINK",
+      "subtitle": "Deep links do more than shorten URLs — they drive real results.",
+      "subtitle2": "With URLINK, every click brings users exactly where you want them, inside the app, with no friction.",
       "items": {
         "0": {
           "id": 1,
-          "title": "Better user experience",
-          "description": "Take users directly to the desired content inside an app or site, reducing unnecessary steps and increasing engagement."
+          "title": "Frictionless experience",
+          "subtitle": "Get users to the right place — instantly.",
+          "description": "Skip landing pages and in-app browsers. Deep links open directly inside the app (YouTube, Amazon, Instagram, etc.), making your clicks count."
         },
         "1": {
           "id": 2,
-          "title": "Higher conversions",
-          "description": "Easier access to specific pages, such as products or promotions, improving purchase or action completion rates."
+          "title": "More conversions",
+          "subtitle": "Boost product views, sales, and actions.",
+          "description": "Deep links guide users to the exact product, video, or profile. No drop-off, no confusion."
         },
         "2": {
           "id": 3,
-          "title": "Marketing optimization",
-          "description": "Track user behavior and optimize ads, emails, or push notifications with direct and personalized links."
+          "title": "Smarter marketing",
+          "subtitle": "Track performance and personalize your links.",
+          "description": "Use UTMs, QR codes, and real-time analytics to understand traffic and optimize your campaigns."
         },
         "3": {
           "id": 4,
-          "title": "Free UTM management",
-          "description": "With URLINK you can create, track and analyze UTMs at no cost, unlike many competitors who charge for this service."
+          "title": "Free UTM tracking, forever.",
+          "subtitle": "Most platforms make you pay extra just to track your campaigns.",
+          "description": "With URLINK, you get full UTM tracking and analytics — completely free. No upgrades, no hidden fees. Ever."
         }
       },
       "specialTip": "Here's a special tip for you"
     },
     "comparison": {
-      "title": "How does URLINK differ from competitors?",
+      "title": "See why URLINK is different",
+      "subtitle": "Most link platforms charge monthly fees or limit what you can do.",
+      "subtitle2": "URLINK gives you more freedom, better tools, and a smarter way to pay — only when someone actually clicks.",
       "features": {
         "0": {
-          "feature": "Free activation",
+          "feature": "Free to get started",
           "URLINK": "✅ Yes",
-          "competitors": "❌ No, often paid"
+          "competitors": "❌ Often paid"
         },
         "1": {
-          "feature": "Initial free clicks",
-          "URLINK": "✅ 500",
-          "competitors": "❌ No free credit"
+          "feature": "Free trial credits",
+          "URLINK": "✅ 500 click included",
+          "competitors": "❌ No free credits"
         },
         "2": {
           "feature": "Payment model",
-          "URLINK": "✅ PPC – Pay only for received clicks",
-          "competitors": "❌ Fixed subscription or hidden costs"
+          "URLINK": "✅ Pay-per-click only",
+          "competitors": "❌ Monthly fees or bundles"
         },
         "3": {
-          "feature": "Free UTM management",
-          "URLINK": "✅ Included",
-          "competitors": "❌ Often paid service"
+          "feature": "UTM Tracking",
+          "URLINK": "✅ Free, always",
+          "competitors": "❌ Usually a premium service"
         },
         "4": {
-          "feature": "Intuitive interface",
-          "URLINK": "✅ Clean and simple design",
-          "competitors": "❌ Complex or outdated"
+          "feature": "QR codes",
+          "URLINK": "✅ Dynamic, no extra cost",
+          "competitors": "❌ Limited or paid add-on"
         },
         "5": {
-          "feature": "Marketing optimization",
-          "URLINK": "✅ Advanced and customizable tracking",
-          "competitors": "❌ Limited or extra cost"
+          "feature": "Ease of use",
+          "URLINK": "✅ Clean & fast interface",
+          "competitors": "❌ Often complex or outdated"
         }
       },
       "cta": "Create your free account now"
@@ -98,50 +107,60 @@
     },
     "testimonials": {
       "0": {
-        "highlighted": "Finally a deeplink service that doesn't force you into a fixed subscription!",
-        "content": " With Urlink, I can manage my links smartly and only pay for actual clicks. The free UTM management is an incredible added value!",
-        "author": "Marco R."
+        "highlighted": "I’ve tried other deep link tools, but they always had hidden costs or forced subscriptions.",
+        "content": " With URLINK, I only pay for what I use — and I get all the tools I need, free. The UTM tracking alone is worth it.",
+        "author": "Marco R., Content Creator"
+      },
+      "1": {
+        "highlighted": "I was looking for a way to share smarter links on Instagram and track results — without paying for features I don’t use.",
+        "content": "URLINK gives me everything I need, and I only pay when someone actually clicks.",
+        "author": "Marco R., Creator & Small Business Owner"
       }
     },
     "features": {
-      "title": "Why choose URLINK?",
-      "subtitle": "Discover the exclusive benefits of URLINK with a smooth experience optimized for your digital marketing.",
+      "title": "Why creators, marketers, and businesses love URLINK",
+      "subtitle": "Whether you're growing an audience, promoting a product, or running paid campaigns — URLINK helps you do it better, with less.",
       "accordion": {
         "0": {
-          "title": "1. 💰 Pay only for clicks",
+          "title": "1. 💰 Pay only for real clicks — no subscriptions",
           "content": "URLINK is a PPC service: no subscriptions, you pay only for actual clicks on your links."
         },
         "1": {
-          "title": "2. 📊 Free UTMs & advanced tracking",
-          "content": "With URLINK you can create, track and analyze UTMs at no extra cost."
+          "title": "2. 🔗 Unlimited deep links & dynamic QR codes",
+          "content": "Create unlimited deep links and dynamic QR codes. No limits, no extra costs."
         },
         "2": {
-          "title": "3. ⚡ Intuitive and fast platform",
+          "title": "3. 📊 Free UTM tracking and real-time analytics",
+          "content": "With URLINK you can create, track and analyze UTMs at no extra cost."
+        },
+        "3": {
+          "title": "4. ⚡ Fast, clean, mobile-friendly interface",
           "content": "Simple and fast interface to manage all your links."
         }
       }
     },
     "dashboard": {
-      "title": "Why choose URLINK?",
-      "subtitle": "Discover URLINK's exclusive benefits with a smooth experience optimized for your digital marketing.",
+      "title": "Everything you need in one smart dashboard",
+      "subtitle": "See your links, clicks, and conversions in real-time.",
+      "subtitle2": "Track performance, optimize your traffic, and manage your smart links — all in one place.",
       "cta": "Create your free account now",
       "imageAlt": "Dashboard link performance preview"
     },
     "cta": {
-      "title": "Choose the most convenient and transparent solution for your business!",
-      "subtitle": "With URLINK you get free activation, no obligations, and pay only for actual clicks. Why pay more for the same service?",
+      "title": "The most transparent way to share smarter links.",
+      "subtitle": "No subscriptions. No setup fees. Just powerful deep links and real results — and you only pay when people actually click.",
       "card": {
         "badge": "THE WISEST CHOICE",
-        "title": "Account",
+        "title": "What’s included with your free account",
         "features": {
-          "0": "Free activation",
-          "1": "500 initial free clicks",
-          "2": "UTM management included and free",
-          "3": "You pay only for received clicks",
-          "4": "Simple and fast interface"
+          "0": "500 free clicks to get started",
+          "1": "Unlimited deep links and dynamic QR codes",
+          "2": "Built-in UTM tracking & analytics",
+          "3": "Pay-per-click model, no fixed plans",
+          "4": "Fast and intuitive dashboard"
         },
         "button": "Create your free account now",
-        "disclaimer": "Free forever. No hidden costs. Ever."
+        "disclaimer": "Free forever. No hidden fees. No credit card required."
       }
     },
     "faq": {
@@ -150,35 +169,35 @@
       "items": {
         "0": {
           "question": "Is URLINK really free?",
-          "answer": "Yes! Start with 500 free clicks and only pay for additional clicks when you need them. No subscription required."
+          "answer": "Yes! You get 500 clicks completely free to test the platform. No credit card required."
         },
         "1": {
           "question": "How does the PPC payment system work?",
-          "answer": "Pay-per-click means you only pay for actual clicks beyond your free limit. Each additional click costs €0.003, billed monthly."
+          "answer": "You only pay when someone clicks your link. No monthly plans, no commitments."
         },
         "2": {
           "question": "Can I track my link performance?",
-          "answer": "Yes! Get detailed analytics including click counts, geographic data, and device types in real-time."
+          "answer": "Absolutely. You get real-time analytics and full UTM tracking — all included for free."
         },
         "3": {
-          "question": "Does URLINK support deep linking?",
-          "answer": "Yes, we support deep linking for major platforms including Instagram, TikTok, YouTube, and more."
+          "question": "What is a deep link and does URLINK support it?",
+          "answer": "A deep link sends users directly into apps like Instagram, TikTok, YouTube, or Amazon — to the exact content you want. Yes, URLINK supports smart deep linking across most major platforms."
         },
         "4": {
-          "question": "Is there a limit to the number of links I can create?",
-          "answer": "No, create unlimited links! You only pay for clicks, not link creation."
+          "question": "Is there a limit to how many links I can create?",
+          "answer": "Nope! You can create unlimited links and dynamic QR codes with your free account."
         },
         "5": {
-          "question": "Can I customize the generated links?",
-          "answer": "Yes, customize your links with UTM parameters and set specific behaviors for different platforms."
+          "question": "Can I customize the links I generate?",
+          "answer": "Yes — you can edit titles, apply UTMs, and regenerate dynamic QR codes at any time."
         },
         "6": {
-          "question": "Does URLINK work with ad campaigns?",
-          "answer": "Absolutely! URLINK is perfect for tracking and optimizing ad campaigns across all platforms."
+          "question": "Does URLINK work with ads and marketing campaigns?",
+          "answer": "Yes. Use your deep links across social media, newsletters, paid ads, and more."
         },
         "7": {
-          "question": "How can I get started?",
-          "answer": "Simply sign up for free, paste your first link, and start tracking! No credit card required."
+          "question": "How do I get started?",
+          "answer": "Just paste your first link and sign up. It takes less than 30 seconds and you're in — no payment needed."
         }
       }
     },
