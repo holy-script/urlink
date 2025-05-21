@@ -7,13 +7,14 @@
     },
     "hero": {
       "title": {
-        "line1": "Create your deeplink now and",
-        "line2": "start making"
+        "line1": "Turn any link into a deep link.",
+        "line2": "Track clicks. Boost results. No monthly fees."
       },
       "form": {
-        "title": "Paste your loooong link below.",
-        "subtitle": "We'll shorten it for you. Free.",
-        "placeholder": "Paste here"
+        "title": "Create powerful deep links and dynamic QR codes for any app — with built-in tracking and zero subscriptions.",
+        "subtitle": "Start for free with 500 clicks included.",
+        "placeholder": "Paste here",
+        "cta": "Paste your link and get started free"
       },
       "usp": {
         "title": "Start free — no credit card, no subscription.",

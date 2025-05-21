@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { DialogTrigger } from '@radix-ui/react-dialog';
+import { useTranslations } from 'next-intl';
 
 // interface SignupModalProps {
 //   isOpen: boolean;
@@ -143,6 +144,7 @@ export function SignupModal() {
     //   setLoading(false);
     // }
   };
+  const t = useTranslations('LandingPage.hero');
 
   return (
     <>
@@ -155,7 +157,7 @@ export function SignupModal() {
               <path d="M10.3599 18.0225C7.37516 17.1989 6.80143 16.6251 5.9777 13.6414C5.90569 13.3815 5.66943 13.2015 5.39941 13.2015C5.12939 13.2015 4.89313 13.3816 4.82113 13.6414C3.99756 16.625 3.42377 17.199 0.438915 18.0225C0.179024 18.0945 -0.000976562 18.3308 -0.000976562 18.6008C-0.000976562 18.8708 0.179035 19.1071 0.438915 19.1791C3.42366 20.0037 3.99739 20.5764 4.82113 23.5601C4.89313 23.82 5.12939 24 5.39941 24C5.66943 24 5.90569 23.82 5.9777 23.5601C6.80126 20.5754 7.37505 20.0025 10.3599 19.1791C10.6198 19.1071 10.7998 18.8708 10.7998 18.6008C10.7998 18.3308 10.6187 18.0945 10.3599 18.0225Z" fill="white" />
             </svg>
             <span className="flex items-center">
-              Get your new link
+              {t('form.cta')}
               <span
                 className="ml-2 overflow-hidden transition-opacity duration-500 ease-in-out delay-250 group-hover:opacity-100 opacity-0 absolute right-4"
               >

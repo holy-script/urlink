@@ -135,7 +135,7 @@ function HeroSection() {
             </div>
             <div>
               {t('title.line2')}{" "}
-              <span className="relative group">
+              {/* <span className="relative group">
                 <span className="relative z-10">
                   <span className="relative"></span>
                   $money
@@ -146,7 +146,7 @@ function HeroSection() {
                 <span className="ml-2 inline-block group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300 ease-in-out">
                   🤑
                 </span>
-              </span>
+              </span> */}
             </div>
           </h1>
         </div>
