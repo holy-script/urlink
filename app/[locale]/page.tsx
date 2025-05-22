@@ -21,6 +21,7 @@ import { LanguageSelect } from "@/components/LanguageSelect";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Fragment } from "react";
+import LogoCarousel from "@/components/LogoCarousel";
 
 // ************ SECTION COMPONENTS ************
 
@@ -64,25 +65,29 @@ function HeaderSection() {
               <Menu size={24} />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-[#5e17eb] text-white border-white">
+          <DropdownMenuContent
+            align="center"
+            className="w-[calc(100vw-2rem)] mx-4 bg-white text-[#5e17eb] border-white"
+          >
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="#faq" className="w-full">
+              <Link href="#faq" className="w-full text-center">
                 {t('faq')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="/login" className="w-full">
+              <Link href="/login" className="w-full text-center">
                 {t('login')}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="/signup" className="w-full">
+              <Link href="/signup" className="w-full text-center">
                 {t('register')}
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
     </header>
   );
 }
@@ -94,7 +99,7 @@ function UrlShortenerForm() {
     <div className="flex flex-col items-center mt-8 md:mt-24 px-4">
       <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
-          <div className="flex flex-col items-center pt-8 md:pt-12 px-4 md:px-8">
+          <div className="flex flex-col items-center pt-8 md:pt-12 px-2 md:px-2">
             <h2 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px]">
               {t('title')}
             </h2>
@@ -126,7 +131,7 @@ function HeroSection() {
 
   return (
     <section className="relative w-full h-fit overflow-hidden">
-      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-4 md:py-8">
+      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-0 pb-4 md:py-8">
         <HeaderSection />
         <div className="mt-4 md:mt-8 px-4">
           <h1 className="font-bold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px]">
@@ -151,14 +156,14 @@ function HeroSection() {
           </h1>
         </div>
         <UrlShortenerForm />
-        <div className="mt-6 md:mt-10 px-4">
+        <div className="mt-6 md:mt-10 px-4 flex flex-col items-center">
           <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
             {t('usp.title')}
           </p>
           <p className="font-light text-white text-base md:text-lg text-center tracking-[-0.20px] mt-2">
             {t('usp.subtitle')}
           </p>
-          <div className="flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6 mt-4">
+          <div className="grid grid-cols-2 gap-2 md:gap-4 mt-4 w-fit">
             {USPKeys.map((key) => (
               <div key={key} className="flex items-center">
                 <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
@@ -185,14 +190,7 @@ function HeroSection() {
             </div>
           </div>
         </div>
-        <div className="flex flex-wrap justify-center md:justify-between items-center w-full mt-8 md:mt-14 px-4 md:px-8 lg:px-36 gap-4">
-          <img className="h-6 md:h-8" alt="Group" src="/group-12.png" />
-          <img className="h-6 md:h-8" alt="Group" src="/group-14.png" />
-          <img className="h-8 md:h-12" alt="Group" src="/group-16.png" />
-          <img className="h-6 md:h-8" alt="Group" src="/group-13.png" />
-          <img className="h-8 md:h-10" alt="Group" src="/group-15.png" />
-          <img className="h-6 md:h-8" alt="Group" src="/group-17.png" />
-        </div>
+        <LogoCarousel />
       </div>
     </section>
   );
@@ -425,14 +423,10 @@ function ComparisonSection() {
 
             {/* Right side - Scrollable cards */}
             <div className="flex flex-col items-center w-full pl-[35vw]">
-              {/* URLINK Card */}
-              <div className="bg-white rounded-l-lg pb-4 -mb-2 w-full border border-[#5e17eb]">
+              {/* Competitors Card */}
+              <div className="bg-[#f7f7f7] rounded-l-lg pb-4 -mb-2 w-full border border-[#5e17eb]">
                 <div className="p-4 border-b border-gray-300">
-                  <img
-                    className="w-24"
-                    alt="URLINK Logo"
-                    src="/urlinklogo-purple.svg"
-                  />
+                  <span className="font-bold text-[#4e4e4e] text-lg">Others</span>
                 </div>
 
                 {featureKeys.map((key, index) => {
@@ -447,10 +441,10 @@ function ComparisonSection() {
                     >
                       <div className="flex flex-row gap-2 items-center">
                         <span className="font-semibold text-nero text-md break-words">
-                          {t(`features.${key}.URLINK`).split(" ")[0]}
+                          {t(`features.${key}.competitors`).split(" ")[0]}
                         </span>
                         <span className="font-light text-[#4e4e4e] text-lg break-words text-pretty">
-                          {" " + t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
+                          {" " + t(`features.${key}.competitors`).split(" ").slice(1).join(" ")}
                         </span>
                       </div>
                     </div>
@@ -458,16 +452,20 @@ function ComparisonSection() {
                 })}
               </div>
 
-              {/* Competitors Card */}
-              <div className="bg-[#f7f7f7] border border-gray-300 rounded-l-lg w-full">
+              {/* URLINK Card */}
+              <div className="bg-[#5e17eb] border border-gray-300 rounded-l-lg w-full">
                 <div className="p-4 border-b border-gray-300">
-                  <span className="font-bold text-[#4e4e4e] text-lg">Competitors</span>
+                  <img
+                    className="w-24"
+                    alt="URLINK Logo"
+                    src="/urlinklogo-white.svg"
+                  />
                 </div>
 
                 {featureKeys.map((key, index) => {
                   const isFirst = index === 0;
                   const borderClass = isFirst ? "border-t-2" : "";
-                  const borderColor = isFirst ? "border-[#5e17eb]" : "";
+                  const borderColor = isFirst ? "border-white" : "";
 
                   return (
                     <div
@@ -476,10 +474,10 @@ function ComparisonSection() {
                     >
                       <div className="flex flex-row gap-2 items-center">
                         <span className="font-semibold text-nero text-md break-words">
-                          {t(`features.${key}.competitors`).split(" ")[0]}
+                          {t(`features.${key}.URLINK`).split(" ")[0]}
                         </span>
-                        <span className="font-light text-[#4e4e4e] text-md break-words text-pretty">
-                          {" " + t(`features.${key}.competitors`).split(" ").slice(1).join(" ")}
+                        <span className="font-light text-md break-words text-pretty">
+                          {" " + t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
                         </span>
                       </div>
                     </div>
@@ -524,28 +522,31 @@ function VideoSection() {
   return (
     <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="w-full mx-auto relative">
-        <div className="absolute top-8 md:top-20 -left-8 md:left-32 hidden md:block">
-          <p className="font-normal text-black -ml-24">
-            {t('video.caption')}
-          </p>
-          <svg width="64" height="100" viewBox="0 0 64 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4.38031 1.68638C4.48328 1.2001 4.17255 0.722425 3.68628 0.619452C3.20001 0.516479 2.72233 0.827204 2.61935 1.31348L4.38031 1.68638ZM63.7002 93.3785C64.046 93.0214 64.0368 92.4516 63.6796 92.1059L57.8603 86.4716C57.5032 86.1259 56.9334 86.1351 56.5876 86.4922C56.2419 86.8493 56.2511 87.4191 56.6082 87.7648L61.781 92.773L56.7728 97.9458C56.427 98.3029 56.4362 98.8727 56.7933 99.2184C57.1504 99.5642 57.7202 99.555 58.066 99.1979L63.7002 93.3785ZM2.61935 1.31348C-1.91787 22.7397 0.630946 45.9811 10.5936 63.8023C20.5798 81.6656 38.0112 94.0573 63.0682 93.6523L63.0391 91.8526C38.7023 92.2459 21.8569 80.2614 12.1647 62.9239C2.4489 45.5443 -0.0822958 22.7602 4.38031 1.68638L2.61935 1.31348Z" fill="#5E17EB" />
-          </svg>
+        {/* Video container with relative positioning */}
+        <div className="relative w-full max-w-[min(90%,1000px)] mx-auto">
+          {/* Caption with arrow - positioned relative to the video container */}
+          <div className="absolute -top-8 md:top-20 -left-8 md:-left-20 z-10">
+            <p className="font-normal text-black md:max-w-[150px] ml-4 md:-ml-6">
+              {t('video.caption')}
+            </p>
+            <svg className="rotate-45 md:rotate-0" width="64" height="100" viewBox="0 0 64 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.38031 1.68638C4.48328 1.2001 4.17255 0.722425 3.68628 0.619452C3.20001 0.516479 2.72233 0.827204 2.61935 1.31348L4.38031 1.68638ZM63.7002 93.3785C64.046 93.0214 64.0368 92.4516 63.6796 92.1059L57.8603 86.4716C57.5032 86.1259 56.9334 86.1351 56.5876 86.4922C56.2419 86.8493 56.2511 87.4191 56.6082 87.7648L61.781 92.773L56.7728 97.9458C56.427 98.3029 56.4362 98.8727 56.7933 99.2184C57.1504 99.5642 57.7202 99.555 58.066 99.1979L63.7002 93.3785ZM2.61935 1.31348C-1.91787 22.7397 0.630946 45.9811 10.5936 63.8023C20.5798 81.6656 38.0112 94.0573 63.0682 93.6523L63.0391 91.8526C38.7023 92.2459 21.8569 80.2614 12.1647 62.9239C2.4489 45.5443 -0.0822958 22.7602 4.38031 1.68638L2.61935 1.31348Z" fill="#5E17EB" />
+            </svg>
+          </div>
+
+          {/* Video iframe */}
+          <iframe
+            className="mx-auto block rounded-[20px] md:rounded-[40px] border-[4px] border-solid border-[#5e17eb] shadow-lg shadow-[#5e17eb] md:shadow-[#5e17eb] md:shadow-lg"
+            style={{
+              width: "100%",
+              aspectRatio: "16/9"
+            }}
+            src={t('video.embedUrl')}
+            title={t('video.title')}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          ></iframe>
         </div>
-        <iframe
-          className="mx-auto block rounded-[20px] md:rounded-[40px] border-[2px] border-solid border-[#5e17eb] shadow-md"
-          style={{
-            border: "2px solid #5e17eb",
-            boxShadow: "0 0 0 8px #f7f7f7",
-            width: "100%",
-            maxWidth: "min(90%, 1000px)",
-            aspectRatio: "16/9"
-          }}
-          src={t('video.embedUrl')}
-          title={t('video.title')}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
       </div>
     </section>
   );
@@ -729,7 +730,7 @@ function CTASection() {
         {t('subtitle')}
       </p>
       <div className="mt-8 md:mt-16 relative w-full flex justify-center">
-        <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32">
+        <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32 shadow-lg shadow-[#5e17eb] md:shadow-[#5e17eb] md:shadow-lg">
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-xs md:text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb] whitespace-nowrap">
             {t('card.badge')}
           </div>
@@ -737,18 +738,47 @@ function CTASection() {
             <h3 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px]">
               {t('card.title')}
             </h3>
-            <div className="flex flex-col items-center gap-2 mt-4">
+            <div className="flex flex-col items-center gap-2 mt-4 w-full">
               {featureKeys.map((key) => (
-                <div key={key} className="flex items-center">
-                  <img className="w-3.5 h-2.5 mr-2" alt="Layer" src="/layer2.svg" />
-                  <span className="font-light text-[#f7f7f7] text-base md:text-xl text-center tracking-[-0.20px]">
+                <div key={key} className="flex items-center w-full justify-start md:justify-center">
+                  <div className="flex-shrink-0 w-5 h-5 mt-1 md:mt-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0,0,256,256"
+                    >
+                      <g
+                        fill="#42c97a"
+                        fillRule="nonzero"
+                        stroke="none"
+                        strokeWidth="1"
+                        strokeLinecap="butt"
+                        strokeLinejoin="miter"
+                        strokeMiterlimit="10"
+                        strokeDasharray=""
+                        strokeDashoffset="0"
+                        fontFamily="none"
+                        fontWeight="none"
+                        fontSize="none"
+                        textAnchor="none"
+                        style={{ mixBlendMode: "normal" }}
+                      >
+                        <g transform="scale(5.12,5.12)">
+                          <path d="M25,2c-12.682,0 -23,10.318 -23,23c0,12.683 10.318,23 23,23c12.683,0 23,-10.317 23,-23c0,-12.682 -10.317,-23 -23,-23zM35.827,16.562l-11.511,16.963l-8.997,-8.349c-0.405,-0.375 -0.429,-1.008 -0.053,-1.413c0.375,-0.406 1.009,-0.428 1.413,-0.053l7.29,6.764l10.203,-15.036c0.311,-0.457 0.933,-0.575 1.389,-0.266c0.458,0.31 0.577,0.932 0.266,1.39z"></path>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+
+                  <span className="font-light text-[#f7f7f7] text-base md:text-xl tracking-[-0.20px] ml-2 md:text-center">
                     {t(`card.features.${key}`)}
                   </span>
                 </div>
               ))}
             </div>
             <div className="flex justify-center w-full">
-              <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
+              <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-fit md:w-auto shadow-lg shadow-[#42c97a] md:shadow-[#42c97a] md:shadow-lg">
                 <Link href="/signup" className="w-full text-center">
                   <span className="flex items-center justify-center">
                     {t('card.button')}
@@ -790,21 +820,21 @@ function FooterSection() {
 
   return (
     <footer className="bg-[#5e17eb] rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] py-8 md:py-16 px-4 sm:px-8 md:px-16 lg:px-36 mt-12 md:mt-16">
-      <div className="flex flex-col md:flex-row justify-between items-center md:items-start w-full gap-8 md:gap-0">
-        <div className="w-full md:w-1/3 text-center md:text-left">
-          <div className="flex items-center justify-center md:justify-start md:-mt-10">
-            <img className="h-8 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
+      <div className="flex flex-col md:flex-row justify-between items-start w-full gap-8 md:gap-0">
+        <div className="w-full md:w-1/3 text-left">
+          <div className="flex items-start justify-start md:-mt-10">
+            <img className="h-12 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
           </div>
           <p className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px] mt-4 md:mt-0">
             {t('description')}
           </p>
         </div>
-        <div className="w-full md:w-fit flex flex-wrap justify-around md:justify-evenly items-start gap-8 md:gap-16">
-          <div className="w-[40%] md:w-fit">
-            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
+        <div className="w-full md:w-fit flex flex-col md:flex-row items-start justify-start md:justify-evenly gap-8 md:gap-16">
+          <div className="w-full md:w-fit">
+            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-left">
               {t('links.useful.title')}
             </h3>
-            <ul className="mt-4 space-y-4 text-center md:text-left">
+            <ul className="mt-4 space-y-4 text-left">
               {usefulLinkKeys.map((key) => (
                 <li key={key}>
                   <Link href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
@@ -814,11 +844,11 @@ function FooterSection() {
               ))}
             </ul>
           </div>
-          <div className="w-[40%] md:w-fit">
-            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-center md:text-left">
+          <div className="w-full md:w-fit">
+            <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px] text-left">
               {t('links.legal.title')}
             </h3>
-            <ul className="mt-4 space-y-4 text-center md:text-left">
+            <ul className="mt-4 space-y-4 text-left">
               {legalLinkKeys.map((key) => (
                 <li key={key}>
                   <Link href="#" className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px]">
@@ -828,11 +858,11 @@ function FooterSection() {
               ))}
             </ul>
           </div>
-          <div className="w-full md:w-fit md:ml-0 lg:ml-12 text-center md:text-left">
+          <div className="w-full md:w-fit md:ml-0 lg:ml-12 text-left">
             <h3 className="font-semibold text-[#f7f7f7] text-base tracking-[-0.16px]">
               {t('links.social.title')}
             </h3>
-            <div className="flex items-center justify-center md:justify-start gap-6 mt-4">
+            <div className="flex items-start justify-start gap-6 mt-4">
               <Link href="https://www.instagram.com/molaroriccardo/" target="_blank" rel="noopener noreferrer">
                 <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8.66912 13.2605C8.66912 10.8668 10.609 8.9259 13.0026 8.9259C15.3963 8.9259 17.3372 10.8668 17.3372 13.2605C17.3372 15.6541 15.3963 17.595 13.0026 17.595C10.609 17.595 8.66912 15.6541 8.66912 13.2605ZM6.32594 13.2605C6.32594 16.948 9.31509 19.9372 13.0026 19.9372C16.6902 19.9372 19.6793 16.948 19.6793 13.2605C19.6793 9.57291 16.6902 6.58376 13.0026 6.58376C9.31509 6.58376 6.32605 9.5727 6.32605 13.2605M18.3835 6.31902C18.3833 6.62762 18.4747 6.92933 18.6461 7.18599C18.8174 7.44265 19.061 7.64274 19.3461 7.76095C19.6311 7.87916 19.9449 7.91019 20.2476 7.8501C20.5503 7.79002 20.8283 7.64153 21.0466 7.4234C21.2649 7.20527 21.4137 6.92731 21.474 6.62466C21.5343 6.32201 21.5035 6.00827 21.3856 5.72312C21.2676 5.43796 21.0677 5.19419 20.8112 5.02264C20.5546 4.85108 20.253 4.75945 19.9444 4.75933H19.9438C19.5301 4.75952 19.1334 4.92389 18.8409 5.21633C18.5483 5.50877 18.3838 5.90537 18.3835 6.31902ZM7.74958 23.8444C6.48187 23.7867 5.79283 23.5755 5.33493 23.3971C4.72787 23.1608 4.29472 22.8793 3.83932 22.4245C3.38391 21.9697 3.10202 21.537 2.86672 20.9299C2.68822 20.4722 2.47706 19.783 2.41943 18.5153C2.35639 17.1447 2.3438 16.733 2.3438 13.2607C2.3438 9.78834 2.35743 9.37776 2.41943 8.00604C2.47716 6.73833 2.68988 6.05044 2.86672 5.59139C3.10306 4.98433 3.38454 4.55118 3.83932 4.09578C4.2941 3.64037 4.72683 3.35848 5.33493 3.12318C5.79263 2.94468 6.48187 2.73352 7.74958 2.67589C9.12016 2.61285 9.53187 2.60027 13.0026 2.60027C16.4734 2.60027 16.8855 2.61368 18.2573 2.6761C19.525 2.73383 20.2129 2.94655 20.6719 3.12339C21.279 3.35868 21.7121 3.64121 22.1675 4.09599C22.6229 4.55077 22.9038 4.98453 23.1401 5.5916C23.3186 6.0493 23.5298 6.73854 23.5874 8.00625C23.6505 9.37797 23.663 9.78854 23.663 13.2609C23.663 16.7332 23.6505 17.1438 23.5874 18.5155C23.5297 19.7832 23.3175 20.4722 23.1401 20.9301C22.9038 21.5372 22.6223 21.9704 22.1675 22.4247C21.7128 22.8791 21.279 23.161 20.6719 23.3973C20.2142 23.5758 19.525 23.787 18.2573 23.8446C16.8867 23.9076 16.475 23.9202 13.0026 23.9202C9.53031 23.9202 9.11974 23.9076 7.74958 23.8446M7.64191 0.336557C6.25771 0.399593 5.31184 0.619078 4.48581 0.940503C3.63086 1.27244 2.90614 1.71775 2.18247 2.44028C1.45879 3.16281 1.01462 3.88763 0.682691 4.74362C0.361266 5.57017 0.141781 6.51552 0.0787441 7.89973C0.0146671 9.28612 0 9.72936 0 13.2605C0 16.7916 0.0146671 17.2348 0.0787441 18.6212C0.141781 20.0055 0.361266 20.9507 0.682691 21.7773C1.01462 22.6322 1.4589 23.3584 2.18247 24.0806C2.90604 24.8029 3.62982 25.2475 4.48581 25.5804C5.3134 25.9018 6.25771 26.1213 7.64191 26.1844C9.02904 26.2474 9.47154 26.2631 13.0026 26.2631C16.5337 26.2631 16.977 26.2484 18.3634 26.1844C19.7477 26.1213 20.6929 25.9018 21.5195 25.5804C22.3744 25.2475 23.0991 24.8032 23.8228 24.0806C24.5465 23.3581 24.9897 22.6322 25.3226 21.7773C25.644 20.9507 25.8645 20.0054 25.9265 18.6212C25.9896 17.2338 26.0042 16.7916 26.0042 13.2605C26.0042 9.72936 25.9896 9.28612 25.9265 7.89973C25.8635 6.51541 25.644 5.56965 25.3226 4.74362C24.9897 3.88867 24.5454 3.16396 23.8228 2.44028C23.1003 1.71661 22.3744 1.27244 21.5205 0.940503C20.6929 0.619078 19.7476 0.398553 18.3644 0.336557C16.9778 0.273208 16.5348 0.257812 13.0042 0.257812C9.47362 0.257812 9.02956 0.27248 7.64244 0.336557" fill="#F7F7F7" />
@@ -859,9 +889,9 @@ function FooterSection() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col md:flex-row items-center mt-8 md:mt-16 justify-center md:justify-start">
+      <div className="flex flex-col md:flex-row items-start md:items-center mt-8 md:mt-16 justify-start">
         <img className="w-8 h-8 rounded-full" alt="Img" src="/img-eb741659992c-1-1.png" />
-        <p className="ml-0 md:ml-3 font-light text-[#f7f7f7] text-xs md:text-sm tracking-[-0.14px] text-center md:text-left mt-2 md:mt-0">
+        <p className="ml-0 md:ml-3 font-light text-[#f7f7f7] text-xs md:text-sm tracking-[-0.14px] text-left mt-2 md:mt-0">
           <span>{t('creator.intro')} </span>
           <span className="font-semibold"><Link href={'https://www.instagram.com/molaroriccardo/'}>{t('creator.name')}</Link></span>
           <span>
@@ -875,6 +905,7 @@ function FooterSection() {
     </footer>
   );
 }
+
 
 // **************** MAIN ENTRY *****************
 
