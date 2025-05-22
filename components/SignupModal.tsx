@@ -9,8 +9,8 @@ import { Checkbox } from './ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 // import { supabase } from '../lib/supabase';
 // import { useLinkStore } from '../lib/store';
-import { Eye, EyeOff, Check } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Eye, EyeOff, Check, X } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { DialogTrigger } from '@radix-ui/react-dialog';
@@ -177,31 +177,43 @@ export function SignupModal() {
             </span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[900px] p-0 bg-white">
+        <DialogContent className=" min-w-[60vw] max-h-[90vh] p-0 bg-white overflow-scroll">
           <DialogHeader>
             <DialogTitle className="sr-only">Complete Your Signup</DialogTitle>
           </DialogHeader>
           <div className="relative">
-            <div className="absolute top-0 left-0 right-0">
-              <div className="px-6 py-3 bg-[#5e17eb]/5 border-b">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-[#5e17eb]">
-                    Step 2 of 2 — Complete your free signup to activate your smart link
-                  </span>
-                  <span className="text-sm font-medium text-[#5e17eb]">
-                    {Math.round(progress)}%
-                  </span>
+            <div className="absolute top-0 left-0 right-0 flex flex-row items-center">
+              <div className="px-6 py-3 bg-[#5e17eb]/5 border-b flex flex-row w-full gap-2 items-center">
+                <div className="flex flex-col w-full">
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    <span className="text-sm font-medium text-[#5e17eb]">
+                      Step 2 of 2 — Complete your free signup to activate your smart link
+                    </span>
+                    <span className="text-sm font-medium text-[#5e17eb]">
+                      {Math.round(progress)}%
+                    </span>
+                  </div>
+                  <Progress value={progress} className="h-1 bg-[#5e17eb]/20 [&>div]:bg-[#5e17eb]" />
                 </div>
-                <Progress value={progress} className="h-1 bg-[#5e17eb]/20 [&>div]:bg-[#5e17eb]" />
+                <DialogClose className="text-[#5e17eb] hover:underline text-sm font-medium flex flex-row items-center gap-1 border border-[#5e17eb] rounded-md px-2 py-1">
+                  <span className='hidden sm:inline-flex'>
+                    Cancel
+                  </span>
+                  <X />
+                </DialogClose>
               </div>
+              {/* <div className='flex items-center justify-center h-full bg-[#5e17eb]/5 border-b'>
+              </div> */}
             </div>
 
             <div className="grid sm:grid-cols-2 gap-8 pt-16">
               <div className="p-8">
                 {/* {pendingUrl */}
                 {true && (
-                  <div className="mb-6 p-3 bg-purple-50 rounded-lg text-sm text-purple-700">
-                    Your smart link is ready to be activated
+                  <div className='flex items-center justify-center gap-2 mb-6'>
+                    <div className="p-3 bg-purple-50 rounded-lg text-sm text-purple-700">
+                      Your smart link is ready to be activated
+                    </div>
                   </div>
                 )}
 
@@ -360,7 +372,7 @@ export function SignupModal() {
                 </Button>
 
                 <p className="text-sm text-center text-gray-600 mt-6">
-                  Already have an account?{' '}
+                  {' '}Already have an account?{' '}
                   <Link href="/login" className="text-[#5e17eb] hover:underline">
                     Sign In
                   </Link>

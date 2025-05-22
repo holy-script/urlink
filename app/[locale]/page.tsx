@@ -165,9 +165,12 @@ function HeroSection() {
           </p>
           <div className="grid grid-cols-2 gap-2 md:gap-4 mt-4 w-fit">
             {USPKeys.map((key) => (
-              <div key={key} className="flex items-center">
-                <div className="w-6 h-6 rounded-xl border border-[#42c97a] flex items-center justify-center">
-                  <img className="w-3.5 h-2.5" alt="Layer" src="/layer2.svg" />
+              <div key={key} className="flex items-start">
+                <div className="flex-shrink-0 w-6 h-6 mt-1">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 12.0223L10.1743 17L18 9" stroke="#42C97A" strokeWidth="2" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="12" r="11.5" stroke="#42C97A" />
+                  </svg>
                 </div>
                 <span className="ml-2 font-light text-white text-lg md:text-xl">
                   {t(`usp.items.${key}`)}
@@ -476,7 +479,7 @@ function ComparisonSection() {
                         <span className="font-semibold text-nero text-md break-words">
                           {t(`features.${key}.URLINK`).split(" ")[0]}
                         </span>
-                        <span className="font-light text-md break-words text-pretty">
+                        <span className="font-light text-white text-lg break-words text-pretty">
                           {" " + t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
                         </span>
                       </div>
