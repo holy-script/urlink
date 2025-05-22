@@ -428,8 +428,8 @@ function ComparisonSection() {
             <div className="flex flex-col items-center w-full pl-[35vw]">
               {/* Competitors Card */}
               <div className="bg-[#f7f7f7] rounded-l-lg pb-4 -mb-2 w-full border border-[#5e17eb]">
-                <div className="p-4 border-b border-gray-300">
-                  <span className="font-bold text-[#4e4e4e] text-lg">Others</span>
+                <div className="p-4 mt-4 border-b border-gray-300">
+                  <span className="font-bold text-[#4e4e4e] text-xl">Others</span>
                 </div>
 
                 {featureKeys.map((key, index) => {
@@ -459,7 +459,7 @@ function ComparisonSection() {
               <div className="bg-[#5e17eb] border border-gray-300 rounded-l-lg w-full">
                 <div className="p-4 border-b border-gray-300">
                   <img
-                    className="w-24"
+                    className="w-28"
                     alt="URLINK Logo"
                     src="/urlinklogo-white.svg"
                   />
