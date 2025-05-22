@@ -22,6 +22,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Fragment } from "react";
 import LogoCarousel from "@/components/LogoCarousel";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle, NavigationMenuViewport } from "@/components/ui/navigation-menu";
 
 // ************ SECTION COMPONENTS ************
 
@@ -56,36 +57,31 @@ function HeaderSection() {
         </Button>
       </div>
 
-      {/* Mobile Hamburger Menu */}
+      {/* Mobile Navigation */}
       <div className="md:hidden flex items-center gap-4">
         <LanguageSelect />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white">
-              <Menu size={24} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="center"
-            className="w-[calc(100vw-2rem)] mx-4 bg-white text-[#5e17eb] border-white"
-          >
-            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="#faq" className="w-full text-center">
-                {t('faq')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="/login" className="w-full text-center">
-                {t('login')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-[#5418CD] focus:text-white">
-              <Link href="/signup" className="w-full text-center">
-                {t('register')}
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <NavigationMenu>
+          <NavigationMenuList>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="">
+                <Menu size={24} />
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="w-fit bg-white text-[#5e17eb] rounded-xl">
+                <div className="flex flex-col py-2 gap-2 w-fit px-4">
+                  <NavigationMenuLink href="#faq" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
+                    {t('faq')}
+                  </NavigationMenuLink>
+                  <NavigationMenuLink href="/login" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
+                    {t('login')}
+                  </NavigationMenuLink>
+                  <NavigationMenuLink href="/signup" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 text-nowrap px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
+                    {t('register')}
+                  </NavigationMenuLink>
+                </div>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
       </div>
 
     </header>
