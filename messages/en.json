@@ -123,19 +123,19 @@
       "subtitle": "Whether you're growing an audience, promoting a product, or running paid campaigns — URLINK helps you do it better, with less.",
       "accordion": {
         "0": {
-          "title": "1. 💰 Pay only for real clicks — no subscriptions",
+          "title": "1. Pay only for real clicks — no subscriptions",
           "content": "URLINK is a PPC service: no subscriptions, you pay only for actual clicks on your links."
         },
         "1": {
-          "title": "2. 🔗 Unlimited deep links & dynamic QR codes",
+          "title": "2. Unlimited deep links & dynamic QR codes",
           "content": "Create unlimited deep links and dynamic QR codes. No limits, no extra costs."
         },
         "2": {
-          "title": "3. 📊 Free UTM tracking and real-time analytics",
+          "title": "3. Free UTM tracking and real-time analytics",
           "content": "With URLINK you can create, track and analyze UTMs at no extra cost."
         },
         "3": {
-          "title": "4. ⚡ Fast, clean, mobile-friendly interface",
+          "title": "4. Fast, clean, mobile-friendly interface",
           "content": "Simple and fast interface to manage all your links."
         }
       }

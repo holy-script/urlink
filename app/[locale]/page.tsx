@@ -9,20 +9,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { CircleCheck, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { SignupModal } from "@/components/SignupModal";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { LanguageSelect } from "@/components/LanguageSelect";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Fragment } from "react";
 import LogoCarousel from "@/components/LogoCarousel";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger, navigationMenuTriggerStyle, NavigationMenuViewport } from "@/components/ui/navigation-menu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 
 // ************ SECTION COMPONENTS ************
 
@@ -30,7 +24,7 @@ function HeaderSection() {
   const t = useTranslations('LandingPage.header');
 
   return (
-    <header className="flex justify-between items-center px-4 sm:px-8 md:px-16 lg:px-36 py-4">
+    <header className="flex justify-between items-center px-4 sm:px-8 md:px-16 lg:px-36 pb-4">
       <div className="flex items-center">
         <img className="h-16 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
       </div>
@@ -92,7 +86,7 @@ function UrlShortenerForm() {
   const t = useTranslations('LandingPage.hero.form');
 
   return (
-    <div className="flex flex-col items-center mt-8 md:mt-24 px-4">
+    <div className="flex flex-col items-center mt-8 md:mt-12 px-4">
       <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
           <div className="flex flex-col items-center pt-8 md:pt-12 md:px-2">
@@ -127,9 +121,9 @@ function HeroSection() {
 
   return (
     <section className="relative w-full h-fit overflow-hidden">
-      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-0 pb-4 md:py-8">
+      <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-0 pb-4 md:pb-8">
         <HeaderSection />
-        <div className="mt-4 md:mt-8 px-4">
+        <div className="mt-4 md:mt-0 px-4">
           <h1 className="font-bold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px]">
             <div>
               {t('title.line1')}
@@ -150,15 +144,17 @@ function HeroSection() {
               </span> */}
             </div>
           </h1>
+          <div className="mt-4 md:mt-2">
+            <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
+              {t('usp.title')}
+            </p>
+            <p className="font-light text-white text-base md:text-lg text-center tracking-[-0.20px] mt-2">
+              {t('usp.subtitle')}
+            </p>
+          </div>
         </div>
         <UrlShortenerForm />
         <div className="mt-6 md:mt-10 px-4 flex flex-col items-center">
-          <p className="font-semibold text-white text-lg md:text-xl text-center tracking-[-0.20px]">
-            {t('usp.title')}
-          </p>
-          <p className="font-light text-white text-base md:text-lg text-center tracking-[-0.20px] mt-2">
-            {t('usp.subtitle')}
-          </p>
           <div className="grid grid-cols-2 gap-2 md:gap-4 mt-4 w-fit">
             {USPKeys.map((key) => (
               <div key={key} className="flex items-start">
@@ -204,9 +200,9 @@ function BenefitsSection() {
   const benefitItems = t.raw('items');
 
   return (
-    <section className="relative mt-8 md:mt-14 px-4 sm:px-8 md:px-16 lg:px-36">
+    <section className="relative mt-8 md:mt-0 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="flex flex-col px-4">
-        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-4 md:mt-24">
+        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-4 md:mt-12">
           {t('title')}
         </h2>
         <div className="flex flex-col md:flex-row items-center justify-evenly mt-8 md:mt-12 gap-6">
@@ -235,7 +231,7 @@ function BenefitsSection() {
             <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-0 md:mt-4">
               {benefitItems[key].title}
             </h3>
-            <p className="font-medium text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full">
+            <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full">
               {benefitItems[key].subtitle}
             </p>
             <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px]">
@@ -267,7 +263,7 @@ function BenefitsSection() {
           <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
             {benefitItems['3'].title}
           </h3>
-          <p className="font-medium text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
+          <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
             {benefitItems['3'].subtitle}
           </p>
           <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] w-full md:w-[420px]">
@@ -295,8 +291,8 @@ function ComparisonSection() {
 
   return (
     <section className="mt-8 md:mt-12 sm:px-8 md:px-16 lg:px-36">
-      <div className="bg-transparent md:bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] md:p-10 md:shadow-md">
-        <h2 className="font-extrabold text-[#5e17eb] text-2xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-8 md:mb-16">
+      <div className="bg-transparent md:bg-[#f7f7f7] rounded-[16px] md:rounded-[32px] md:p-10 md:pt-6 md:shadow-md">
+        <h2 className="font-extrabold text-[#5e17eb] text-2xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-8 md:mb-6">
           {t('title')}
         </h2>
 
@@ -311,12 +307,14 @@ function ComparisonSection() {
                 <th className="w-[396px] text-left pb-4 font-bold text-transparent text-2xl">
                   Feature
                 </th>
-                <th className="w-[582px] text-left bg-white rounded-tl-[16px] md:rounded-tl-[32px] rounded-tr-[16px] md:rounded-tr-[32px]">
+                <th className="w-[582px] text-left bg-[#5e17eb] rounded-tl-[16px] md:rounded-tl-[32px] rounded-tr-[16px] md:rounded-tr-[32px]">
                   <div className="flex items-center w-full h-full justify-start">
-                    <img
+                    <Image
                       className="w-24 md:w-36 ml-4 md:ml-8"
+                      width={144}
+                      height={36}
                       alt="URLINK Logo"
-                      src="/urlinklogo-purple.svg"
+                      src="/urlinklogo-white.svg"
                     />
                   </div>
                 </th>
@@ -336,7 +334,7 @@ function ComparisonSection() {
                   ? "border-t-2"
                   : "border-t";
                 const borderColor = isFirst
-                  ? "border-[#5e17eb]"
+                  ? "border-gray-300"
                   : "border-gray-300";
                 // Only apply border-radius on the very first and last rows of the URLINK column (not on the purple divider row)
                 const urlinkTdStyle =
@@ -356,14 +354,14 @@ function ComparisonSection() {
                     </td>
                     {/* URLINK (card column) */}
                     <td
-                      className={`py-3 md:py-4 bg-white ${borderClass} ${borderColor}`}
+                      className={`py-3 md:py-4 bg-[#5e17eb] ${borderClass} ${borderColor}`}
                       style={urlinkTdStyle}
                     >
                       <div className="pl-4 md:pl-10 flex items-center gap-2 md:gap-4">
                         <span className="font-semibold text-nero text-base md:text-xl leading-8">
                           {t(`features.${key}.URLINK`).split(" ")[0]}
                         </span>
-                        <span className="font-light text-[#4e4e4e] text-base md:text-xl leading-8 pr-2">
+                        <span className="font-light text-white text-base md:text-xl leading-8 pr-2">
                           {t(`features.${key}.URLINK`).split(" ").slice(1).join(" ")}
                         </span>
                       </div>
@@ -488,7 +486,7 @@ function ComparisonSection() {
         </div>
       </div>
 
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-2">
         <Button className="mt-2 md:mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
@@ -555,13 +553,15 @@ function TestimonialSection({ idx }: { idx: number; }) {
   const t = useTranslations('LandingPage.testimonials');
 
   return (
-    <section className="mt-8 md:mt-12 mb-8 md:mb-16 flex justify-center px-4 md:px-6">
+    <section className="mt-8 md:mt-8 mb-8 md:mb-8 flex justify-center px-4 md:px-6">
       <div className="flex flex-col md:flex-row max-w-5xl items-center md:items-start gap-6 md:gap-10">
         {/* Image */}
-        <img
+        <Image
           src={`/image-${idx + 2}.png`}
           alt={t(`${idx}.author`)}
-          className="w-[120px] h-[120px] md:w-[164px] md:h-[164px] object-cover rounded-[20px] mt-4"
+          className="w-[120px] h-[120px] md:w-[164px] md:h-[164px] object-cover rounded-[20px]"
+          width={120}
+          height={120}
         />
 
         {/* Text Content */}
@@ -636,7 +636,7 @@ function DashboardPreviewSection() {
   return (
     <section className="mt-8 relative">
       <div className="w-full h-fit rounded-[20px_20px_0px_0px] md:rounded-[40px_40px_0px_0px] bg-gradient-to-b from-[#5e17eb] to-white">
-        <h2 className="font-extrabold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] pt-8 md:pt-[103px] px-4">
+        <h2 className="font-extrabold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] pt-8 md:pt-8 px-4">
           {t('title')}
         </h2>
         <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto mt-4 px-4">
@@ -645,12 +645,14 @@ function DashboardPreviewSection() {
         <p className="w-full md:w-[586px] font-light text-[#f7f7f7] text-lg md:text-xl text-center tracking-[-0.20px] mx-auto px-4">
           {t('subtitle2')}
         </p>
-        <img
-          className="w-full md:w-[80vw] mx-auto mt-8 md:mt-16 object-cover px-4"
+        <Image
+          width={1200}
+          height={600}
+          className="w-full md:w-[80vw] mx-auto mt-8 md:mt-6 object-cover px-4"
           alt={t('imageAlt') || "Dashboard preview"}
           src="/dashboard---link-performance-1.png"
         />
-        <div className="mt-8 md:mt-12 flex justify-center px-4 pb-8 md:pb-0">
+        <div className="mt-8 md:mt-4 flex justify-center px-4 pb-8 md:pb-0">
           <Button className="bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative w-full md:w-auto">
             <Link href="/signup" className="w-full text-center">
               <span className="flex items-center justify-center">
@@ -680,56 +682,21 @@ function DashboardPreviewSection() {
   );
 }
 
-function FAQSection() {
-  const t = useTranslations('LandingPage.faq');
-  // Define keys for the FAQ items
-  const faqKeys = ['0', '1', '2', '3', '4', '5', '6', '7'] as const;
-
-  return (
-    <section id="faq" className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-16">
-      <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
-        {t('title')}
-      </span>
-      <h2 className="font-bold text-[#4e4e4e] text-2xl md:text-[40px] tracking-[-0.40px] mt-2">
-        {t('subtitle')}
-      </h2>
-      <div className="mt-8 flex flex-col items-center">
-        <Accordion type="single" collapsible className="w-full md:w-4/5">
-          {faqKeys.map((key) => (
-            <AccordionItem
-              key={key}
-              value={`item-${key}`}
-              className="border-b border-[#e5e5e5]"
-            >
-              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-base md:text-xl flex justify-between hover:text-[#5e17eb] text-left">
-                {t(`items.${key}.question`)}
-              </AccordionTrigger>
-              <AccordionContent className="text-[#4e4e4e] text-sm md:text-base">
-                {t(`items.${key}.answer`)}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
-    </section>
-  );
-}
-
 function CTASection() {
   const t = useTranslations('LandingPage.cta');
   // Define keys for the card features
   const featureKeys = ['0', '1', '2', '3', '4'] as const;
 
   return (
-    <section className="mt-8 md:mt-16 flex flex-col items-center px-4">
+    <section className="mt-8 md:mt-8 flex flex-col items-center px-4">
       <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] w-full">
         {t('title')}
       </h2>
-      <p className="w-full font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px] mt-4 md:mt-8">
+      <p className="w-full font-light text-[#4e4e4e] text-lg md:text-xl text-center tracking-[-0.20px] mt-4 md:mt-4">
         {t('subtitle')}
       </p>
-      <div className="mt-8 md:mt-16 relative w-full flex justify-center">
-        <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32 shadow-lg shadow-[#5e17eb] md:shadow-[#5e17eb] md:shadow-lg">
+      <div className="mt-8 md:mt-8 w-full flex justify-center">
+        <Card className="w-full md:w-fit h-fit bg-[#5e17eb] rounded-[20px] md:rounded-[40px] border px-4 md:px-32 shadow-lg shadow-[#5e17eb] md:shadow-[#5e17eb] md:shadow-lg relative">
           <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#f7f7f7] text-[#4e4e4e] text-xs md:text-sm px-4 py-2 rounded-[40px] border border-[#5e17eb] whitespace-nowrap">
             {t('card.badge')}
           </div>
@@ -806,6 +773,41 @@ function CTASection() {
             </p>
           </CardContent>
         </Card>
+      </div>
+    </section>
+  );
+}
+
+function FAQSection() {
+  const t = useTranslations('LandingPage.faq');
+  // Define keys for the FAQ items
+  const faqKeys = ['0', '1', '2', '3', '4', '5', '6', '7'] as const;
+
+  return (
+    <section id="faq" className="w-full px-4 md:px-[10vw] lg:px-[20vw] mt-12 md:mt-4">
+      <span className="font-semibold text-[#5e17eb] text-lg md:text-xl tracking-[-0.20px]">
+        {t('title')}
+      </span>
+      <h2 className="font-bold text-[#4e4e4e] text-2xl md:text-[40px] tracking-[-0.40px] mt-2">
+        {t('subtitle')}
+      </h2>
+      <div className="mt-8 flex flex-col items-center">
+        <Accordion type="single" collapsible className="w-full md:w-4/5">
+          {faqKeys.map((key) => (
+            <AccordionItem
+              key={key}
+              value={`item-${key}`}
+              className="border-b border-[#e5e5e5]"
+            >
+              <AccordionTrigger className="py-4 font-semibold text-[#4e4e4e] text-base md:text-xl flex justify-between hover:text-[#5e17eb] text-left">
+                {t(`items.${key}.question`)}
+              </AccordionTrigger>
+              <AccordionContent className="text-[#4e4e4e] text-sm md:text-base">
+                {t(`items.${key}.answer`)}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   );
@@ -922,8 +924,10 @@ export default function LandingPage() {
           <TestimonialSection idx={0} />
           <DashboardPreviewSection />
           <CTASection />
+          <div className="h-4" />
           <TestimonialSection idx={0} />
           <FAQSection />
+          <div className="h-4" />
           <TestimonialSection idx={0} />
           <FooterSection />
         </div>
