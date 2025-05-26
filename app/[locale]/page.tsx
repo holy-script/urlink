@@ -123,7 +123,7 @@ function HeroSection() {
     <section className="relative w-full h-fit overflow-hidden">
       <div className="w-full h-fit bg-[#5e17eb] rounded-[0px_0px_20px_20px] md:rounded-[0px_0px_40px_40px] py-0 pb-4 md:pb-8">
         <HeaderSection />
-        <div className="mt-4 md:mt-0 px-4">
+        <div className="px-4">
           <h1 className="font-bold text-[#f7f7f7] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px]">
             <div>
               {t('title.line1')}
@@ -205,7 +205,7 @@ function BenefitsSection() {
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-4 md:mt-12">
           {t('title')}
         </h2>
-        <div className="flex flex-col md:flex-row items-center justify-evenly mt-8 md:mt-12 gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-evenly mt-6 md:mt-12 gap-6">
           <span className="font-bold text-[#4e4e4e] text-6xl md:text-8xl tracking-[-0.96px]">
             🚀
           </span>
@@ -222,7 +222,7 @@ function BenefitsSection() {
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-16 mt-8 md:mt-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-16 mt-6 md:mt-16">
         {benefitKeys.slice(0, 3).map((key) => (
           <div key={key} className="flex flex-col items-center">
             <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
@@ -271,7 +271,7 @@ function BenefitsSection() {
           </p>
         </div>
       </div>
-      <div className="flex justify-center mt-12 md:mt-16">
+      <div className="flex justify-center mt-8 md:mt-16">
         <Image
           src={'/heart-hands_1faf6.png'}
           alt="Heart Hands"
