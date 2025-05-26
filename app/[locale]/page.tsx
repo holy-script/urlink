@@ -58,7 +58,7 @@ function HeaderSection() {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuTrigger className="border border-white h-9 px-1 text-white">
-                <Menu size={22} />
+                <Menu size={22} color="white" />
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-fit bg-white text-[#5e17eb] rounded-xl">
                 <div className="flex flex-col py-2 gap-2 w-fit px-4">
@@ -517,7 +517,7 @@ function VideoSection() {
   const t = useTranslations('LandingPage');
 
   return (
-    <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
+    <section className="mt-12 md:mt-8 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="w-full mx-auto relative">
         {/* Video container with relative positioning */}
         <div className="relative w-full max-w-[min(90%,1000px)] mx-auto">
