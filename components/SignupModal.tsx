@@ -221,7 +221,7 @@ export function SignupModal() {
                   You're just one step away from generating your smart link, QR code and full analytics!
                 </h2>
 
-                <form onSubmit={handleEmailSignup} className="mt-8 space-y-4">
+                <form onSubmit={handleEmailSignup} className="mt-8 space-y-3 md:space-y-4">
                   <div className="relative">
                     <Input
                       type="text"

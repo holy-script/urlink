@@ -95,7 +95,7 @@ function UrlShortenerForm() {
     <div className="flex flex-col items-center mt-8 md:mt-24 px-4">
       <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
-          <div className="flex flex-col items-center pt-8 md:pt-12 px-2 md:px-2">
+          <div className="flex flex-col items-center pt-8 md:pt-12 md:px-2">
             <h2 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px]">
               {t('title')}
             </h2>
@@ -206,7 +206,7 @@ function BenefitsSection() {
   return (
     <section className="relative mt-8 md:mt-14 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="flex flex-col px-4">
-        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-12 md:mt-24">
+        <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-4 md:mt-24">
           {t('title')}
         </h2>
         <div className="flex flex-col md:flex-row items-center justify-evenly mt-8 md:mt-12 gap-6">
@@ -226,13 +226,13 @@ function BenefitsSection() {
           </span>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-16 mt-8 md:mt-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-16 mt-8 md:mt-16">
         {benefitKeys.slice(0, 3).map((key) => (
           <div key={key} className="flex flex-col items-center">
             <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
               {benefitItems[key].id}
             </span>
-            <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
+            <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-0 md:mt-4">
               {benefitItems[key].title}
             </h3>
             <p className="font-medium text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full">
@@ -423,7 +423,7 @@ function ComparisonSection() {
             {/* Right side - Scrollable cards */}
             <div className="flex flex-col items-center w-full pl-[35vw]">
               {/* Competitors Card */}
-              <div className="bg-[#f7f7f7] rounded-l-lg pb-4 -mb-2 w-full border border-[#5e17eb]">
+              <div className="bg-[#f7f7f7] rounded-l-lg pb-4 -mb-2 w-full border border-[#f7f7f7] shadow-lg">
                 <div className="p-4 mt-4 border-b border-gray-300">
                   <span className="font-bold text-[#4e4e4e] text-xl">Others</span>
                 </div>
@@ -431,7 +431,7 @@ function ComparisonSection() {
                 {featureKeys.map((key, index) => {
                   const isFirst = index === 0;
                   const borderClass = isFirst ? "border-t-2" : "";
-                  const borderColor = isFirst ? "border-[#5e17eb]" : "";
+                  const borderColor = isFirst ? "border-black" : "";
 
                   return (
                     <div
@@ -452,7 +452,7 @@ function ComparisonSection() {
               </div>
 
               {/* URLINK Card */}
-              <div className="bg-[#5e17eb] border border-gray-300 rounded-l-lg w-full">
+              <div className="bg-[#5e17eb] border border-gray-300 rounded-l-lg w-full shadow-lg shadow-[#5e17eb]">
                 <div className="p-4 border-b border-gray-300">
                   <img
                     className="w-28"
@@ -489,7 +489,7 @@ function ComparisonSection() {
       </div>
 
       <div className="flex justify-center mt-8">
-        <Button className="mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+        <Button className="mt-2 md:mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
               {t('cta')}
@@ -524,7 +524,7 @@ function VideoSection() {
         {/* Video container with relative positioning */}
         <div className="relative w-full max-w-[min(90%,1000px)] mx-auto">
           {/* Caption with arrow - positioned relative to the video container */}
-          <div className="absolute -top-8 md:top-20 -left-8 md:-left-20 z-10">
+          <div className="hidden md:block absolute -top-8 md:top-20 -left-8 md:-left-20 z-10">
             <p className="font-normal text-black md:max-w-[150px] ml-4 md:-ml-6">
               {t('video.caption')}
             </p>
@@ -596,7 +596,7 @@ function FeaturesSection() {
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-4">
           {t('title')}
         </h2>
-        <div className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mb-8 md:mb-12">
+        <div className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mb-2 md:mb-12">
           {t('subtitle')}
         </div>
       </div>
@@ -822,7 +822,7 @@ function FooterSection() {
       <div className="flex flex-col md:flex-row justify-between items-start w-full gap-8 md:gap-0">
         <div className="w-full md:w-1/3 text-left">
           <div className="flex items-start justify-start md:-mt-10">
-            <img className="h-12 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
+            <img className="h-16 md:h-auto" alt="Group" src="/urlinklogo-white.svg" />
           </div>
           <p className="font-light text-[#f7f7f7] text-sm md:text-base tracking-[-0.16px] mt-4 md:mt-0">
             {t('description')}
