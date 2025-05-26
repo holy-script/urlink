@@ -63,7 +63,7 @@ function HeaderSection() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="border border-white h-9 px-1">
+              <NavigationMenuTrigger className="border border-white h-9 px-1 text-white">
                 <Menu size={22} />
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-fit bg-white text-[#5e17eb] rounded-xl">
