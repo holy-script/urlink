@@ -89,7 +89,7 @@ function UrlShortenerForm() {
     <div className="flex flex-col items-center mt-8 md:mt-12 px-4">
       <Card className="w-full max-w-4xl mx-auto h-fit bg-white rounded-2xl">
         <CardContent>
-          <div className="flex flex-col items-center pt-8 md:pt-12 md:px-2">
+          <div className="flex flex-col items-center pt-6 md:px-2">
             <h2 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px]">
               {t('title')}
             </h2>
@@ -99,7 +99,7 @@ function UrlShortenerForm() {
               </span>
             </p>
 
-            <div className="mt-6 md:mt-8 w-full relative">
+            <div className="mt-3 w-full relative">
               <Input
                 className="h-[60px] md:h-[72px] bg-[#f7f7f7] rounded-2xl pl-6 md:pl-10 text-lg md:text-xl text-[#5e17eb] placeholder:text-[rgb(169,169,169)] border-2 border-[#f7f7f7] focus:border-[#5e17eb] font-normal"
                 placeholder={t('placeholder')}
@@ -200,7 +200,7 @@ function BenefitsSection() {
   const benefitItems = t.raw('items');
 
   return (
-    <section className="relative mt-8 md:mt-0 px-4 sm:px-8 md:px-16 lg:px-36">
+    <section className="relative mt-2 md:mt-0 px-4 sm:px-8 md:px-16 lg:px-36">
       <div className="flex flex-col px-4">
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mt-4 md:mt-12">
           {t('title')}
@@ -240,9 +240,9 @@ function BenefitsSection() {
           </div>
         ))}
       </div>
-      <div className="flex flex-col justify-center items-center mt-12 md:mt-16">
+      <div className="flex flex-col justify-center items-center mt-8 md:mt-16">
         <div className="inline-flex items-center justify-center p-2 w-fit bg-[#5e17eb] mb-6 md:mb-8 rounded-full">
-          <h2 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px] px-4">
+          <h2 className="font-bold text-[#f7f7f7] text-2xl md:text-[40px] text-center tracking-[-0.40px] px-2">
             {t('specialTip')}
           </h2>
         </div>
@@ -260,7 +260,7 @@ function BenefitsSection() {
           <span className="font-bold text-[#5e17eb] text-[32px] md:text-[40px] text-center tracking-[-0.40px]">
             4
           </span>
-          <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-4">
+          <h3 className="font-bold text-[#4e4e4e] text-xl md:text-2xl text-center tracking-[-0.24px] mt-0 md:mt-4">
             {benefitItems['3'].title}
           </h3>
           <p className="font-light text-[#4e4e4e] text-base md:text-xl text-center tracking-[-0.20px] mt-4 w-full md:w-[420px]">
@@ -487,7 +487,7 @@ function ComparisonSection() {
       </div>
 
       <div className="flex justify-center mt-2">
-        <Button className="mt-2 md:mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
+        <Button className="mt-6 md:mt-8 bg-[#42c97a] hover:bg-[#42c97a] text-white text-base md:text-xl flex items-center gap-2 rounded-lg group transition-all duration-500 ease-in-out overflow-hidden hover:pr-10 relative">
           <Link href="/signup">
             <span className="flex items-center">
               {t('cta')}
@@ -591,7 +591,7 @@ function FeaturesSection() {
   const accordionKeys = ['0', '1', '2'] as const;
 
   return (
-    <section className="mt-12 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
+    <section className="mt-8 md:mt-16 px-4 sm:px-8 md:px-16 lg:px-36">
       <div>
         <h2 className="font-extrabold text-[#5e17eb] text-3xl md:text-5xl text-center tracking-[-0.48px] leading-[1.2] md:leading-[64px] mb-4">
           {t('title')}
