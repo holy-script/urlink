@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { Menu } from "lucide-react";
+import { CircleCheck, Menu } from "lucide-react";
 import { SignupModal } from "@/components/SignupModal";
 import {
   DropdownMenu,
@@ -63,15 +63,15 @@ function HeaderSection() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="">
-                <Menu size={24} />
+              <NavigationMenuTrigger className="border border-white h-9 px-1">
+                <Menu size={22} />
               </NavigationMenuTrigger>
               <NavigationMenuContent className="w-fit bg-white text-[#5e17eb] rounded-xl">
                 <div className="flex flex-col py-2 gap-2 w-fit px-4">
-                  <NavigationMenuLink href="#faq" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
+                  <NavigationMenuLink href="#faq" className={"border-none text-md  text-[#5e17eb] w-full bg-transparent text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
                     {t('faq')}
                   </NavigationMenuLink>
-                  <NavigationMenuLink href="/login" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
+                  <NavigationMenuLink href="/login" className={"border-none text-md  text-[#5e17eb] w-full bg-transparent text-center rounded-md border-2 px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
                     {t('login')}
                   </NavigationMenuLink>
                   <NavigationMenuLink href="/signup" className={"border-[#5317eb] text-md  text-[#5e17eb] w-full bg-[rgb(94,23,235,0.15)] text-center rounded-md border-2 text-nowrap px-6 py-1 focus:bg-[#5418CD] focus:text-white"}>
@@ -163,9 +163,9 @@ function HeroSection() {
             {USPKeys.map((key) => (
               <div key={key} className="flex items-start">
                 <div className="flex-shrink-0 w-6 h-6 mt-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 12.0223L10.1743 17L18 9" stroke="#42C97A" strokeWidth="2" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-                    <circle cx="12" cy="12" r="11.5" stroke="#42C97A" />
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="bg-white rounded-full">
+                    <path d="M6 12.0223L10.1743 17L18 9" stroke="#5e17eb" strokeWidth="2" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="12" r="11.5" stroke="#5e17eb" />
                   </svg>
                 </div>
                 <span className="ml-2 font-light text-white text-lg md:text-xl">
@@ -524,7 +524,7 @@ function VideoSection() {
         {/* Video container with relative positioning */}
         <div className="relative w-full max-w-[min(90%,1000px)] mx-auto">
           {/* Caption with arrow - positioned relative to the video container */}
-          <div className="hidden md:block absolute -top-8 md:top-20 -left-8 md:-left-20 z-10">
+          <div className="absolute -top-8 md:top-20 -left-8 md:-left-20 z-10">
             <p className="font-normal text-black md:max-w-[150px] ml-4 md:-ml-6">
               {t('video.caption')}
             </p>
