@@ -914,7 +914,7 @@ export default function LandingPage() {
   return (
     <>
       <div className="bg-white flex flex-row justify-center w-full" data-model-id="1:2">
-        <div className="bg-white w-full relative">
+        <div className="bg-white w-full relative text-pretty">
           <HeroSection />
           <BenefitsSection />
           <ComparisonSection />
