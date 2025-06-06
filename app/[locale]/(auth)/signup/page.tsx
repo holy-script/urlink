@@ -54,12 +54,41 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     console.log("Form submitted:", { name, email, password, acceptedTerms });
-    const res = await supabase.auth.signUp({
-      email,
-      password,
-      options: {}
-    });
-    console.log("Signup response:", res);
+    try {
+      setLoading(true);
+      // Validate form inputs
+      if (!isNameValid || !isEmailValid || !isPasswordValid || !acceptedTerms) {
+        setError("Please fill out all fields correctly and accept the terms.");
+        return;
+      }
+
+      // Sign up logic using Supabase
+      const { error: signupError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+        },
+      });
+
+      if (signupError) {
+        throw signupError;
+      }
+
+      toast.success("Account created successfully! Please check your email for verification.");
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      toast.error("Failed to create account. Please try again.");
+    }
+    setLoading(false);
+    setName("");
+    setEmail("");
+    setPassword("");
+    setAcceptedTerms(false);
+    setShowPassword(false);
+    setCurrentTestimonial(0); // Reset testimonial on new signup
   };
 
   const handleGoogleSignup = async () => {

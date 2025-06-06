@@ -8,9 +8,8 @@ import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'sonner';
-// import { useLinkStore } from '@/lib/store';
-// import { useAuth } from '@/lib/AuthContext';
-import { generateDeepLink } from '@/lib/deepLinkGenerator';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/utils/supabase/client';
 import { Sparkles, HelpCircle, QrCode, Tags } from 'lucide-react';
 import {
   Tooltip,
@@ -21,23 +20,13 @@ import {
 
 export function LinkGenerator() {
   const router = useRouter();
-  // const { user } = useAuth();
-  // const {
-  //   pendingUrl,
-  //   setPendingUrl,
-  //   utmEnabled,
-  //   setUtmEnabled,
-  //   qrEnabled,
-  //   setQrEnabled
-  // } = useLinkStore();
-  // Set mock state for demonstration
-  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  // Form state
+  const [url, setUrl] = useState('');
   const [utmEnabled, setUtmEnabled] = useState(false);
   const [qrEnabled, setQrEnabled] = useState(true);
-  // State for URL input and loading/error handling
-
-  const [url, setUrl] = useState(pendingUrl || '');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // UTM parameters
@@ -48,84 +37,158 @@ export function LinkGenerator() {
   // QR code settings
   const [qrColor, setQrColor] = useState('#000000');
 
-  useEffect(() => {
-    // Set mock data for demonstration
-    // setPendingUrl('https://example.com');
-    // setUrl('https://example.com');
-    // setUtmEnabled(false);
-    // setQrEnabled(true);
-    // setUtmSource('');
-    // setUtmMedium('');
-    // setUtmCampaign('');
-    // setQrColor('#000000');
-    // setError(null);
-    setIsLoading(false);
-  }, []);
-
   // Preview QR code when URL is valid
-  const canShowQRPreview = qrEnabled && url && url.startsWith('http');
+  const canShowQRPreview = qrEnabled && url && (url.startsWith('http://') || url.startsWith('https://'));
+
+  // Generate unique short code
+  const generateShortCode = (): string => {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const codeLength = 6;
+    let result = '';
+    for (let i = 0; i < codeLength; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  };
+
+  // Check if short code is unique
+  const isShortCodeUnique = async (shortCode: string): Promise<boolean> => {
+    const { data, error } = await supabase
+      .from('links')
+      .select('short_code')
+      .eq('short_code', shortCode)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking short code uniqueness:', error);
+      return false;
+    }
+
+    return !data; // Returns true if no existing record found
+  };
+
+  // Generate unique short code with retries
+  const generateUniqueShortCode = async (): Promise<string | null> => {
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (attempts < maxAttempts) {
+      const shortCode = generateShortCode();
+      const isUnique = await isShortCodeUnique(shortCode);
+
+      if (isUnique) {
+        return shortCode;
+      }
+
+      attempts++;
+    }
+
+    return null; // Failed to generate unique code
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // if (!user) {
-    //   setPendingUrl(url);
-    //   router.push('/login');
-    //   return;
-    // }
+    if (!user) {
+      toast.error('Please log in to create links');
+      router.push('/login');
+      return;
+    }
 
-    // setIsLoading(true);
+    if (!url.trim()) {
+      setError('Please enter a valid URL');
+      return;
+    }
 
-    // try {
-    //   // Add UTM parameters if enabled
-    //   let finalUrl = url;
-    //   if (utmEnabled && (utmSource || utmMedium || utmCampaign)) {
-    //     const params = new URLSearchParams();
-    //     if (utmSource) params.append('utm_source', utmSource);
-    //     if (utmMedium) params.append('utm_medium', utmMedium);
-    //     if (utmCampaign) params.append('utm_campaign', utmCampaign);
-    //     finalUrl += (finalUrl.includes('?') ? '&' : '?') + params.toString();
-    //   }
+    setIsLoading(true);
 
-    //   const result = generateDeepLink(finalUrl);
-    //   if (!result) {
-    //     throw new Error('Invalid URL. Please check the URL and try again.');
-    //   }
+    try {
+      // Validate and normalize URL
+      let finalUrl = url.trim();
+      if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+        finalUrl = 'https://' + finalUrl;
+      }
 
-    //   // Save to database and handle QR code generation
-    //   // Implementation depends on your backend setup
+      // Validate URL format
+      try {
+        new URL(finalUrl);
+      } catch {
+        throw new Error('Invalid URL format. Please enter a valid URL.');
+      }
 
-    //   toast({
-    //     title: "Success",
-    //     description: "Link created successfully",
-    //   });
+      // Add UTM parameters if enabled
+      if (utmEnabled && (utmSource.trim() || utmMedium.trim() || utmCampaign.trim())) {
+        const urlObj = new URL(finalUrl);
+        if (utmSource.trim()) urlObj.searchParams.set('utm_source', utmSource.trim());
+        if (utmMedium.trim()) urlObj.searchParams.set('utm_medium', utmMedium.trim());
+        if (utmCampaign.trim()) urlObj.searchParams.set('utm_campaign', utmCampaign.trim());
+        finalUrl = urlObj.toString();
+      }
 
-    //   // Clear form
-    //   setUrl('');
-    //   setPendingUrl(null);
+      // Generate unique short code
+      const shortCode = await generateUniqueShortCode();
+      if (!shortCode) {
+        throw new Error('Failed to generate unique short code. Please try again.');
+      }
 
-    // } catch (error) {
-    //   console.error('Error creating link:', error);
-    //   setError(error instanceof Error ? error.message : 'Failed to create link');
+      // Extract title from URL (optional - can be done later)
+      let title = null;
+      try {
+        const urlObj = new URL(finalUrl);
+        title = urlObj.hostname; // Use hostname as fallback title
+      } catch {
+        // Ignore title extraction errors
+      }
 
-    //   toast({
-    //     title: "Error",
-    //     description: error instanceof Error ? error.message : 'Failed to create link',
-    //     variant: "destructive",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
+      // Insert link into database
+      const { data: linkData, error: insertError } = await supabase
+        .from('links')
+        .insert({
+          user_id: user.id,
+          destination_url: finalUrl,
+          short_code: shortCode,
+          title: title,
+          is_active: true
+        })
+        .select('id, short_code')
+        .single();
+
+      if (insertError) {
+        console.error('Database insert error:', insertError);
+        throw new Error('Failed to create link. Please try again.');
+      }
+
+      // Success!
+      toast.success('Link created successfully!', {
+        description: `Short code: ${linkData.short_code}`,
+        action: {
+          label: 'View Links',
+          onClick: () => router.push('/my-links')
+        }
+      });
+
+      // Clear form
+      setUrl('');
+      setUtmSource('');
+      setUtmMedium('');
+      setUtmCampaign('');
+      setError(null);
+
+      // Redirect to my-links page
+      router.push('/my-links');
+
+    } catch (error) {
+      console.error('Error creating link:', error);
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      toast.error('Failed to create link', {
+        description: errorMessage
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5e17eb]"></div>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -154,6 +217,7 @@ export function LinkGenerator() {
               <Switch
                 checked={qrEnabled}
                 onCheckedChange={setQrEnabled}
+                disabled={isLoading}
                 className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
               />
             </div>
@@ -166,6 +230,7 @@ export function LinkGenerator() {
               <Switch
                 checked={utmEnabled}
                 onCheckedChange={setUtmEnabled}
+                disabled={isLoading}
                 className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
               />
             </div>
@@ -197,6 +262,7 @@ export function LinkGenerator() {
                     value={utmSource}
                     onChange={(e) => setUtmSource(e.target.value)}
                     placeholder="utm_source (e.g., google)"
+                    disabled={isLoading}
                     className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
@@ -206,6 +272,7 @@ export function LinkGenerator() {
                     value={utmMedium}
                     onChange={(e) => setUtmMedium(e.target.value)}
                     placeholder="utm_medium (e.g., cpc)"
+                    disabled={isLoading}
                     className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
@@ -215,6 +282,7 @@ export function LinkGenerator() {
                     value={utmCampaign}
                     onChange={(e) => setUtmCampaign(e.target.value)}
                     placeholder="utm_campaign (e.g., spring_sale)"
+                    disabled={isLoading}
                     className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
                   />
                 </div>
@@ -232,7 +300,7 @@ export function LinkGenerator() {
             <div className="flex justify-center">
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <QRCodeCanvas
-                  value={url}
+                  value={url.startsWith('http') ? url : `https://${url}`}
                   size={150}
                   fgColor={qrColor}
                   level="H"
@@ -263,8 +331,17 @@ export function LinkGenerator() {
           disabled={isLoading || !url.trim()}
           className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 text-base rounded-lg flex items-center justify-center gap-2 transition-all sm:py-6 sm:text-lg sm:rounded-xl sm:gap-3"
         >
-          <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
-          {isLoading ? 'Creating your link...' : 'Create smart link'}
+          {isLoading ? (
+            <>
+              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white sm:h-6 sm:w-6"></div>
+              Creating your link...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+              Create smart link
+            </>
+          )}
         </Button>
       </div>
     </form>
