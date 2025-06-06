@@ -6,13 +6,13 @@ import { Input } from './ui/input';
 import { Progress } from './ui/progress';
 import { Card } from './ui/card';
 import { Checkbox } from './ui/checkbox';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 // import { supabase } from '../lib/supabase';
 // import { useLinkStore } from '../lib/store';
 import { Eye, EyeOff, Check, X } from 'lucide-react';
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { DialogTrigger } from '@radix-ui/react-dialog';
 import { useTranslations } from 'next-intl';
 
@@ -46,7 +46,6 @@ export function SignupModal() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   // const pendingUrl = useLinkStore((state) => state.pendingUrl);
-  const { toast } = useToast();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const isNameValid = name.length >= 2;

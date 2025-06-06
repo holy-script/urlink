@@ -1,11 +1,12 @@
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { Poppins } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import Link from "next/link";
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import "@/app/globals.css";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -50,9 +51,14 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider>
-            {children}
+            <AuthProvider>
+              {children}
+            </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
+        <Toaster
+          richColors
+        />
       </body>
     </html>
   );

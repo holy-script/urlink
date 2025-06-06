@@ -1,16 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
 // import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { toast } from "sonner";
+import { supabase } from "@/utils/supabase/client";
 
 const testimonials = [
   {
@@ -29,31 +30,44 @@ const testimonials = [
 
 export default function LoginPage() {
   const router = useRouter();
-  const { toast } = useToast();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
-  const isNameValid = name.length >= 2;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isPasswordValid = password.length >= 8;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    // Authentication logic commented out
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        toast.success("Logged in successfully!");
+        router.push("/dashboard");
+      } else {
+        setError("Login failed. Please check your credentials.");
+        toast.error("Login failed. Please check your credentials.");
+      }
+    }
+    catch (error) {
+      console.error("Login error:", error);
+      setError("Failed to log in. Please check your credentials.");
+      toast.error("Failed to log in. Please check your credentials.", {
+        description: "Ensure your email and password are correct.",
+      });
+    }
+    setLoading(false);
   };
 
   const handleGoogleSignup = async () => {
@@ -93,7 +107,7 @@ export default function LoginPage() {
               />
               <AnimatePresence>
                 {isEmailValid && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute right-3 top-3 -translate-y-1/2">
                     <Check className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
                   </motion.div>
                 )}
@@ -118,7 +132,7 @@ export default function LoginPage() {
               </button>
               <AnimatePresence>
                 {isPasswordValid && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute right-10 md:right-12 top-1/2 -translate-y-1/2">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="absolute right-10 md:right-12 top-3 -translate-y-1/2">
                     <Check className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
                   </motion.div>
                 )}
@@ -128,7 +142,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] text-white py-2 md:py-3 rounded-lg font-medium transition-colors text-sm md:text-base"
-              disabled={loading || !acceptedTerms}
+              disabled={loading}
             >
               {loading ? "Signing In..." : "Sign In to Account"}
             </Button>

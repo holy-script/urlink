@@ -1,18 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 // import { supabase } from "@/lib/supabase";
 import { Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,10 +46,7 @@ export default function ResetPasswordPage() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setSuccess(true);
     setLoading(false);
-    toast({
-      title: "Reset link sent",
-      description: "Check your email for the password reset link"
-    });
+    toast.success("Check your email for the password reset link");
   };
 
   return (
