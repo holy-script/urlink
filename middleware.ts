@@ -66,12 +66,14 @@ export async function middleware(request: NextRequest) {
   const publicRoutes = [
     '/login',
     '/signup',
-    '/reset-password'
+    '/reset-password',
   ];
 
   // Define completely public routes (accessible to everyone)
   const openRoutes = [
     '/',
+    '/email-verified',
+    '/auth-code-error',
   ];
 
   // Check if current path is protected

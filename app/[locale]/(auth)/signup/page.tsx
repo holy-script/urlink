@@ -63,20 +63,35 @@ export default function SignupPage() {
       }
 
       // Sign up logic using Supabase
-      const { error: signupError } = await supabase.auth.signUp({
+      const { error: signupError, data: { user: userAccount } } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { name },
+          data: {
+            name,
+            emailRedirectTo: `${window.location.origin}/api/auth/callback`
+          },
         },
       });
+
+      // if (userAccount)
+      //   await supabase.auth.admin.updateUserById(userAccount.id, {
+      //     email_confirm: false
+      //   });
 
       if (signupError) {
         throw signupError;
       }
 
+      // const res = await supabase.auth.resend({
+      //   email,
+      //   type: 'signup',
+      // });
+
+      // console.log("Resend verification email response:", res);
+
       toast.success("Account created successfully! Please check your email for verification.");
-      router.push("/dashboard");
+      router.push("/login");
     } catch (err) {
       console.error("Signup error:", err);
       setError(err instanceof Error ? err.message : "An unexpected error occurred.");

@@ -70,53 +70,53 @@ export default function Analytics() {
   const [error, setError] = useState<string | null>(null);
 
   // Mock data for demonstration - keep commented for showcase
-  // useEffect(() => {
-  //   setData({
-  //     totalClicks: 1000,
-  //     clicksToday: 50,
-  //     uniqueCountries: 10,
-  //     clicksByDay: [
-  //       { date: 'Oct 01', clicks: 100 },
-  //       { date: 'Oct 02', clicks: 120 },
-  //       { date: 'Oct 03', clicks: 80 },
-  //       { date: 'Oct 04', clicks: 90 },
-  //       { date: 'Oct 05', clicks: 110 },
-  //       { date: 'Oct 06', clicks: 130 },
-  //       { date: 'Oct 07', clicks: 150 }
-  //     ],
-  //     deviceBreakdown: [
-  //       { device: 'Mobile', count: 600 },
-  //       { device: 'Desktop', count: 300 },
-  //       { device: 'Tablet', count: 100 }
-  //     ],
-  //     countryBreakdown: [
-  //       { country: 'USA', count: 400 },
-  //       { country: 'Canada', count: 200 },
-  //       { country: 'UK', count: 150 },
-  //       { country: 'Germany', count: 100 },
-  //       { country: 'France', count: 50 }
-  //     ],
-  //     topLinks: [
-  //       {
-  //         id: '1',
-  //         title: 'Link A',
-  //         short_url: 'short.ly/a',
-  //         original_url: 'https://example.com/a',
-  //         clicks: 500,
-  //         platform: 'Web',
-  //         avg_daily_clicks: 70
-  //       }
-  //     ]
-  //   });
-  //   setIsLoading(false);
-  // }, []);
-
   useEffect(() => {
-    if (user) {
-      loadLinks();
-      loadAnalytics();
-    }
-  }, [user, dateRange, selectedLink]);
+    setData({
+      totalClicks: 1000,
+      clicksToday: 50,
+      uniqueCountries: 10,
+      clicksByDay: [
+        { date: 'Oct 01', clicks: 100 },
+        { date: 'Oct 02', clicks: 120 },
+        { date: 'Oct 03', clicks: 80 },
+        { date: 'Oct 04', clicks: 90 },
+        { date: 'Oct 05', clicks: 110 },
+        { date: 'Oct 06', clicks: 130 },
+        { date: 'Oct 07', clicks: 150 }
+      ],
+      deviceBreakdown: [
+        { device: 'Mobile', count: 600 },
+        { device: 'Desktop', count: 300 },
+        { device: 'Tablet', count: 100 }
+      ],
+      countryBreakdown: [
+        { country: 'USA', count: 400 },
+        { country: 'Canada', count: 200 },
+        { country: 'UK', count: 150 },
+        { country: 'Germany', count: 100 },
+        { country: 'France', count: 50 }
+      ],
+      topLinks: [
+        {
+          id: '1',
+          title: 'Link A',
+          short_url: 'short.ly/a',
+          original_url: 'https://example.com/a',
+          clicks: 500,
+          platform: 'Web',
+          avg_daily_clicks: 70
+        }
+      ]
+    });
+    setIsLoading(false);
+  }, []);
+
+  // useEffect(() => {
+  //   if (user) {
+  //     loadLinks();
+  //     loadAnalytics();
+  //   }
+  // }, [user, dateRange, selectedLink]);
 
   const loadLinks = async () => {
     if (!user) return;
