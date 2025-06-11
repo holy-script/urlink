@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { QRCodeCanvas } from 'qrcode.react';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/utils/supabase/client';
-import { Sparkles, HelpCircle, QrCode, Tags } from 'lucide-react';
+import { Sparkles, HelpCircle, QrCode, Tags, Smartphone } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -18,12 +19,22 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
+// Platform type definition
+type Platform = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' | 'amazon';
+
+interface DeepLinks {
+  android: string;
+  ios: string;
+}
+
 export function LinkGenerator() {
   const router = useRouter();
   const { user } = useAuth();
 
   // Form state
   const [url, setUrl] = useState('');
+  const [detectedPlatform, setDetectedPlatform] = useState<Platform | null>(null);
+  const [manualPlatform, setManualPlatform] = useState<Platform | null>(null);
   const [utmEnabled, setUtmEnabled] = useState(false);
   const [qrEnabled, setQrEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,8 +48,207 @@ export function LinkGenerator() {
   // QR code settings
   const [qrColor, setQrColor] = useState('#000000');
 
-  // Preview QR code when URL is valid
+  // Platform detection logic
+  const detectPlatform = (url: string): Platform | null => {
+    const normalizedUrl = url.toLowerCase();
+
+    if (normalizedUrl.includes('youtube.com') || normalizedUrl.includes('youtu.be')) {
+      return 'youtube';
+    }
+    if (normalizedUrl.includes('instagram.com')) {
+      return 'instagram';
+    }
+    if (normalizedUrl.includes('facebook.com') || normalizedUrl.includes('fb.com')) {
+      return 'facebook';
+    }
+    if (normalizedUrl.includes('tiktok.com')) {
+      return 'tiktok';
+    }
+    if (normalizedUrl.includes('maps.google.com') || normalizedUrl.includes('goo.gl/maps')) {
+      return 'google-maps';
+    }
+    if (normalizedUrl.includes('amazon.com') || normalizedUrl.includes('amzn.to')) {
+      return 'amazon';
+    }
+
+    return null;
+  };
+
+  // Deep link generation functions
+  const generateInstagramDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+      const pathParts = url.pathname.split('/');
+
+      if (pathParts.includes('p')) {
+        // Instagram post: /p/POST_ID/
+        const postIndex = pathParts.indexOf('p');
+        const postId = pathParts[postIndex + 1];
+
+        return {
+          android: `intent://instagram.com/p/${postId}/#Intent;package=com.instagram.android;scheme=https;end`,
+          ios: `instagram://media?id=${postId}`
+        };
+      } else if (pathParts.includes('reel')) {
+        // Instagram reel: /reel/REEL_ID/
+        const reelIndex = pathParts.indexOf('reel');
+        const reelId = pathParts[reelIndex + 1];
+
+        return {
+          android: `intent://instagram.com/reel/${reelId}/#Intent;package=com.instagram.android;scheme=https;end`,
+          ios: `instagram://media?id=${reelId}`
+        };
+      } else {
+        // Profile or other Instagram content
+        return {
+          android: `intent://${url.hostname}${url.pathname}#Intent;package=com.instagram.android;scheme=https;end`,
+          ios: `instagram://user?username=${pathParts[1] || ''}`
+        };
+      }
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateYouTubeDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+      let videoId = '';
+
+      if (url.hostname === 'youtu.be') {
+        videoId = url.pathname.slice(1);
+      } else if (url.searchParams.has('v')) {
+        videoId = url.searchParams.get('v') || '';
+      } else if (url.pathname.includes('/watch')) {
+        videoId = url.searchParams.get('v') || '';
+      }
+
+      if (videoId) {
+        return {
+          android: `vnd.youtube:${videoId}`,
+          ios: `youtube://${videoId}`
+        };
+      }
+
+      // For channels, playlists, etc.
+      return {
+        android: `vnd.youtube:${url.pathname}${url.search}`,
+        ios: `youtube://${url.pathname}${url.search}`
+      };
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateAmazonDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+      const asinMatch = url.pathname.match(/\/dp\/([A-Z0-9]{10})/);
+
+      if (asinMatch) {
+        const asin = asinMatch[1];
+        return {
+          android: `com.amazon.mobile.shopping.web://amazon.com/dp/${asin}/`,
+          ios: `com.amazon.mobile.shopping.web://amazon.com/dp/${asin}/`
+        };
+      }
+
+      return { android: originalUrl, ios: originalUrl };
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateFacebookDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+
+      if (url.pathname.includes('/posts/')) {
+        const postId = url.pathname.split('/posts/')[1];
+        return {
+          android: `fb://post/${postId}`,
+          ios: `fb://post/${postId}`
+        };
+      }
+
+      return {
+        android: `fb://page/${url.pathname}`,
+        ios: `fb://page/${url.pathname}`
+      };
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateTikTokDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+
+      if (url.pathname.includes('/video/')) {
+        const videoId = url.pathname.split('/video/')[1];
+        return {
+          android: `snssdk1233://video/${videoId}`,
+          ios: `tiktok://video/${videoId}`
+        };
+      }
+
+      return {
+        android: `snssdk1233://${url.pathname}`,
+        ios: `tiktok://${url.pathname}`
+      };
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateGoogleMapsDeepLinks = (originalUrl: string): DeepLinks => {
+    try {
+      const url = new URL(originalUrl);
+      const query = encodeURIComponent(originalUrl);
+
+      return {
+        android: `geo:0,0?q=${query}`,
+        ios: `maps://?q=${query}`
+      };
+    } catch {
+      return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  const generateDeepLinks = (originalUrl: string, platform: Platform): DeepLinks => {
+    switch (platform) {
+      case 'instagram':
+        return generateInstagramDeepLinks(originalUrl);
+      case 'youtube':
+        return generateYouTubeDeepLinks(originalUrl);
+      case 'amazon':
+        return generateAmazonDeepLinks(originalUrl);
+      case 'facebook':
+        return generateFacebookDeepLinks(originalUrl);
+      case 'tiktok':
+        return generateTikTokDeepLinks(originalUrl);
+      case 'google-maps':
+        return generateGoogleMapsDeepLinks(originalUrl);
+      default:
+        return { android: originalUrl, ios: originalUrl };
+    }
+  };
+
+  // Auto-detect platform when URL changes
+  useEffect(() => {
+    if (url.trim()) {
+      const detected = detectPlatform(url);
+      setDetectedPlatform(detected);
+      if (!manualPlatform && detected) {
+        setManualPlatform(detected);
+      }
+    } else {
+      setDetectedPlatform(null);
+    }
+  }, [url]);
+
   const canShowQRPreview = qrEnabled && url && (url.startsWith('http://') || url.startsWith('https://'));
+  const currentPlatform = manualPlatform || detectedPlatform;
 
   // Generate unique short code
   const generateShortCode = (): string => {
@@ -64,7 +274,7 @@ export function LinkGenerator() {
       return false;
     }
 
-    return !data; // Returns true if no existing record found
+    return !data;
   };
 
   // Generate unique short code with retries
@@ -83,7 +293,7 @@ export function LinkGenerator() {
       attempts++;
     }
 
-    return null; // Failed to generate unique code
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,6 +308,11 @@ export function LinkGenerator() {
 
     if (!url.trim()) {
       setError('Please enter a valid URL');
+      return;
+    }
+
+    if (!currentPlatform) {
+      setError('Please select a platform or enter a URL from a supported platform');
       return;
     }
 
@@ -126,32 +341,38 @@ export function LinkGenerator() {
         finalUrl = urlObj.toString();
       }
 
+      // Generate deep links
+      const deepLinks = generateDeepLinks(finalUrl, currentPlatform);
+
       // Generate unique short code
       const shortCode = await generateUniqueShortCode();
       if (!shortCode) {
         throw new Error('Failed to generate unique short code. Please try again.');
       }
 
-      // Extract title from URL (optional - can be done later)
+      // Extract title from URL (optional)
       let title = null;
       try {
         const urlObj = new URL(finalUrl);
-        title = urlObj.hostname; // Use hostname as fallback title
+        title = urlObj.hostname;
       } catch {
         // Ignore title extraction errors
       }
 
-      // Insert link into database
+      // Insert link into database using new schema
       const { data: linkData, error: insertError } = await supabase
         .from('links')
         .insert({
           user_id: user.id,
-          destination_url: finalUrl,
+          original_url: finalUrl,
+          android_deeplink: deepLinks.android,
+          ios_deeplink: deepLinks.ios,
+          platform: currentPlatform,
           short_code: shortCode,
           title: title,
           is_active: true
         })
-        .select('id, short_code')
+        .select('id, short_code, platform')
         .single();
 
       if (insertError) {
@@ -160,8 +381,9 @@ export function LinkGenerator() {
       }
 
       // Success!
-      toast.success('Link created successfully!', {
-        description: `Short code: ${linkData.short_code}`,
+      const smartUrl = `smarturlink.com/${linkData.platform}/${linkData.short_code}`;
+      toast.success('Smart link created successfully!', {
+        description: `URL: ${smartUrl}`,
         action: {
           label: 'View Links',
           onClick: () => router.push('/my-links')
@@ -170,6 +392,7 @@ export function LinkGenerator() {
 
       // Clear form
       setUrl('');
+      setManualPlatform(null);
       setUtmSource('');
       setUtmMedium('');
       setUtmCampaign('');
@@ -199,12 +422,62 @@ export function LinkGenerator() {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste a link from Instagram, YouTube, Amazon..."
+            placeholder="Paste a link from Instagram, YouTube, Amazon, TikTok, Facebook, or Google Maps..."
             className="w-full text-base py-4 px-4 rounded-lg border-2 border-gray-200 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] transition-all sm:text-lg sm:py-6 sm:px-6 sm:rounded-xl text-gray-900 placeholder:text-gray-500"
             required
             disabled={isLoading}
           />
+          {detectedPlatform && (
+            <div className="flex items-center gap-2 text-sm text-green-600">
+              <Smartphone className="w-4 h-4" />
+              Detected platform: <span className="font-medium capitalize">{detectedPlatform}</span>
+            </div>
+          )}
         </div>
+
+        {/* Platform Selection */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">Platform</label>
+          <Select
+            value={manualPlatform || ''}
+            onValueChange={(value) => setManualPlatform(value as Platform)}
+            disabled={isLoading}
+          >
+            <SelectTrigger className="w-full text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
+              <SelectValue placeholder="Select platform (auto-detected if available)"
+              />
+            </SelectTrigger>
+            <SelectContent className='text-gray-900 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]'>
+              <SelectItem value="youtube" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                YouTube
+              </SelectItem>
+              <SelectItem value="instagram" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                Instagram
+              </SelectItem>
+              <SelectItem value="facebook" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                Facebook
+              </SelectItem>
+              <SelectItem value="tiktok" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                TikTok
+              </SelectItem>
+              <SelectItem value="google-maps" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                Google Maps
+              </SelectItem>
+              <SelectItem value="amazon" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                Amazon
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Preview Smart URL */}
+        {currentPlatform && url && (
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="text-sm text-blue-800">
+              <strong>Smart URL Preview:</strong> smarturlink.com/{currentPlatform}/[your-code]
+            </div>
+          </div>
+        )}
 
         {/* Feature Toggles */}
         <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
@@ -292,7 +565,7 @@ export function LinkGenerator() {
         )}
 
         {/* QR Code Preview */}
-        {qrEnabled && canShowQRPreview && (
+        {qrEnabled && canShowQRPreview && currentPlatform && (
           <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
             <h3 className="text-sm font-medium text-gray-700 mb-4 text-center sm:text-left sm:text-base">
               QR Code Preview
@@ -300,7 +573,7 @@ export function LinkGenerator() {
             <div className="flex justify-center">
               <div className="bg-white p-4 rounded-lg shadow-sm">
                 <QRCodeCanvas
-                  value={url.startsWith('http') ? url : `https://${url}`}
+                  value={`https://smarturlink.com/${currentPlatform}/preview`}
                   size={150}
                   fgColor={qrColor}
                   level="H"
@@ -310,7 +583,7 @@ export function LinkGenerator() {
               </div>
             </div>
             <p className="text-xs text-gray-500 text-center mt-3 sm:text-sm">
-              This QR code will be included with your smart link
+              QR code will redirect to your smart link
             </p>
           </Card>
         )}
@@ -328,13 +601,13 @@ export function LinkGenerator() {
         {/* Submit Button */}
         <Button
           type="submit"
-          disabled={isLoading || !url.trim()}
+          disabled={isLoading || !url.trim() || !currentPlatform}
           className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 text-base rounded-lg flex items-center justify-center gap-2 transition-all sm:py-6 sm:text-lg sm:rounded-xl sm:gap-3"
         >
           {isLoading ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white sm:h-6 sm:w-6"></div>
-              Creating your link...
+              Creating your smart link...
             </>
           ) : (
             <>

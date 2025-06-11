@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const code = requestUrl.searchParams.get('code');
     const next = requestUrl.searchParams.get('next') ?? '/email-verified';
 
+    console.log('Auth callback received code:', code);
+
     if (code) {
         try {
             const supabase = await createClient();

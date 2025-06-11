@@ -28,7 +28,11 @@ import {
   Check,
   Twitter,
   Linkedin,
-  Facebook
+  Facebook,
+  MapPin,
+  QrCode,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
 import {
   Dialog,
@@ -47,21 +51,23 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useRouter } from 'next/navigation';
 
+// Platform type matching your database enum
+type Platform = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' | 'amazon';
+
+// Updated interface to match new schema
 interface SmartLink {
   id: string;
   title: string | null;
-  destination_url: string;
+  original_url: string;        // Changed from destination_url
+  android_deeplink: string;    // New field
+  ios_deeplink: string;        // New field
+  platform: Platform;         // New field (stored in DB)
   short_code: string;
   is_active: boolean;
+  deleted_at: string | null;   // New field for soft delete
   created_at: string;
   updated_at: string;
   click_count?: number;
-}
-
-interface ParsedUrl {
-  domain: string;
-  path: string;
-  platform: string;
 }
 
 export default function MyLinks() {
@@ -73,117 +79,9 @@ export default function MyLinks() {
   const [platform, setPlatform] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [deleteLink, setDeleteLink] = useState<SmartLink | null>(null);
+  const [selectedLink, setSelectedLink] = useState<SmartLink | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
-
-  // useEffect(() => {
-  //   // Mock data for demonstration purposes
-  //   setLinks([
-  //     {
-  //       id: '1',
-  //       title: 'My First Link',
-  //       destination_url: 'https://example.com',
-  //       short_code: 'abc123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 10
-  //     },
-  //     {
-  //       id: '2',
-  //       title: 'My Second Link',
-  //       destination_url: 'https://example.com/second',
-  //       short_code: 'def456',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 5
-  //     },
-  //     // Add from different platforms for testing
-  //     {
-  //       id: '3',
-  //       title: 'Instagram Link',
-  //       destination_url: 'https://instagram.com/myprofile',
-  //       short_code: 'inst789',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 20
-  //     },
-  //     {
-  //       id: '4',
-  //       title: 'YouTube Video',
-  //       destination_url: 'https://youtube.com/watch?v=xyz',
-  //       short_code: 'yt123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 15
-  //     },
-  //     {
-  //       id: '5',
-  //       title: 'Amazon Product',
-  //       destination_url: 'https://amazon.com/product',
-  //       short_code: 'amz456',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 8
-  //     },
-  //     {
-  //       id: '6',
-  //       title: 'TikTok Video',
-  //       destination_url: 'https://tiktok.com/@myprofile',
-  //       short_code: 'tiktok789',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 12
-  //     },
-  //     {
-  //       id: '7',
-  //       title: 'Spotify Playlist',
-  //       destination_url: 'https://spotify.com/playlist/123',
-  //       short_code: 'spotify123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 18
-  //     },
-  //     {
-  //       id: '8',
-  //       title: 'Twitter Post',
-  //       destination_url: 'https://twitter.com/myprofile/status/123456789',
-  //       short_code: 'twitter123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 25
-  //     },
-  //     {
-  //       id: '9',
-  //       title: 'LinkedIn Profile',
-  //       destination_url: 'https://linkedin.com/in/myprofile',
-  //       short_code: 'linkedin123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 30
-  //     },
-  //     {
-  //       id: '10',
-  //       title: 'Facebook Page',
-  //       destination_url: 'https://facebook.com/myprofile',
-  //       short_code: 'facebook123',
-  //       is_active: true,
-  //       created_at: new Date().toISOString(),
-  //       updated_at: new Date().toISOString(),
-  //       click_count: 22
-  //     }
-  //   ]);
-  //   setIsLoading(false);
-  //   setError(null);
-  // }, []);
 
   useEffect(() => {
     if (user) {
@@ -202,20 +100,25 @@ export default function MyLinks() {
       setIsLoading(true);
       setError(null);
 
-      // Fetch links with click counts
+      // Updated query to match new schema
       const { data: linksData, error: linksError } = await supabase
         .from('links')
         .select(`
           id,
           title,
-          destination_url,
+          original_url,
+          android_deeplink,
+          ios_deeplink,
+          platform,
           short_code,
           is_active,
+          deleted_at,
           created_at,
           updated_at
         `)
         .eq('user_id', user.id)
         .eq('is_active', true)
+        .is('deleted_at', null)  // Only get non-deleted links
         .order('created_at', { ascending: false });
 
       if (linksError) {
@@ -254,68 +157,57 @@ export default function MyLinks() {
     }
   };
 
-  const parseUrl = (url: string): ParsedUrl => {
+  // Simplified since platform is now stored in database
+  const parseUrl = (url: string) => {
     try {
       const urlObj = new URL(url);
-      const domain = urlObj.hostname;
-      const path = urlObj.pathname;
-      let platform = 'other';
-
-      const hostname = domain.toLowerCase();
-      if (hostname.includes('instagram')) platform = 'instagram';
-      else if (hostname.includes('youtube')) platform = 'youtube';
-      else if (hostname.includes('amazon')) platform = 'amazon';
-      else if (hostname.includes('tiktok')) platform = 'tiktok';
-      else if (hostname.includes('spotify')) platform = 'spotify';
-      else if (hostname.includes('twitter') || hostname.includes('x.com')) platform = 'twitter';
-      else if (hostname.includes('linkedin')) platform = 'linkedin';
-      else if (hostname.includes('facebook')) platform = 'facebook';
-
-      return { domain, path, platform };
+      return {
+        domain: urlObj.hostname,
+        path: urlObj.pathname
+      };
     } catch (error) {
-      return { domain: 'unknown', path: '', platform: 'other' };
+      return {
+        domain: 'unknown',
+        path: ''
+      };
     }
   };
 
-  const getPlatformIcon = (platform: string) => {
-    switch (platform.toLowerCase()) {
+  const getPlatformIcon = (platform: Platform) => {
+    switch (platform) {
       case 'instagram':
-        return <Instagram className="w-3.5 h-3.5" />;
+        return <Instagram className="w-3.5 h-3.5 text-pink-600" />;
       case 'youtube':
-        return <Youtube className="w-3.5 h-3.5" />;
+        return <Youtube className="w-3.5 h-3.5 text-red-600" />;
       case 'amazon':
-        return <ShoppingBag className="w-3.5 h-3.5" />;
-      case 'spotify':
-        return <Music2 className="w-3.5 h-3.5" />;
-      case 'twitter':
-        return <Twitter className="w-3.5 h-3.5" />;
-      case 'linkedin':
-        return <Linkedin className="w-3.5 h-3.5" />;
+        return <ShoppingBag className="w-3.5 h-3.5 text-orange-600" />;
+      case 'google-maps':
+        return <MapPin className="w-3.5 h-3.5 text-blue-600" />;
       case 'facebook':
-        return <Facebook className="w-3.5 h-3.5" />;
+        return <Facebook className="w-3.5 h-3.5 text-blue-600" />;
+      case 'tiktok':
+        return <Music2 className="w-3.5 h-3.5 text-purple-600" />;
       default:
-        return <Globe className="w-3.5 h-3.5" />;
+        return <Globe className="w-3.5 h-3.5 text-gray-600" />;
     }
   };
 
-  const getPlatformBadgeColor = (platform: string) => {
-    switch (platform.toLowerCase()) {
+  const getPlatformBadgeColor = (platform: Platform) => {
+    switch (platform) {
       case 'instagram':
-        return 'bg-pink-100 text-pink-800';
+        return 'bg-pink-100 text-pink-800 border-pink-200';
       case 'youtube':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 text-red-800 border-red-200';
       case 'amazon':
-        return 'bg-orange-100 text-orange-800';
-      case 'spotify':
-        return 'bg-green-100 text-green-800';
-      case 'twitter':
-        return 'bg-blue-100 text-blue-800';
-      case 'linkedin':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'google-maps':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'facebook':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'tiktok':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -335,9 +227,13 @@ export default function MyLinks() {
     if (!deleteLink) return;
 
     try {
+      // Use soft delete by setting deleted_at timestamp
       const { error } = await supabase
         .from('links')
-        .update({ is_active: false })
+        .update({
+          deleted_at: new Date().toISOString(),
+          is_active: false
+        })
         .eq('id', deleteLink.id);
 
       if (error) throw error;
@@ -352,8 +248,29 @@ export default function MyLinks() {
     }
   };
 
-  const getShortUrl = (shortCode: string) => {
-    return `${process.env.NEXT_PUBLIC_APP_URL || 'https://yourdomain.com'}/${shortCode}`;
+  // Updated to use new URL structure with platform
+  const getShortUrl = (platform: Platform, shortCode: string) => {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com';
+    return `${baseUrl}/${platform}/${shortCode}`;
+  };
+
+  // Generate QR code for the smart link
+  const generateQRCode = (link: SmartLink) => {
+    const shortUrl = getShortUrl(link.platform, link.short_code);
+    return (
+      <div className="flex flex-col items-center gap-3 bg-white p-4 rounded-lg">
+        <QRCodeCanvas
+          value={shortUrl}
+          size={200}
+          level="H"
+          includeMargin
+          className="border border-gray-200 rounded-lg bg-white"
+        />
+        <p className="text-sm text-gray-600 text-center bg-gray-50 px-3 py-2 rounded-md">
+          Scan to open: <span className="text-[#5e17eb] font-medium">{shortUrl}</span>
+        </p>
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -361,7 +278,7 @@ export default function MyLinks() {
       <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5e17eb]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5e17eb] bg-white"></div>
           </div>
         </div>
       </div>
@@ -382,7 +299,7 @@ export default function MyLinks() {
             </div>
             <Button
               onClick={loadLinks}
-              className="mt-4 text-red-600 hover:text-red-700"
+              className="mt-4 text-red-600 hover:text-red-700 bg-white hover:bg-red-50 border-red-200"
               variant="outline"
             >
               Try Again
@@ -397,21 +314,21 @@ export default function MyLinks() {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <Card className="p-12 text-center bg-gray-50 border-gray-200 shadow-sm">
+          <Card className="p-12 text-center bg-white border-gray-200 shadow-sm">
             <div className="flex flex-col items-center gap-4">
               <LinkIcon className="w-12 h-12 text-gray-400" />
               <h2 className="text-xl font-semibold text-gray-900">
-                You haven't created any links yet
+                You haven't created any smart links yet
               </h2>
               <p className="text-gray-600 max-w-md mx-auto">
-                Start tracking clicks and engagement by creating your first smart link.
+                Start creating platform-specific deep links with advanced analytics and click tracking.
               </p>
               <Button
                 onClick={() => router.push('/create-link')}
                 className="mt-4 bg-[#5e17eb] text-white hover:bg-[#4e13c4] flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Create your first link
+                <Sparkles className="w-4 h-4 mr-2 text-white" />
+                Create your first smart link
               </Button>
             </div>
           </Card>
@@ -420,16 +337,15 @@ export default function MyLinks() {
     );
   }
 
-  // Filter and sort links
+  // Filter and sort links (now using stored platform field)
   const filteredAndSortedLinks = links
     .filter(link => {
-      const { platform: linkPlatform } = parseUrl(link.destination_url);
       const matchesSearch =
         link.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        link.destination_url.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        link.original_url.toLowerCase().includes(searchTerm.toLowerCase()) ||
         link.short_code.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesPlatform = platform === 'all' || linkPlatform === platform;
+      const matchesPlatform = platform === 'all' || link.platform === platform;
 
       return matchesSearch && matchesPlatform;
     })
@@ -452,24 +368,27 @@ export default function MyLinks() {
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">My Links</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">My Smart Links</h1>
+            <p className="text-gray-600 mt-1">Manage your platform-specific deep links</p>
+          </div>
           <Button
             onClick={() => router.push('/create-link')}
             className="bg-[#5e17eb] text-white hover:bg-[#4e13c4] w-full sm:w-auto"
           >
-            <Sparkles className="w-4 h-4 mr-2" />
+            <Sparkles className="w-4 h-4 mr-2 text-white" />
             Create New Link
           </Button>
         </div>
 
         {/* Search and Filter Bar */}
-        <Card className="p-4">
+        <Card className="p-4 bg-white border-gray-200 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="flex items-center gap-2 flex-1">
               <Search className="w-5 h-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Search links by title or URL..."
+                placeholder="Search links by title, URL, or short code..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm placeholder:text-gray-400 text-gray-900 bg-transparent"
@@ -477,30 +396,28 @@ export default function MyLinks() {
             </div>
             <div className="flex gap-2">
               <Select value={platform} onValueChange={setPlatform}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] bg-white border-gray-200 text-gray-700">
                   <SelectValue placeholder="All platforms" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All platforms</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="youtube">YouTube</SelectItem>
-                  <SelectItem value="amazon">Amazon</SelectItem>
-                  <SelectItem value="tiktok">TikTok</SelectItem>
-                  <SelectItem value="spotify">Spotify</SelectItem>
-                  <SelectItem value="twitter">Twitter</SelectItem>
-                  <SelectItem value="linkedin">LinkedIn</SelectItem>
-                  <SelectItem value="facebook">Facebook</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="all" className="text-gray-700 hover:bg-gray-50">All platforms</SelectItem>
+                  <SelectItem value="instagram" className="text-gray-700 hover:bg-gray-50">Instagram</SelectItem>
+                  <SelectItem value="youtube" className="text-gray-700 hover:bg-gray-50">YouTube</SelectItem>
+                  <SelectItem value="amazon" className="text-gray-700 hover:bg-gray-50">Amazon</SelectItem>
+                  <SelectItem value="tiktok" className="text-gray-700 hover:bg-gray-50">TikTok</SelectItem>
+                  <SelectItem value="facebook" className="text-gray-700 hover:bg-gray-50">Facebook</SelectItem>
+                  <SelectItem value="google-maps" className="text-gray-700 hover:bg-gray-50">Google Maps</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] bg-white border-gray-200 text-gray-700">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="newest">Newest first</SelectItem>
-                  <SelectItem value="oldest">Oldest first</SelectItem>
-                  <SelectItem value="most-clicks">Most clicks</SelectItem>
-                  <SelectItem value="least-clicks">Least clicks</SelectItem>
+                <SelectContent className="bg-white border-gray-200">
+                  <SelectItem value="newest" className="text-gray-700 hover:bg-gray-50">Newest first</SelectItem>
+                  <SelectItem value="oldest" className="text-gray-700 hover:bg-gray-50">Oldest first</SelectItem>
+                  <SelectItem value="most-clicks" className="text-gray-700 hover:bg-gray-50">Most clicks</SelectItem>
+                  <SelectItem value="least-clicks" className="text-gray-700 hover:bg-gray-50">Least clicks</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -510,25 +427,25 @@ export default function MyLinks() {
         {/* Links Grid */}
         <div className="grid gap-4">
           {filteredAndSortedLinks.map((link) => {
-            const { domain, path, platform: linkPlatform } = parseUrl(link.destination_url);
-            const badgeColor = getPlatformBadgeColor(linkPlatform);
+            const { domain, path } = parseUrl(link.original_url);
+            const badgeColor = getPlatformBadgeColor(link.platform);
             const isCopied = copiedLinkId === link.id;
-            const shortUrl = getShortUrl(link.short_code);
+            const shortUrl = getShortUrl(link.platform, link.short_code);
 
             return (
               <Card
                 key={link.id}
-                className="p-4 hover:shadow-md transition-shadow duration-200 sm:p-6"
+                className="p-4 hover:shadow-md transition-shadow duration-200 sm:p-6 bg-white border-gray-200"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-col gap-2 mb-3 sm:flex-row sm:items-center sm:mb-2">
-                      <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit ${badgeColor}`}>
-                        {getPlatformIcon(linkPlatform)}
-                        <span className="capitalize">{linkPlatform}</span>
+                      <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit border ${badgeColor}`}>
+                        {getPlatformIcon(link.platform)}
+                        <span className="capitalize">{link.platform.replace('-', ' ')}</span>
                       </div>
                       <h3 className="font-medium text-gray-900 truncate">
-                        {link.title || 'Untitled Link'}
+                        {link.title || 'Untitled Smart Link'}
                       </h3>
                     </div>
 
@@ -541,8 +458,8 @@ export default function MyLinks() {
                           variant="ghost"
                           size="sm"
                           className={`h-6 px-2 transition-colors duration-200 w-fit ${isCopied
-                            ? 'text-green-600 hover:text-green-700'
-                            : 'text-gray-500 hover:text-[#5e17eb]'
+                            ? 'text-green-600 hover:text-green-700 bg-green-50 hover:bg-green-100'
+                            : 'text-gray-500 hover:text-[#5e17eb] bg-transparent hover:bg-gray-50'
                             }`}
                           onClick={() => copyToClipboard(shortUrl, link.id)}
                         >
@@ -555,8 +472,20 @@ export default function MyLinks() {
                       </div>
 
                       <div className="flex flex-col text-sm text-gray-500 sm:flex-row sm:items-center">
-                        <span className="font-medium">{domain}</span>
-                        <span className="truncate max-w-md">{path}</span>
+                        <span className="font-medium text-gray-700">{domain}</span>
+                        <span className="text-gray-500 truncate max-w-md">{path}</span>
+                      </div>
+
+                      {/* Deep Link Preview */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                          <Smartphone className="w-3 h-3 mr-1 text-blue-600" />
+                          Android Deep Link
+                        </Badge>
+                        <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                          <Monitor className="w-3 h-3 mr-1 text-gray-600" />
+                          iOS Deep Link
+                        </Badge>
                       </div>
 
                       <div className="flex flex-col gap-2 mt-3 text-sm sm:flex-row sm:items-center sm:gap-4">
@@ -578,13 +507,29 @@ export default function MyLinks() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            onClick={() => setSelectedLink(link)}
+                            className="hover:bg-blue-50 hover:text-blue-700 text-gray-500 bg-transparent"
+                          >
+                            <QrCode className="w-4 h-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-gray-900 text-white border-gray-700">
+                          Generate QR Code
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => window.open(shortUrl, '_blank')}
-                            className="hover:bg-gray-100 hover:text-blue-700 text-gray-500"
+                            className="hover:bg-blue-50 hover:text-blue-700 text-gray-500 bg-transparent"
                           >
                             <ExternalLink className="w-4 h-4" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent className="text-blue-700 bg-white">
+                        <TooltipContent className="bg-gray-900 text-white border-gray-700">
                           Open link
                         </TooltipContent>
                       </Tooltip>
@@ -595,12 +540,12 @@ export default function MyLinks() {
                             variant="ghost"
                             size="icon"
                             onClick={() => setDeleteLink(link)}
-                            className="hover:bg-gray-100 hover:text-red-500 text-gray-500"
+                            className="hover:bg-red-50 hover:text-red-500 text-gray-500 bg-transparent"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent className="text-red-600 bg-white">
+                        <TooltipContent className="bg-gray-900 text-white border-gray-700">
                           Delete link
                         </TooltipContent>
                       </Tooltip>
@@ -613,27 +558,51 @@ export default function MyLinks() {
         </div>
       </div>
 
+      {/* QR Code Dialog */}
+      <Dialog open={!!selectedLink} onOpenChange={() => setSelectedLink(null)}>
+        <DialogContent className="mx-4 max-w-md sm:mx-auto bg-white border-gray-200">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900">QR Code</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Scan this QR code to open your smart link
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-4 bg-gray-50 rounded-lg">
+            {selectedLink && generateQRCode(selectedLink)}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setSelectedLink(null)}
+              className="w-full bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-800"
+            >
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteLink} onOpenChange={() => setDeleteLink(null)}>
-        <DialogContent className="mx-4 max-w-md sm:mx-auto">
+        <DialogContent className="mx-4 max-w-md sm:mx-auto bg-white border-gray-200">
           <DialogHeader>
-            <DialogTitle>Delete Link</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this link? This action cannot be undone and all analytics data will be lost.
+            <DialogTitle className="text-gray-900">Delete Smart Link</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              Are you sure you want to delete this smart link? This action cannot be undone and all analytics data will be lost.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
             <Button
               variant="outline"
               onClick={() => setDeleteLink(null)}
-              className="w-full order-2 sm:order-1 sm:w-auto"
+              className="w-full order-2 sm:order-1 sm:w-auto bg-white text-gray-700 border-gray-200 hover:bg-gray-50 hover:text-gray-800"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="w-full order-1 sm:order-2 sm:w-auto"
+              className="w-full order-1 sm:order-2 sm:w-auto bg-red-600 text-white hover:bg-red-700 border-red-600"
             >
               Delete Link
             </Button>

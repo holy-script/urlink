@@ -73,7 +73,7 @@ export async function middleware(request: NextRequest) {
   const openRoutes = [
     '/',
     '/email-verified',
-    '/auth-code-error',
+    '/auth-code'
   ];
 
   // Check if current path is protected
@@ -141,9 +141,9 @@ export const config = {
     // Match all pathnames except for
     // - API routes, trpc, Next.js internals, Vercel internals
     // - Files with extensions
-    '/((?!api|trpc|_next|_vercel|.*\\..*).*))',
+    // '/((?!api|trpc|_next|_vercel|.*\\..*).*))',
 
     // Also include the Supabase matcher to ensure session is updated everywhere needed
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
