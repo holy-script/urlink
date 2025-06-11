@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
-// import { supabase } from '@/lib/supabase';
-// import { useAuth } from '@/lib/AuthContext';
-import { AlertTriangle, Camera, Loader2, Trash } from 'lucide-react';
+import { supabase } from '@/utils/supabase/client';
+import { useAuth } from '@/context/AuthContext';
+import { AlertTriangle, Camera, Loader2, Trash, RefreshCw } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -27,11 +27,12 @@ import {
 } from '@/components/ui/tooltip';
 
 interface UserProfile {
-  name: string;
-  email: string;
-  language: string;
+  name: string | null;
+  email: string; // This comes from auth user
   notification_optin: boolean;
-  avatar_url?: string;
+  avatar_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
@@ -39,23 +40,21 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 export default function AccountPage() {
   const router = useRouter();
-  // const { user } = useAuth();
-  // Set mock user for demonstration purposes
-  const user = {
-    id: '12345',
-    email: 'abc@example.com',
-    name: 'John Doe',
-  };
+  const { user } = useAuth();
+
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     email: '',
-    language: 'en',
     notification_optin: false
   });
+
   const [passwords, setPasswords] = useState({
     current: '',
     new: '',
@@ -63,84 +62,106 @@ export default function AccountPage() {
   });
 
   useEffect(() => {
-    loadUserProfile();
+    if (user) {
+      loadUserProfile();
+    }
   }, [user]);
 
-  useEffect(() => {
-    // Set initial profile state based on user data
-    if (user) {
-      setProfile({
-        ...profile,
-        name: user.name || '',
-        email: user.email || '',
-      });
-    }
-  }, []);
-
   async function loadUserProfile() {
-    if (!user) return;
+    if (!user) {
+      setError('Please log in to view your account');
+      setIsLoadingProfile(false);
+      return;
+    }
 
-    // try {
-    //   const { data, error } = await supabase
-    //     .from('users')
-    //     .select('name, email, language, notification_optin, avatar_url')
-    //     .eq('id', user.id)
-    //     .maybeSingle();
+    try {
+      setIsLoadingProfile(true);
+      setError(null);
 
-    //   if (error) throw error;
+      console.log('📋 Loading user profile for:', user.id);
 
-    //   if (!data) {
-    //     throw new Error('User profile not found');
-    //   }
+      // Load user profile from your users table (only fields that exist)
+      const { data, error } = await supabase
+        .from('users')
+        .select(`
+          name, 
+          notification_optin, 
+          avatar_url,
+          created_at,
+          updated_at
+        `)
+        .eq('id', user.id)
+        .single();
 
-    //   setProfile({
-    //     name: data.name || '',
-    //     email: data.email || '',
-    //     language: data.language || 'en',
-    //     notification_optin: data.notification_optin || false,
-    //     avatar_url: data.avatar_url
-    //   });
-    // } catch (error) {
-    //   console.error('Error loading user profile:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to load user profile",
-    //     variant: "destructive"
-    //   });
-    // }
+      if (error) {
+        console.error('❌ Error loading user profile:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('User profile not found');
+      }
+
+      console.log('✅ User profile loaded successfully');
+
+      setProfile({
+        name: data.name || '',
+        email: user.email || '', // Get email from auth user object
+        notification_optin: data.notification_optin || false,
+        avatar_url: data.avatar_url,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      });
+
+    } catch (err) {
+      console.error('💥 Error loading user profile:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load user profile';
+      setError(errorMessage);
+      toast.error('Failed to load user profile', {
+        description: errorMessage
+      });
+    } finally {
+      setIsLoadingProfile(false);
+    }
   }
 
   async function handleProfileUpdate(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
 
-    // setLoading(true);
-    // try {
-    //   const { error } = await supabase
-    //     .from('users')
-    //     .update({
-    //       name: profile.name,
-    //       language: profile.language,
-    //       notification_optin: profile.notification_optin
-    //     })
-    //     .eq('id', user.id);
+    setLoading(true);
+    try {
+      console.log('📝 Updating user profile...');
 
-    //   if (error) throw error;
+      const { error } = await supabase
+        .from('users')
+        .update({
+          name: profile.name,
+          notification_optin: profile.notification_optin,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
-    //   toast({
-    //     title: "Success",
-    //     description: "Profile updated successfully"
-    //   });
-    // } catch (error) {
-    //   console.error('Error updating profile:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to update profile",
-    //     variant: "destructive"
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
+      if (error) {
+        console.error('❌ Profile update error:', error);
+        throw error;
+      }
+
+      console.log('✅ Profile updated successfully');
+
+      toast.success('Profile updated successfully', {
+        description: 'Your account information has been saved.'
+      });
+
+    } catch (err) {
+      console.error('💥 Error updating profile:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
+      toast.error('Failed to update profile', {
+        description: errorMessage
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -149,219 +170,322 @@ export default function AccountPage() {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      // toast({
-      //   title: "Error",
-      //   description: "File size must be less than 2MB",
-      //   variant: "destructive"
-      // });
-      toast.error("File size must be less than 2MB");
+      toast.error('File size must be less than 2MB');
       return;
     }
 
     // Validate file type
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      // toast({
-      //   title: "Error",
-      //   description: "Only JPG, PNG, and WebP images are allowed",
-      //   variant: "destructive"
-      // });
-      toast.error("Only JPG, PNG, and WebP images are allowed");
+      toast.error('Only JPG, PNG, and WebP images are allowed');
       return;
     }
 
-    // setUploadLoading(true);
-    // try {
-    //   // Upload to storage
-    //   const fileExt = file.name.split('.').pop();
-    //   const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-    //   const { error: uploadError, data } = await supabase.storage
-    //     .from('avatars')
-    //     .upload(fileName, file);
+    setUploadLoading(true);
+    try {
+      console.log('📤 Uploading avatar...');
 
-    //   if (uploadError) throw uploadError;
+      // Upload to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
 
-    //   // Get public URL
-    //   const { data: { publicUrl } } = supabase.storage
-    //     .from('avatars')
-    //     .getPublicUrl(fileName);
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-    //   // Update user profile
-    //   const { error: updateError } = await supabase
-    //     .from('users')
-    //     .update({ avatar_url: publicUrl })
-    //     .eq('id', user.id);
+      if (uploadError) {
+        console.error('❌ Upload error:', uploadError);
+        throw uploadError;
+      }
 
-    //   if (updateError) throw updateError;
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
 
-    //   setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-    //   toast({
-    //     title: "Success",
-    //     description: "Profile picture updated successfully"
-    //   });
-    // } catch (error) {
-    //   console.error('Error uploading avatar:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to upload profile picture",
-    //     variant: "destructive"
-    //   });
-    // } finally {
-    //   setUploadLoading(false);
-    // }
+      console.log('📷 Avatar uploaded, updating profile...');
+
+      // Update user profile with new avatar URL
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          avatar_url: publicUrl,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateError) {
+        console.error('❌ Profile update error:', updateError);
+        throw updateError;
+      }
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+
+      console.log('✅ Avatar updated successfully');
+      toast.success('Profile picture updated successfully');
+
+    } catch (err) {
+      console.error('💥 Error uploading avatar:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload profile picture';
+      toast.error('Failed to upload profile picture', {
+        description: errorMessage
+      });
+    } finally {
+      setUploadLoading(false);
+    }
   }
 
   async function handleRemoveAvatar() {
     if (!user || !profile.avatar_url) return;
 
     setUploadLoading(true);
-    // try {
-    //   // Extract filename from URL
-    //   const fileName = profile.avatar_url.split('/').pop();
-    //   if (fileName) {
-    //     // Delete from storage
-    //     const { error: deleteError } = await supabase.storage
-    //       .from('avatars')
-    //       .remove([fileName]);
+    try {
+      console.log('🗑️ Removing avatar...');
 
-    //     if (deleteError) throw deleteError;
-    //   }
+      // Extract filename from URL
+      const fileName = profile.avatar_url.split('/').pop();
+      if (fileName) {
+        // Delete from storage
+        const { error: deleteError } = await supabase.storage
+          .from('avatars')
+          .remove([fileName]);
 
-    //   // Update user profile
-    //   const { error: updateError } = await supabase
-    //     .from('users')
-    //     .update({ avatar_url: null })
-    //     .eq('id', user.id);
+        if (deleteError) {
+          console.warn('⚠️ Storage deletion warning:', deleteError);
+          // Continue anyway, sometimes file might not exist
+        }
+      }
 
-    //   if (updateError) throw updateError;
+      // Update user profile to remove avatar URL
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({
+          avatar_url: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
 
-    //   setProfile(prev => ({ ...prev, avatar_url: undefined }));
-    //   toast({
-    //     title: "Success",
-    //     description: "Profile picture removed successfully"
-    //   });
-    // } catch (error) {
-    //   console.error('Error removing avatar:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to remove profile picture",
-    //     variant: "destructive"
-    //   });
-    // } finally {
-    //   setUploadLoading(false);
-    // }
+      if (updateError) {
+        console.error('❌ Profile update error:', updateError);
+        throw updateError;
+      }
+
+      setProfile(prev => ({ ...prev, avatar_url: null }));
+
+      console.log('✅ Avatar removed successfully');
+      toast.success('Profile picture removed successfully');
+
+    } catch (err) {
+      console.error('💥 Error removing avatar:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to remove profile picture';
+      toast.error('Failed to remove profile picture', {
+        description: errorMessage
+      });
+    } finally {
+      setUploadLoading(false);
+    }
   }
 
   async function handlePasswordChange(e: React.FormEvent) {
     e.preventDefault();
-    // if (passwords.new !== passwords.confirm) {
-    //   toast({
-    //     title: "Error",
-    //     description: "New passwords don't match",
-    //     variant: "destructive"
-    //   });
-    //   return;
-    // }
 
-    // setLoading(true);
-    // try {
-    //   const { error } = await supabase.auth.updateUser({
-    //     password: passwords.new
-    //   });
+    if (passwords.new !== passwords.confirm) {
+      toast.error('New passwords don\'t match');
+      return;
+    }
 
-    //   if (error) throw error;
+    if (passwords.new.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
 
-    //   setPasswords({ current: '', new: '', confirm: '' });
-    //   toast({
-    //     title: "Success",
-    //     description: "Password updated successfully"
-    //   });
-    // } catch (error) {
-    //   console.error('Error updating password:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to update password",
-    //     variant: "destructive"
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
+    setLoading(true);
+    try {
+      console.log('🔒 Updating password...');
+
+      const { error } = await supabase.auth.updateUser({
+        password: passwords.new
+      });
+
+      if (error) {
+        console.error('❌ Password update error:', error);
+        throw error;
+      }
+
+      setPasswords({ current: '', new: '', confirm: '' });
+
+      console.log('✅ Password updated successfully');
+      toast.success('Password updated successfully', {
+        description: 'Your password has been changed.'
+      });
+
+    } catch (err) {
+      console.error('💥 Error updating password:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update password';
+      toast.error('Failed to update password', {
+        description: errorMessage
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleDeleteAccount() {
     if (!user || deleteConfirmation !== 'DELETE') return;
 
-    // setLoading(true);
-    // try {
-    //   // Record deletion reason
-    //   const { error: deletionError } = await supabase
-    //     .from('account_deletions')
-    //     .insert({
-    //       user_id: user.id,
-    //       reason: 'User requested account deletion'
-    //     });
+    setLoading(true);
+    try {
+      console.log('🚨 Deleting account...');
 
-    //   if (deletionError) throw deletionError;
+      // Use your soft delete function from the database schema
+      const { error: deletionError } = await supabase
+        .rpc('soft_delete_user_and_links', { p_user_id: user.id });
 
-    //   // Delete the user's auth account
-    //   const { error: authError } = await supabase.auth.admin.deleteUser(user.id);
-    //   if (authError) throw authError;
+      if (deletionError) {
+        console.error('❌ Deletion error:', deletionError);
+        throw deletionError;
+      }
 
-    //   // Sign out
-    //   await supabase.auth.signOut();
+      console.log('✅ Account soft deleted successfully');
 
-    //   toast({
-    //     title: "Account Deleted",
-    //     description: "Your account has been permanently deleted"
-    //   });
+      // Sign out the user
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) {
+        console.error('❌ Sign out error:', signOutError);
+      }
 
-    //   router.push('/');
-    // } catch (error) {
-    //   console.error('Error deleting account:', error);
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to delete account. Please try again.",
-    //     variant: "destructive"
-    //   });
-    // } finally {
-    //   setLoading(false);
-    //   setShowDeleteDialog(false);
-    // }
+      toast.success('Account deleted successfully', {
+        description: 'Your account and all associated data have been deleted.'
+      });
+
+      // Redirect to home page
+      router.push('/');
+
+    } catch (err) {
+      console.error('💥 Error deleting account:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete account';
+      toast.error('Failed to delete account', {
+        description: `${errorMessage} Please try again.`
+      });
+    } finally {
+      setLoading(false);
+      setShowDeleteDialog(false);
+    }
+  }
+
+  // Get initials from name or email
+  const getInitials = () => {
+    if (profile.name && profile.name.trim()) {
+      return profile.name.trim().charAt(0).toUpperCase();
+    }
+    if (profile.email) {
+      return profile.email.charAt(0).toUpperCase();
+    }
+    return '?';
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl">
+          <Card className="p-6 bg-yellow-50 border-yellow-200">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-yellow-500" />
+              <div>
+                <h3 className="font-medium text-yellow-800">Authentication Required</h3>
+                <p className="text-yellow-600">Please log in to view your account settings.</p>
+              </div>
+            </div>
+            <Button
+              onClick={() => router.push('/auth/login')}
+              className="mt-4"
+            >
+              Go to Login
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl">
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#5e17eb]"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl">
+          <Card className="p-6 bg-red-50 border-red-200">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+              <div>
+                <h3 className="font-medium text-red-800">Error Loading Account</h3>
+                <p className="text-red-600">{error}</p>
+              </div>
+            </div>
+            <Button
+              onClick={loadUserProfile}
+              className="mt-4"
+              variant="outline"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Try Again
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6 sm:mb-8">My Account</h1>
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
+          <Button
+            onClick={loadUserProfile}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
 
         {/* Personal Information */}
         <Card className="p-4 mb-6 sm:p-6 sm:mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">Personal Information</h2>
 
-          {/* Profile Picture Section */}
+          {/* Profile Picture Section with Shadcn Avatar */}
           <div className="mb-6 sm:mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-3 sm:mb-4">
               Profile Picture
             </label>
             <div className="flex flex-col space-y-4 sm:flex-row sm:items-start sm:space-y-0 sm:space-x-6">
               <div className="relative mx-auto sm:mx-0">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 sm:w-24 sm:h-24">
-                  {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-purple-100 text-purple-600 text-xl font-semibold sm:text-2xl">
-                      {profile.name?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                  )}
-                </div>
+                <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
+                  <AvatarImage src={profile.avatar_url || undefined} alt={profile.name || 'Profile'} />
+                  <AvatarFallback className="bg-[#5e17eb] text-white text-xl font-semibold sm:text-2xl">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <label
-                        className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors sm:w-8 sm:h-8"
+                        className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full border border-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors sm:w-8 sm:h-8 shadow-sm"
                       >
                         {uploadLoading ? (
                           <Loader2 className="w-3 h-3 text-gray-500 animate-spin sm:w-4 sm:h-4" />
@@ -410,7 +534,7 @@ export default function AccountPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Full Name</label>
               <Input
-                value={profile.name}
+                value={profile.name || ''}
                 onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Your name"
                 className="w-full text-gray-900 bg-gray-50"
@@ -424,25 +548,9 @@ export default function AccountPage() {
                 disabled
                 className="w-full text-gray-500 bg-gray-100 cursor-not-allowed"
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Language</label>
-              <Select
-                value={profile.language}
-                onValueChange={(value) => setProfile(prev => ({ ...prev, language: value }))}
-              >
-                <SelectTrigger className="w-full text-gray-900 bg-gray-50">
-                  <SelectValue placeholder="Select a language" />
-                </SelectTrigger>
-                <SelectContent className='text-gray-900 bg-white'>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="it">Italiano</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                  <SelectItem value="de">Deutsch</SelectItem>
-                </SelectContent>
-              </Select>
+              <p className="text-xs text-gray-500">
+                Email cannot be changed. Contact support if you need to update your email.
+              </p>
             </div>
 
             <div className="flex items-start space-x-2">
@@ -452,18 +560,22 @@ export default function AccountPage() {
                 onCheckedChange={(checked) =>
                   setProfile(prev => ({ ...prev, notification_optin: checked as boolean }))
                 }
-                className="mt-1 text-purple-600 focus:ring-purple-500 focus:ring-offset-purple-50 h-4 w-4 border-gray-300 rounded"
+                className="mt-1 text-[#5e17eb] focus:ring-[#5e17eb] focus:ring-offset-[#5e17eb]/50 h-4 w-4 border-gray-300 rounded"
               />
               <label
                 htmlFor="notifications"
                 className="text-sm text-gray-700 leading-5"
               >
-                Receive product updates and notifications
+                Receive product updates and notifications about your smart links
               </label>
             </div>
 
             <div className="pt-2">
-              <Button type="submit" disabled={loading} className="w-full sm:w-auto sm:ml-auto sm:flex bg-purple-600 hover:bg-purple-700 text-white">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-auto bg-[#5e17eb] hover:bg-[#4e13c4] text-white"
+              >
                 {loading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
@@ -491,8 +603,9 @@ export default function AccountPage() {
                 type="password"
                 value={passwords.new}
                 onChange={(e) => setPasswords(prev => ({ ...prev, new: e.target.value }))}
-                placeholder="Enter new password"
+                placeholder="Enter new password (min 6 characters)"
                 className="w-full text-gray-900 bg-gray-50"
+                minLength={6}
               />
             </div>
 
@@ -504,11 +617,17 @@ export default function AccountPage() {
                 onChange={(e) => setPasswords(prev => ({ ...prev, confirm: e.target.value }))}
                 placeholder="Confirm new password"
                 className="w-full text-gray-900 bg-gray-50"
+                minLength={6}
               />
             </div>
 
             <div className="pt-2">
-              <Button type="submit" variant="outline" disabled={loading} className="w-full sm:w-auto sm:ml-auto sm:flex bg-purple-600 hover:bg-purple-700 text-white">
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={loading || !passwords.new || !passwords.confirm}
+                className="w-full sm:w-auto border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
+              >
                 {loading ? 'Updating...' : 'Update Password'}
               </Button>
             </div>
@@ -519,12 +638,12 @@ export default function AccountPage() {
         <Card className="p-4 border-red-200 sm:p-6 bg-red-50 mb-6 sm:mb-8">
           <h2 className="text-lg font-semibold text-red-600 mb-4 sm:text-xl sm:mb-6">Delete Your Account</h2>
           <p className="text-gray-600 mb-4 text-sm sm:text-base sm:mb-6">
-            This action is irreversible. All your links, data and settings will be permanently deleted.
+            This action is irreversible. All your smart links, analytics data, and settings will be permanently deleted.
           </p>
           <Button
             variant="destructive"
             onClick={() => setShowDeleteDialog(true)}
-            className="w-full sm:w-auto sm:ml-auto sm:flex bg-red-600 hover:bg-red-700 text-white"
+            className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
           >
             Delete My Account
           </Button>
@@ -542,9 +661,10 @@ export default function AccountPage() {
                 <div className="bg-red-50 border border-red-100 rounded-lg p-3 sm:p-4">
                   <h4 className="font-medium text-red-900 mb-1 text-sm sm:text-base">Warning: This cannot be undone</h4>
                   <ul className="text-xs text-red-700 space-y-1 sm:text-sm">
-                    <li>• All your smart links will stop working</li>
-                    <li>• Your analytics data will be deleted</li>
+                    <li>• All your smart links will stop working immediately</li>
+                    <li>• Your click analytics data will be deleted</li>
                     <li>• Your account settings will be lost</li>
+                    <li>• Any remaining free clicks will be forfeited</li>
                     <li>• This action is permanent and immediate</li>
                   </ul>
                 </div>
@@ -565,7 +685,10 @@ export default function AccountPage() {
             <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:gap-0">
               <Button
                 variant="outline"
-                onClick={() => setShowDeleteDialog(false)}
+                onClick={() => {
+                  setShowDeleteDialog(false);
+                  setDeleteConfirmation('');
+                }}
                 className="w-full order-2 sm:order-1 sm:w-auto"
               >
                 Cancel

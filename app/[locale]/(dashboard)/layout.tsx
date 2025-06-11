@@ -6,14 +6,10 @@ import {
   BarChart2,
   HelpCircle,
   Sparkles,
-  Menu,
   X,
-  CreditCard,
-  AlertTriangle,
   Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import {
   Tooltip,
   TooltipContent,
@@ -21,8 +17,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { GlobalNav } from '@/components/GlobalNav';
-// import { supabase } from '../lib/supabase';
-// import { useAuth } from '../lib/AuthContext';
 import { FreeClicksCard } from '@/components/FreeClicksCard';
 import { toast } from 'sonner';
 import { usePathname, useRouter } from '@/i18n/navigation';
@@ -41,14 +35,35 @@ interface UserUsage {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  // const { user } = useAuth();
+
+  // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Mobile detection state
+  const [isMobile, setIsMobile] = useState(false);
+
   const [usage, setUsage] = useState<UserUsage | null>({
     click_usage: 0,
     click_limit: 500,
     payment_method_id: null
   });
-  const [error, setError] = useState<string | null>(null);
+
+  // Mobile detection logic - inline in component
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023px)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMobile(event.matches);
+    };
+
+    // Initial check
+    setIsMobile(mediaQuery.matches);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleChange);
+
+    // Cleanup
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const isActive = (path: string) => pathname === path;
 
@@ -60,76 +75,75 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setIsSidebarOpen(false);
   };
 
-  // useEffect(() => {
-  //   if (user) {
-  //     loadUserUsage();
-  //   }
-  // }, [user]);
+  // Helper function to conditionally close sidebar
+  const handleNavigationClick = (callback?: () => void) => {
+    if (callback) callback();
+    if (isMobile) {
+      closeSidebar();
+    }
+  };
 
-  // const loadUserUsage = async () => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('users')
-  //       .select('click_usage, click_limit, payment_method_id')
-  //       .eq('id', user?.id)
-  //       .maybeSingle();
+  // Close sidebar on route change (mobile only)
+  useEffect(() => {
+    if (isMobile) {
+      closeSidebar();
+    }
+  }, [pathname, isMobile]);
 
-  //     if (error) throw error;
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+      }
+    };
 
-  //     // Set default values if data is not found
-  //     setUsage({
-  //       click_usage: data?.click_usage ?? 0,
-  //       click_limit: data?.click_limit ?? 500,
-  //       payment_method_id: data?.payment_method_id ?? null
-  //     });
-  //   } catch (error) {
-  //     console.error('Error loading usage data:', error);
-  //     setError(error instanceof Error ? error.message : 'Failed to load usage data');
-  //     toast({
-  //       title: "Error",
-  //       description: "Failed to load usage data",
-  //       variant: "destructive",
-  //     });
-  //   }
-  // };
+    if (isSidebarOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isSidebarOpen]);
+
+  const navigationItems = [
+    { path: '/dashboard', icon: Home, label: 'Dashboard' },
+    { path: '/my-links', icon: LinkIcon, label: 'My Links' },
+    { path: '/analytics', icon: BarChart2, label: 'Analytics' },
+    { path: '/faq', icon: HelpCircle, label: 'FAQ' },
+    { path: '/support', icon: HelpCircle, label: 'Support' },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <GlobalNav />
+      {/* Global Navigation */}
+      <GlobalNav onToggleSidebar={toggleSidebar} />
 
-      {/* Mobile Overlay */}
-      {isSidebarOpen && (
+      {/* Mobile Overlay - only show on mobile */}
+      {isSidebarOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={closeSidebar}
+          aria-hidden="true"
         />
       )}
 
       {/* Left Sidebar */}
-      <div
+      <aside
         className={`
-          fixed lg:fixed top-16 left-0 h-[calc(100vh-4rem)] w-[280px] lg:w-64 bg-[#EDE7F6] overflow-y-auto z-30
-          transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          fixed top-16 left-0 h-[calc(100vh-4rem)] w-[280px] lg:w-64 bg-[#EDE7F6] 
+          overflow-y-auto z-50 transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0 lg:translate-x-0' : '-translate-x-full lg:-translate-x-full'}
         `}
+        aria-label="Main navigation"
       >
         <div className="h-full flex flex-col">
-          {/* Close button for mobile */}
-          <button
-            className="lg:hidden absolute right-4 top-4 text-gray-600 hover:text-gray-900"
-            onClick={closeSidebar}
-          >
-            <X className="h-6 w-6" />
-          </button>
-
-          {/* New Link Button - Hidden on mobile */}
-          <div className="px-4 mt-6 mb-8 hidden lg:block">
+          {/* Create New Link Button */}
+          <div className="px-4 my-8">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    className="w-full bg-gradient-to-r from-[#5e17eb] to-[#7b3aed] hover:from-[#4e13c4] hover:to-[#6429e3] text-white shadow-lg"
-                    onClick={() => router.push('/create-link')}
+                    className="w-full bg-gradient-to-r from-[#5e17eb] to-[#7b3aed] hover:from-[#4e13c4] hover:to-[#6429e3] text-white shadow-lg transition-all duration-200"
+                    onClick={() => handleNavigationClick(() => router.push('/create-link'))}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
                     Create new link
@@ -142,90 +156,100 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </TooltipProvider>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-4">
-            <div className="space-y-1">
-              {[
-                { path: '/dashboard', icon: Home, label: 'Dashboard' },
-                { path: '/my-links', icon: LinkIcon, label: 'My Links' },
-                { path: '/analytics', icon: BarChart2, label: 'Analytics' },
-                { path: '/faq', icon: HelpCircle, label: 'FAQ' },
-                { path: '/support', icon: HelpCircle, label: 'Support' },
-              ].map((item) => {
+          {/* Navigation Menu */}
+          <nav className="flex-1 px-4" aria-label="Dashboard navigation">
+            <ul className="space-y-1">
+              {navigationItems.map((item) => {
                 const active = isActive(item.path);
                 return (
-                  <Link
-                    key={item.path}
-                    href={item.path}
-                    onClick={closeSidebar}
-                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${active
-                      ? 'bg-[#5e17eb] text-white'
-                      : 'text-gray-700 hover:bg-white/50'
-                      }`}
-                  >
-                    <item.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-500'}`} />
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
+                  <li key={item.path}>
+                    <Link
+                      href={item.path}
+                      onClick={() => handleNavigationClick()}
+                      className={`
+                        flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200
+                        ${active
+                          ? 'bg-[#5e17eb] text-white shadow-md'
+                          : 'text-gray-700 hover:bg-white/50 hover:shadow-sm'
+                        }
+                      `}
+                    >
+                      <item.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-gray-500'}`} />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </nav>
 
-          {/* Usage and Support Cards */}
-          <div className="p-4 mt-auto">
+          {/* Bottom Section */}
+          <div className="p-4 mt-auto space-y-4">
             {/* Usage Card */}
             {usage && (
-              <div className="mb-4">
-                <FreeClicksCard
-                  used={usage.click_usage}
-                  total={usage.click_limit}
-                  hasPaymentMethod={!!usage.payment_method_id}
-                  onUpgradeClick={() => router.push('/billing')}
-                />
-              </div>
+              <FreeClicksCard
+                used={usage.click_usage}
+                total={usage.click_limit}
+                hasPaymentMethod={!!usage.payment_method_id}
+                onUpgradeClick={() => handleNavigationClick(() => router.push('/billing'))}
+              />
             )}
 
             {/* Support Card */}
             <div className="bg-white rounded-xl p-4 shadow-sm">
-              <h3 className="text-sm font-medium text-gray-700">Do you need help?</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Do you need help?
+              </h3>
               <Button
                 variant="outline"
-                className="w-full mt-3 border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white transition-colors"
-                onClick={() => router.push('/support')}
+                className="w-full border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white transition-colors"
+                onClick={() => handleNavigationClick(() => router.push('/support'))}
               >
                 Open a ticket
               </Button>
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="lg:pl-64 pt-16">
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {children}
-        </main>
-      </div>
+      <main
+        className={`
+          min-h-screen transition-all duration-300 ease-in-out pt-16
+          ${isSidebarOpen ? 'lg:pl-64' : 'lg:pl-0'}
+        `}
+      >
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
+          <div className={`
+            w-full mx-auto transition-all duration-300
+            ${isSidebarOpen ? 'max-w-6xl' : 'max-w-7xl'}
+          `}>
+            {children}
+          </div>
+        </div>
+      </main>
 
-      {/* Sticky New Link Button for Mobile */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 lg:hidden z-50">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-[#5e17eb] to-[#7b3aed] hover:from-[#4e13c4] hover:to-[#6429e3] text-white shadow-lg px-6 py-6 rounded-full"
-                onClick={() => router.push('/create-link')}
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                <span className="text-base">Create new link</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Start a new Smart Link</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
+      {/* Mobile Floating Action Button */}
+      {!isSidebarOpen && isMobile && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-[#5e17eb] to-[#7b3aed] hover:from-[#4e13c4] hover:to-[#6429e3] text-white shadow-lg px-6 py-6 rounded-full transition-all duration-200 hover:scale-105"
+                  onClick={() => router.push('/create-link')}
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  <span className="text-base font-medium">Create new link</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Start a new Smart Link</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
     </div>
   );
 }

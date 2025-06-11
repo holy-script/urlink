@@ -58,16 +58,16 @@ type Platform = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' 
 interface SmartLink {
   id: string;
   title: string | null;
-  original_url: string;        // Changed from destination_url
-  android_deeplink: string;    // New field
-  ios_deeplink: string;        // New field
-  platform: Platform;         // New field (stored in DB)
+  original_url: string;
+  android_deeplink: string;
+  ios_deeplink: string;
+  platform: Platform;
   short_code: string;
   is_active: boolean;
-  deleted_at: string | null;   // New field for soft delete
+  deleted_at: string | null;
   created_at: string;
   updated_at: string;
-  click_count?: number;
+  click_count: number; // Now always a number
 }
 
 export default function MyLinks() {
@@ -100,7 +100,7 @@ export default function MyLinks() {
       setIsLoading(true);
       setError(null);
 
-      // Updated query to match new schema
+      // Method 1: Get links first, then batch query click counts
       const { data: linksData, error: linksError } = await supabase
         .from('links')
         .select(`
@@ -118,31 +118,54 @@ export default function MyLinks() {
         `)
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .is('deleted_at', null)  // Only get non-deleted links
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (linksError) {
         throw linksError;
       }
 
-      // Get click counts for each link
-      const linksWithCounts = await Promise.all(
-        (linksData || []).map(async (link) => {
-          const { count, error: countError } = await supabase
-            .from('link_clicks')
-            .select('*', { count: 'exact', head: true })
-            .eq('link_id', link.id);
+      if (!linksData || linksData.length === 0) {
+        setLinks([]);
+        return;
+      }
 
-          if (countError) {
-            console.warn('Error fetching click count for link:', link.id, countError);
-          }
+      // Method 2: Efficient batch query for all click counts
+      console.log('📊 Fetching click counts for', linksData.length, 'links');
 
-          return {
-            ...link,
-            click_count: count || 0
-          };
-        })
-      );
+      const linkIds = linksData.map(link => link.id);
+
+      // Get all click data for these links
+      const { data: clickData, error: clickError } = await supabase
+        .from('link_clicks')
+        .select('link_id')
+        .in('link_id', linkIds);
+
+      if (clickError) {
+        console.warn('Error fetching click counts:', clickError);
+        // Continue with 0 counts rather than failing
+      }
+
+      // Count clicks per link
+      const clickCounts = new Map<string, number>();
+
+      if (clickData) {
+        clickData.forEach(click => {
+          const currentCount = clickCounts.get(click.link_id) || 0;
+          clickCounts.set(click.link_id, currentCount + 1);
+        });
+      }
+
+      // Combine links with their click counts
+      const linksWithCounts: SmartLink[] = linksData.map(link => ({
+        ...link,
+        click_count: clickCounts.get(link.id) || 0
+      }));
+
+      console.log('✅ Links loaded with click counts:', linksWithCounts.map(l => ({
+        id: l.id.substring(0, 8),
+        clicks: l.click_count
+      })));
 
       setLinks(linksWithCounts);
     } catch (err) {
@@ -157,7 +180,7 @@ export default function MyLinks() {
     }
   };
 
-  // Simplified since platform is now stored in database
+  // Rest of your component code remains the same...
   const parseUrl = (url: string) => {
     try {
       const urlObj = new URL(url);
@@ -227,7 +250,6 @@ export default function MyLinks() {
     if (!deleteLink) return;
 
     try {
-      // Use soft delete by setting deleted_at timestamp
       const { error } = await supabase
         .from('links')
         .update({
@@ -248,13 +270,11 @@ export default function MyLinks() {
     }
   };
 
-  // Updated to use new URL structure with platform
   const getShortUrl = (platform: Platform, shortCode: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com';
     return `${baseUrl}/${platform}/${shortCode}`;
   };
 
-  // Generate QR code for the smart link
   const generateQRCode = (link: SmartLink) => {
     const shortUrl = getShortUrl(link.platform, link.short_code);
     return (
@@ -273,6 +293,7 @@ export default function MyLinks() {
     );
   };
 
+  // Loading and error states remain the same...
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
@@ -337,7 +358,7 @@ export default function MyLinks() {
     );
   }
 
-  // Filter and sort links (now using stored platform field)
+  // Filter and sort links
   const filteredAndSortedLinks = links
     .filter(link => {
       const matchesSearch =
@@ -356,9 +377,9 @@ export default function MyLinks() {
         case 'oldest':
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case 'most-clicks':
-          return (b.click_count || 0) - (a.click_count || 0);
+          return b.click_count - a.click_count;
         case 'least-clicks':
-          return (a.click_count || 0) - (b.click_count || 0);
+          return a.click_count - b.click_count;
         default:
           return 0;
       }
@@ -478,19 +499,24 @@ export default function MyLinks() {
 
                       {/* Deep Link Preview */}
                       <div className="flex flex-wrap gap-2 mt-2">
-                        <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                          <Smartphone className="w-3 h-3 mr-1 text-blue-600" />
-                          Android Deep Link
-                        </Badge>
-                        <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
-                          <Monitor className="w-3 h-3 mr-1 text-gray-600" />
-                          iOS Deep Link
-                        </Badge>
+                        {link.android_deeplink && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            <Smartphone className="w-3 h-3 mr-1 text-blue-600" />
+                            Android Deep Link
+                          </Badge>
+                        )}
+                        {link.ios_deeplink && (
+                          <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
+                            <Monitor className="w-3 h-3 mr-1 text-gray-600" />
+                            iOS Deep Link
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="flex flex-col gap-2 mt-3 text-sm sm:flex-row sm:items-center sm:gap-4">
-                        <span className="font-medium text-gray-900">
-                          {(link.click_count || 0).toLocaleString()} clicks
+                        <span className="font-medium text-gray-900 flex items-center gap-1">
+                          <BarChart2 className="w-3.5 h-3.5 text-[#5e17eb]" />
+                          {link.click_count.toLocaleString()} clicks
                         </span>
                         <span className="hidden sm:inline text-gray-300">•</span>
                         <span className="text-gray-500">

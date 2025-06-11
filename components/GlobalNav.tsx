@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, CreditCard, Settings, LogOut, AlertTriangle, RefreshCw } from 'lucide-react';
+import {
+  ChevronDown,
+  AlertTriangle,
+  RefreshCw,
+  Menu
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -14,21 +19,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/context/AuthContext';
-// import { supabase } from '@/utils/supabase/client';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { toast } from 'sonner';
 
-export function GlobalNav() {
+interface GlobalNavProps {
+  onToggleSidebar: () => void;
+}
+
+interface UserData {
+  clicks: number;
+  limit: number;
+}
+
+export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
   const { user, loading, error, signOut } = useAuth();
   const router = useRouter();
-  const [usageData, setUsageData] = useState({ clicks: 0, limit: 500 });
+
+  // State management
+  const [usageData, setUsageData] = useState<UserData>({ clicks: 0, limit: 500 });
   const [fullName, setFullName] = useState('');
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
 
+  // Load user data on mount
   useEffect(() => {
     if (user && !loading) {
       loadUserData();
@@ -46,36 +62,24 @@ export function GlobalNav() {
     setDataError(null);
 
     try {
-      // const { data: userData, error } = await supabase
-      //   .from('users')
-      //   .select('name, click_usage, click_limit')
-      //   .eq('id', user.id)
-      //   .maybeSingle();
-
-      // Simulate API delay
+      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const userData = {
         name: user.user_metadata?.name || '',
         click_usage: user.user_metadata?.click_usage || 0,
         click_limit: user.user_metadata?.click_limit || 500
-      }; // Mock data for demonstration
-      const apiError = null; // Mock error for demonstration
+      };
 
-      if (apiError) {
-        throw new Error('Failed to load user data');
-      }
-
+      // Handle no data case
       if (!userData) {
-        setUsageData({
-          clicks: 0,
-          limit: 500
-        });
+        setUsageData({ clicks: 0, limit: 500 });
         setFullName(user.email?.split('@')[0] || '');
         toast.warning('User data not found, using defaults');
         return;
       }
 
+      // Set the data
       setUsageData({
         clicks: userData.click_usage || 0,
         limit: userData.click_limit || 500
@@ -88,10 +92,7 @@ export function GlobalNav() {
       setDataError(errorMessage);
 
       // Set fallback data
-      setUsageData({
-        clicks: 0,
-        limit: 500
-      });
+      setUsageData({ clicks: 0, limit: 500 });
       setFullName(user.email?.split('@')[0] || '');
 
       toast.error('Failed to load user data', {
@@ -122,6 +123,7 @@ export function GlobalNav() {
     }
   };
 
+  // Computed values
   const isOverLimit = usageData.clicks >= 500;
 
   const menuItems = [
@@ -131,23 +133,35 @@ export function GlobalNav() {
     { icon: "🔓", label: "Log out", onClick: handleLogout, danger: true },
   ];
 
-  // Loading state for entire component
+  // Loading state
   if (loading) {
     return (
       <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50">
         <nav className="h-full">
           <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-full w-full flex items-center justify-between">
-              {/* Logo */}
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <Image
-                  src="/urlinklogo-purple.svg"
-                  alt="URLINK"
-                  width={200}
-                  height={50}
-                  className="h-16 w-auto"
-                />
-              </Link>
+              {/* Left side */}
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 hover:bg-gray-100"
+                  disabled={true}
+                >
+                  <Menu className="h-5 w-5 text-gray-400" />
+                </Button>
+
+                <Link href="/dashboard" className="flex items-center">
+                  <Image
+                    src="/urlinklogo-purple.svg"
+                    alt="URLINK"
+                    width={200}
+                    height={50}
+                    className="h-16 w-auto"
+                    priority
+                  />
+                </Link>
+              </div>
 
               {/* Loading spinner */}
               <div className="flex items-center justify-center">
@@ -160,23 +174,35 @@ export function GlobalNav() {
     );
   }
 
-  // Error state for auth
+  // Error state
   if (error) {
     return (
       <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-red-200 z-50">
         <nav className="h-full">
           <div className="h-full mx-auto px-4 sm:px-6 lg:px-8">
             <div className="h-full w-full flex items-center justify-between">
-              {/* Logo */}
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <Image
-                  src="/urlinklogo-purple.svg"
-                  alt="URLINK"
-                  width={200}
-                  height={50}
-                  className="h-16 w-auto"
-                />
-              </Link>
+              {/* Left side */}
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 hover:bg-gray-100"
+                  disabled={true}
+                >
+                  <Menu className="h-5 w-5 text-gray-400" />
+                </Button>
+
+                <Link href="/dashboard" className="flex items-center">
+                  <Image
+                    src="/urlinklogo-purple.svg"
+                    alt="URLINK"
+                    width={200}
+                    height={50}
+                    className="h-16 w-auto"
+                    priority
+                  />
+                </Link>
+              </div>
 
               {/* Error state */}
               <div className="flex items-center gap-2 text-red-600">
@@ -198,25 +224,43 @@ export function GlobalNav() {
     );
   }
 
+  // Main render
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50">
       <nav className="h-full">
         <div className="h-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-full w-full flex items-center justify-between">
-            {/* Logo */}
-            <Link href="/dashboard" className="flex items-center gap-3">
-              <Image
-                src="/urlinklogo-purple.svg"
-                alt="URLINK"
-                width={200}
-                height={50}
-                className="h-16 w-auto"
-              />
-            </Link>
 
-            {/* Right side content */}
+            {/* Left side - Hamburger Menu and Logo */}
+            <div className="flex items-center gap-3">
+              {/* Hamburger Menu Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleSidebar}
+                className="p-2 hover:bg-gray-100 transition-colors duration-200"
+                aria-label="Toggle sidebar"
+              >
+                <Menu className="h-5 w-5 text-gray-600" />
+              </Button>
+
+              {/* Logo */}
+              <Link href="/dashboard" className="flex items-center">
+                <Image
+                  src="/urlinklogo-purple.svg"
+                  alt="URLINK"
+                  width={200}
+                  height={50}
+                  className="h-16 w-auto"
+                  priority
+                />
+              </Link>
+            </div>
+
+            {/* Right side - Usage Badge and User Menu */}
             <div className="flex items-center gap-4">
-              {/* Usage Badge with loading/error states */}
+
+              {/* Usage Badge */}
               {dataLoading ? (
                 <div className="hidden md:flex items-center justify-center">
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-[#5e17eb]"></div>
@@ -234,27 +278,30 @@ export function GlobalNav() {
               ) : (
                 <Badge
                   variant="secondary"
-                  className={`hidden md:inline-flex items-center px-3 py-1 ${isOverLimit
-                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                    : 'bg-green-100 text-green-700 hover:bg-green-200'
-                    }`}
+                  className={`
+                    hidden md:inline-flex items-center px-3 py-1 transition-colors
+                    ${isOverLimit
+                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }
+                  `}
                 >
                   {isOverLimit ? 'Pay-per-click' : 'Free Tier'}
                 </Badge>
               )}
 
-              {/* User Menu */}
+              {/* User Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="flex items-center gap-2 h-9 px-2 hover:bg-gray-100"
+                    className="flex items-center gap-2 h-9 px-2 hover:bg-gray-100 transition-colors"
                     disabled={logoutLoading}
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
                         src={user?.user_metadata?.avatar_url}
-                        alt={fullName}
+                        alt={fullName || 'User avatar'}
                       />
                       <AvatarFallback className='bg-purple-100 text-purple-600'>
                         {dataLoading ? (
@@ -278,10 +325,12 @@ export function GlobalNav() {
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent
                   align="end"
                   className="w-56 bg-white rounded-lg shadow-lg py-1"
                 >
+                  {/* User Info Header */}
                   <DropdownMenuLabel className="px-4 py-2">
                     <div className="flex flex-col space-y-1">
                       {dataLoading ? (
@@ -302,9 +351,10 @@ export function GlobalNav() {
                       </p>
                     </div>
                   </DropdownMenuLabel>
+
                   <DropdownMenuSeparator className="bg-gray-200" />
 
-                  {/* Data error retry option */}
+                  {/* Data Error Retry Option */}
                   {dataError && (
                     <>
                       <DropdownMenuItem
@@ -320,6 +370,7 @@ export function GlobalNav() {
                     </>
                   )}
 
+                  {/* Menu Items */}
                   {menuItems.map((item, index) => (
                     <React.Fragment key={item.label}>
                       <DropdownMenuItem
@@ -327,8 +378,11 @@ export function GlobalNav() {
                         className="text-sm cursor-pointer flex items-center p-0"
                         disabled={item.onClick === handleLogout && logoutLoading}
                       >
-                        <div className={`${item.danger ? 'text-red-600 hover:text-red-700' : 'text-gray-700 hover:text-gray-900'
-                          } hover:bg-gray-100 rounded-md flex items-center gap-2 w-full h-full px-3 py-2 ${item.onClick === handleLogout && logoutLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                        <div className={`
+                          ${item.danger ? 'text-red-600 hover:text-red-700' : 'text-gray-700 hover:text-gray-900'}
+                          hover:bg-gray-100 rounded-md flex items-center gap-2 w-full h-full px-3 py-2 transition-colors
+                          ${item.onClick === handleLogout && logoutLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}>
                           {item.onClick === handleLogout && logoutLoading ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-500"></div>
                           ) : (

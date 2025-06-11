@@ -15,8 +15,7 @@ import { LineChart } from '@/components/analytics/LineChart';
 import { EmptyAnalyticsState } from '@/components/analytics/EmptyAnalyticsState';
 import { TopLinkCard } from '@/components/analytics/TopLinkCard';
 
-
-// types/analytics.ts
+// Updated types to match your database schema
 export interface LinkClick {
   id: string;
   link_id: string;
@@ -25,12 +24,17 @@ export interface LinkClick {
   user_agent: string | null;
   referrer_url: string | null;
   country_code: string | null;
+  device_type: string;
+  redirect_type: string;
 }
 
 export interface Link {
   id: string;
   title: string | null;
-  destination_url: string;
+  original_url: string; // Updated to match your schema
+  android_deeplink: string | null;
+  ios_deeplink: string | null;
+  platform: string;
   short_code: string;
   is_active: boolean;
   created_at: string;
@@ -59,7 +63,6 @@ export interface LinkWithClicks extends Link {
   click_count: number;
 }
 
-
 export default function Analytics() {
   const { user } = useAuth();
   const [dateRange, setDateRange] = useState('7');
@@ -69,69 +72,47 @@ export default function Analytics() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demonstration - keep commented for showcase
+  // Load real data instead of mock data
   useEffect(() => {
-    setData({
-      totalClicks: 1000,
-      clicksToday: 50,
-      uniqueCountries: 10,
-      clicksByDay: [
-        { date: 'Oct 01', clicks: 100 },
-        { date: 'Oct 02', clicks: 120 },
-        { date: 'Oct 03', clicks: 80 },
-        { date: 'Oct 04', clicks: 90 },
-        { date: 'Oct 05', clicks: 110 },
-        { date: 'Oct 06', clicks: 130 },
-        { date: 'Oct 07', clicks: 150 }
-      ],
-      deviceBreakdown: [
-        { device: 'Mobile', count: 600 },
-        { device: 'Desktop', count: 300 },
-        { device: 'Tablet', count: 100 }
-      ],
-      countryBreakdown: [
-        { country: 'USA', count: 400 },
-        { country: 'Canada', count: 200 },
-        { country: 'UK', count: 150 },
-        { country: 'Germany', count: 100 },
-        { country: 'France', count: 50 }
-      ],
-      topLinks: [
-        {
-          id: '1',
-          title: 'Link A',
-          short_url: 'short.ly/a',
-          original_url: 'https://example.com/a',
-          clicks: 500,
-          platform: 'Web',
-          avg_daily_clicks: 70
-        }
-      ]
-    });
-    setIsLoading(false);
-  }, []);
-
-  // useEffect(() => {
-  //   if (user) {
-  //     loadLinks();
-  //     loadAnalytics();
-  //   }
-  // }, [user, dateRange, selectedLink]);
+    if (user) {
+      loadLinks();
+      loadAnalytics();
+    }
+  }, [user, dateRange, selectedLink]);
 
   const loadLinks = async () => {
     if (!user) return;
 
     try {
+      console.log('📋 Loading user links for analytics...');
+
+      // Updated to match your actual schema
       const { data: linksData, error } = await supabase
         .from('links')
-        .select('id, title, destination_url, short_code, is_active, created_at, updated_at')
+        .select(`
+          id, 
+          title, 
+          original_url, 
+          android_deeplink,
+          ios_deeplink,
+          platform,
+          short_code, 
+          is_active, 
+          created_at, 
+          updated_at
+        `)
         .eq('user_id', user.id)
         .eq('is_active', true)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error loading links:', error);
+        throw error;
+      }
+
       setLinks(linksData || []);
-      console.log('Links loaded:', linksData);
+      console.log('✅ Links loaded for analytics:', linksData?.length || 0);
     } catch (err) {
       console.error('Error loading links:', err);
       toast.error('Failed to load links', {
@@ -147,19 +128,34 @@ export default function Analytics() {
       setIsLoading(true);
       setError(null);
 
+      console.log('📊 Loading analytics data...');
+      console.log('📅 Date range:', dateRange, 'days');
+      console.log('🔗 Selected link:', selectedLink);
+
       const startDate = subDays(new Date(), parseInt(dateRange));
       const today = startOfToday();
 
       // Get user's links first
       const { data: userLinks, error: linksError } = await supabase
         .from('links')
-        .select('id, title, destination_url, short_code')
+        .select(`
+          id, 
+          title, 
+          original_url, 
+          platform,
+          short_code
+        `)
         .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .is('deleted_at', null);
 
-      if (linksError) throw linksError;
+      if (linksError) {
+        console.error('❌ Error loading user links:', linksError);
+        throw linksError;
+      }
 
       if (!userLinks || userLinks.length === 0) {
+        console.log('📝 No links found for user');
         setData({
           totalClicks: 0,
           clicksToday: 0,
@@ -173,25 +169,42 @@ export default function Analytics() {
         return;
       }
 
+      console.log('✅ Found', userLinks.length, 'links for analytics');
+
       const linkIds = userLinks.map(link => link.id);
 
       // Build query for clicks data
       let clicksQuery = supabase
         .from('link_clicks')
-        .select('*')
+        .select(`
+          id,
+          link_id,
+          clicked_at,
+          ip_address,
+          user_agent,
+          referrer_url,
+          country_code,
+          device_type,
+          redirect_type
+        `)
         .in('link_id', linkIds)
         .gte('clicked_at', startDate.toISOString());
 
       // Filter by specific link if selected
       if (selectedLink !== 'all') {
         clicksQuery = clicksQuery.eq('link_id', selectedLink);
+        console.log('🎯 Filtering by specific link:', selectedLink);
       }
 
       const { data: clicksData, error: clicksError } = await clicksQuery;
 
-      if (clicksError) throw clicksError;
+      if (clicksError) {
+        console.error('❌ Error loading clicks data:', clicksError);
+        throw clicksError;
+      }
 
       const clicks = clicksData || [];
+      console.log('📊 Found', clicks.length, 'clicks in date range');
 
       // Calculate metrics
       const totalClicks = clicks.length;
@@ -204,6 +217,12 @@ export default function Analytics() {
           .map(click => click.country_code)
           .filter(Boolean)
       ).size;
+
+      console.log('📈 Calculated metrics:', {
+        totalClicks,
+        clicksToday,
+        uniqueCountries
+      });
 
       // Process clicks by day
       const clicksByDayMap = new Map<string, number>();
@@ -229,24 +248,15 @@ export default function Analytics() {
         clicks
       }));
 
-      // Extract device info from user_agent
-      const getDeviceType = (userAgent: string | null): string => {
-        if (!userAgent) return 'Unknown';
-        const ua = userAgent.toLowerCase();
-        if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) return 'Mobile';
-        if (ua.includes('tablet') || ua.includes('ipad')) return 'Tablet';
-        return 'Desktop';
-      };
-
-      // Process device breakdown
+      // Process device breakdown using device_type from your schema
       const deviceMap = new Map<string, number>();
       clicks.forEach(click => {
-        const device = getDeviceType(click.user_agent);
+        const device = click.device_type || 'Unknown';
         deviceMap.set(device, (deviceMap.get(device) || 0) + 1);
       });
 
       const deviceBreakdown = Array.from(deviceMap.entries()).map(([device, count]) => ({
-        device,
+        device: device.charAt(0).toUpperCase() + device.slice(1), // Capitalize first letter
         count
       }));
 
@@ -271,43 +281,36 @@ export default function Analytics() {
       const topLinks = userLinks
         .map(link => {
           const clickCount = linkClicksMap.get(link.id) || 0;
-          const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://yourdomain.com'}/${link.short_code}`;
+          // Updated to match your URL structure
+          const shortUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/${link.platform}/${link.short_code}`;
 
-          // Extract platform from URL
-          const extractPlatform = (url: string): string => {
-            try {
-              const urlObj = new URL(url);
-              const domain = urlObj.hostname.toLowerCase();
-
-              if (domain.includes('instagram')) return 'Instagram';
-              if (domain.includes('youtube')) return 'YouTube';
-              if (domain.includes('amazon')) return 'Amazon';
-              if (domain.includes('tiktok')) return 'TikTok';
-              if (domain.includes('spotify')) return 'Spotify';
-              if (domain.includes('twitter') || domain.includes('x.com')) return 'Twitter';
-              if (domain.includes('linkedin')) return 'LinkedIn';
-              if (domain.includes('facebook')) return 'Facebook';
-
-              return 'Other';
-            } catch {
-              return 'Other';
+          // Use platform from your enum
+          const getPlatformDisplay = (platform: string): string => {
+            switch (platform) {
+              case 'instagram': return 'Instagram';
+              case 'youtube': return 'YouTube';
+              case 'amazon': return 'Amazon';
+              case 'tiktok': return 'TikTok';
+              case 'facebook': return 'Facebook';
+              case 'google-maps': return 'Google Maps';
+              default: return platform.charAt(0).toUpperCase() + platform.slice(1);
             }
           };
 
           return {
             id: link.id,
-            title: link.title || 'Untitled Link',
+            title: link.title || `${getPlatformDisplay(link.platform)} Link`,
             short_url: shortUrl,
-            original_url: link.destination_url,
+            original_url: link.original_url,
             clicks: clickCount,
-            platform: extractPlatform(link.destination_url),
+            platform: getPlatformDisplay(link.platform),
             avg_daily_clicks: Math.round(clickCount / parseInt(dateRange))
           };
         })
         .filter(link => link.clicks > 0)
         .sort((a, b) => b.clicks - a.clicks);
 
-      setData({
+      const analyticsData = {
         totalClicks,
         clicksToday,
         uniqueCountries,
@@ -315,19 +318,13 @@ export default function Analytics() {
         deviceBreakdown,
         countryBreakdown,
         topLinks
-      });
-      console.log('Analytics data loaded:', {
-        totalClicks,
-        clicksToday,
-        uniqueCountries,
-        clicksByDay,
-        deviceBreakdown,
-        countryBreakdown,
-        topLinks
-      });
+      };
+
+      setData(analyticsData);
+      console.log('✅ Analytics data loaded successfully:', analyticsData);
 
     } catch (err) {
-      console.error('Error loading analytics:', err);
+      console.error('💥 Error loading analytics:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to load analytics data';
       setError(errorMessage);
       toast.error('Failed to load analytics data', {
@@ -335,6 +332,13 @@ export default function Analytics() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    if (user) {
+      loadLinks();
+      loadAnalytics();
     }
   };
 
@@ -351,7 +355,7 @@ export default function Analytics() {
               </div>
             </div>
             <Button
-              onClick={loadAnalytics}
+              onClick={handleRefresh}
               className="mt-4 w-full sm:w-auto"
               variant="outline"
             >
@@ -394,12 +398,23 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-4 sm:space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Analytics</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Analytics</h1>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col gap-4 sm:flex-row">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px] text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
               <SelectValue placeholder="Select timeframe" />
             </SelectTrigger>
             <SelectContent className='text-gray-700 bg-white'>
@@ -410,14 +425,14 @@ export default function Analytics() {
           </Select>
 
           <Select value={selectedLink} onValueChange={setSelectedLink}>
-            <SelectTrigger className="w-full sm:w-[240px]">
+            <SelectTrigger className="w-full sm:w-[240px] text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
               <SelectValue placeholder="Select link" />
             </SelectTrigger>
             <SelectContent className='text-gray-700 bg-white'>
               <SelectItem value="all">All Links</SelectItem>
               {links.map(link => (
                 <SelectItem key={link.id} value={link.id}>
-                  {link.title || `${link.short_code} - ${new URL(link.destination_url).hostname}`}
+                  {link.title || `${link.platform}/${link.short_code}`}
                 </SelectItem>
               ))}
             </SelectContent>

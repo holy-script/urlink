@@ -7,11 +7,45 @@ import { routing } from './i18n/routing';
 // Create the internationalization middleware
 const intlMiddleware = createIntlMiddleware({
   ...routing,
-  // localePrefix: 'as-needed',
 });
 
 export async function middleware(request: NextRequest) {
-  // First, handle the internationalization
+  const pathname = request.nextUrl.pathname;
+
+  // Handle platform/code redirects BEFORE internationalization
+  const supportedPlatforms = ['youtube', 'instagram', 'facebook', 'tiktok', 'google-maps', 'amazon'];
+  const pathSegments = pathname.split('/').filter(Boolean);
+
+  // Check if this is a platform/code pattern (e.g., /instagram/ALjmGE)
+  if (pathSegments.length === 2) {
+    const [platform, code] = pathSegments;
+
+    if (supportedPlatforms.includes(platform)) {
+      // Rewrite to API route
+      const url = request.nextUrl.clone();
+      url.pathname = `/api/${platform}/${code}`;
+
+      console.log(`🔄 Rewriting ${pathname} to ${url.pathname}`);
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  // Check if this is a localized platform/code pattern (e.g., /en/instagram/ALjmGE)
+  if (pathSegments.length === 3) {
+    const [locale, platform, code] = pathSegments;
+
+    // Check if first segment is a locale and second is a supported platform
+    if (routing.locales.includes(locale as any) && supportedPlatforms.includes(platform)) {
+      // Rewrite to API route (without locale since API routes don't need localization)
+      const url = request.nextUrl.clone();
+      url.pathname = `/api/${platform}/${code}`;
+
+      console.log(`🔄 Rewriting ${pathname} to ${url.pathname}`);
+      return NextResponse.rewrite(url);
+    }
+  }
+
+  // Continue with your existing middleware logic...
   let response = intlMiddleware(request);
 
   // Create a Supabase client configured to use cookies
@@ -24,7 +58,6 @@ export async function middleware(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          // Set cookie on both request and response
           request.cookies.set({ name, value, ...options });
           response = NextResponse.next({
             request: { headers: request.headers },
@@ -32,7 +65,6 @@ export async function middleware(request: NextRequest) {
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: any) {
-          // Remove cookie from both request and response
           request.cookies.set({ name, value: '', ...options });
           response = NextResponse.next({
             request: { headers: request.headers },
@@ -47,10 +79,9 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession();
 
   // Get the pathname without locale prefix for route matching
-  const pathname = request.nextUrl.pathname;
   const pathnameWithoutLocale = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
 
-  // Define protected routes (routes that require authentication)
+  // Your existing protected routes logic...
   const protectedRoutes = [
     '/dashboard',
     '/account',
@@ -62,14 +93,12 @@ export async function middleware(request: NextRequest) {
     '/support',
   ];
 
-  // Define public routes that should redirect authenticated users
   const publicRoutes = [
     '/login',
     '/signup',
     '/reset-password',
   ];
 
-  // Define completely public routes (accessible to everyone)
   const openRoutes = [
     '/',
     '/email-verified',
@@ -81,12 +110,10 @@ export async function middleware(request: NextRequest) {
     pathnameWithoutLocale.startsWith(route)
   );
 
-  // Check if current path is a public auth route
   const isPublicRoute = publicRoutes.some(route =>
     pathnameWithoutLocale.startsWith(route)
   );
 
-  // Check if current path is completely open
   const isOpenRoute = openRoutes.some(route =>
     pathnameWithoutLocale === route ||
     (route !== '/' && pathnameWithoutLocale.startsWith(route))
@@ -94,56 +121,36 @@ export async function middleware(request: NextRequest) {
 
   // Handle protected routes
   if (isProtectedRoute && !session) {
-    // Extract locale from current path
     const localeMatch = pathname.match(/^\/([a-z]{2})\//);
     const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
-
-    // Redirect to login with locale prefix
     const loginUrl = new URL(`/${locale}/login`, request.url);
-
-    // Add redirect parameter to return to original page after login
     loginUrl.searchParams.set('redirect', pathname);
-
     return NextResponse.redirect(loginUrl);
   }
 
-  // Handle public routes (redirect authenticated users to dashboard)
+  // Handle public routes
   if (isPublicRoute && session) {
-    // Extract locale from current path
     const localeMatch = pathname.match(/^\/([a-z]{2})\//);
     const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
-
-    // Check if there's a redirect parameter
     const redirectTo = request.nextUrl.searchParams.get('redirect');
 
     if (redirectTo) {
-      // Redirect to the original requested page
       return NextResponse.redirect(new URL(redirectTo, request.url));
     }
 
-    // Default redirect to dashboard
     const dashboardUrl = new URL(`/${locale}/dashboard`, request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
-  // For open routes, allow access regardless of auth status
   if (isOpenRoute) {
     return await updateSession(request, response);
   }
 
-  // For all other routes, update session and continue
   return await updateSession(request, response);
 }
 
-// Combine both matchers to ensure all necessary paths are covered
 export const config = {
   matcher: [
-    // Match all pathnames except for
-    // - API routes, trpc, Next.js internals, Vercel internals
-    // - Files with extensions
-    // '/((?!api|trpc|_next|_vercel|.*\\..*).*))',
-
-    // Also include the Supabase matcher to ensure session is updated everywhere needed
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
