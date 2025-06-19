@@ -597,46 +597,47 @@ export default function MyLinksPage() {
                   </div>
 
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                    {/* Status Filter */}
+                    {/* Status Filter - Fixed version */}
                     <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
                       <SelectTrigger className="w-full sm:w-32 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100">All Status</SelectItem>
-                        <SelectItem value="active" className="text-gray-900 hover:bg-gray-100">Active</SelectItem>
-                        <SelectItem value="inactive" className="text-gray-900 hover:bg-gray-100">Inactive</SelectItem>
-                        <SelectItem value="deleted" className="text-gray-900 hover:bg-gray-100">Deleted</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All Status</SelectItem>
+                        <SelectItem value="active" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Active</SelectItem>
+                        <SelectItem value="inactive" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Inactive</SelectItem>
+                        <SelectItem value="deleted" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Deleted</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    {/* Platform Filter */}
+                    {/* Platform Filter - Fixed version */}
                     <Select value={platformFilter} onValueChange={(value: PlatformFilter) => setPlatformFilter(value)}>
                       <SelectTrigger className="w-full sm:w-36 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
                         <SelectValue placeholder="Platform" />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100">All Platforms</SelectItem>
-                        <SelectItem value="instagram" className="text-gray-900 hover:bg-gray-100">Instagram</SelectItem>
-                        <SelectItem value="youtube" className="text-gray-900 hover:bg-gray-100">YouTube</SelectItem>
-                        <SelectItem value="facebook" className="text-gray-900 hover:bg-gray-100">Facebook</SelectItem>
-                        <SelectItem value="tiktok" className="text-gray-900 hover:bg-gray-100">TikTok</SelectItem>
-                        <SelectItem value="amazon" className="text-gray-900 hover:bg-gray-100">Amazon</SelectItem>
-                        <SelectItem value="google-maps" className="text-gray-900 hover:bg-gray-100">Google Maps</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All Platforms</SelectItem>
+                        <SelectItem value="instagram" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Instagram</SelectItem>
+                        <SelectItem value="youtube" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">YouTube</SelectItem>
+                        <SelectItem value="facebook" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Facebook</SelectItem>
+                        <SelectItem value="tiktok" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">TikTok</SelectItem>
+                        <SelectItem value="amazon" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Amazon</SelectItem>
+                        <SelectItem value="google-maps" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Google Maps</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    {/* QR Filter */}
+                    {/* QR Filter - Fixed version */}
                     <Select value={qrFilter} onValueChange={(value: QRFilter) => setQRFilter(value)}>
                       <SelectTrigger className="w-full sm:w-32 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
                         <SelectValue placeholder="QR Code" />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100">All QR</SelectItem>
-                        <SelectItem value="enabled" className="text-gray-900 hover:bg-gray-100">QR Enabled</SelectItem>
-                        <SelectItem value="disabled" className="text-gray-900 hover:bg-gray-100">QR Disabled</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All QR</SelectItem>
+                        <SelectItem value="enabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">QR Enabled</SelectItem>
+                        <SelectItem value="disabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">QR Disabled</SelectItem>
                       </SelectContent>
                     </Select>
+
 
                     {/* Clear Filters Button */}
                     {(searchQuery || statusFilter !== 'all' || platformFilter !== 'all' || qrFilter !== 'all') && (
@@ -709,8 +710,8 @@ export default function MyLinksPage() {
                           </h3>
 
                           <div className="space-y-2">
-                            {/* Short URL */}
-                            <div className={`p-3 rounded-md border ${isDeleted ? 'bg-red-100 border-red-200' : ''
+                            {/* Short URL - Fixed version with proper text wrapping */}
+                            <div className={`p-3 rounded-md border ${isDeleted ? 'bg-red-100 border-red-200' : 'border-gray-200'
                               }`}>
                               <div className="flex items-center gap-2 mb-1">
                                 <Image
@@ -723,7 +724,7 @@ export default function MyLinksPage() {
                                 <p className={`text-xs ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>Short URL</p>
                               </div>
                               <p className={`font-mono text-sm ${isDeleted ? 'text-red-700' : 'text-[#5e17eb]'
-                                }`}>
+                                } break-all overflow-wrap-break-word word-break-break-all`}>
                                 {shortUrl}
                               </p>
                             </div>
@@ -883,9 +884,10 @@ export default function MyLinksPage() {
                                   </TooltipContent>
                                 </Tooltip>
 
+                                {/* Delete Button - Fixed version */}
                                 <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Tooltip>
+                                  <Tooltip>
+                                    <AlertDialogTrigger asChild>
                                       <TooltipTrigger asChild>
                                         <Button
                                           variant="ghost"
@@ -895,11 +897,11 @@ export default function MyLinksPage() {
                                           <Trash2 className="h-4 w-4" />
                                         </Button>
                                       </TooltipTrigger>
-                                      <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                        <p className="text-gray-700">Delete Link</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </AlertDialogTrigger>
+                                    </AlertDialogTrigger>
+                                    <TooltipContent className="bg-white text-gray-700 border border-gray-200">
+                                      <p className="text-gray-700">Delete Link</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                   <AlertDialogContent className="bg-white border border-gray-200">
                                     <AlertDialogHeader>
                                       <AlertDialogTitle className="text-gray-900">Delete Link</AlertDialogTitle>
@@ -920,6 +922,7 @@ export default function MyLinksPage() {
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
+
                               </>
                             )}
                           </div>

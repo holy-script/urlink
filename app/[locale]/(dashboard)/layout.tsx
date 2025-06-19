@@ -205,9 +205,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Usage Card */}
             {usage && (
               <FreeClicksCard
-                used={usage.click_usage}
                 total={usage.click_limit}
-                hasPaymentMethod={!!usage.payment_method_id}
                 onUpgradeClick={() => handleNavigationClick(() => router.push('/billing'))}
               />
             )}
