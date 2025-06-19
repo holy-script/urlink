@@ -1,54 +1,38 @@
+// middleware.ts
 import { updateSession } from "@/utils/supabase/middleware";
 import { createServerClient } from '@supabase/ssr';
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from './i18n/routing';
+import { extractLocale, getRouteType } from './lib/routeConfig';
 
 // Create the internationalization middleware
-const intlMiddleware = createIntlMiddleware({
-  ...routing,
-});
+const intlMiddleware = createIntlMiddleware(routing);
+
+// Supported platforms for API redirects
+const SUPPORTED_PLATFORMS = ['youtube', 'instagram', 'facebook', 'tiktok', 'google-maps', 'amazon'] as const;
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const { locale, pathnameWithoutLocale } = extractLocale(pathname, routing.defaultLocale);
 
-  // Handle platform/code redirects BEFORE internationalization
-  const supportedPlatforms = ['youtube', 'instagram', 'facebook', 'tiktok', 'google-maps', 'amazon'];
-  const pathSegments = pathname.split('/').filter(Boolean);
-
-  // Check if this is a platform/code pattern (e.g., /instagram/ALjmGE)
+  // Handle platform API routes (these will always be locale-prefixed now)
+  // Example: /en/instagram/ALjmGE -> /api/instagram/ALjmGE
+  const pathSegments = pathnameWithoutLocale.split('/').filter(Boolean);
   if (pathSegments.length === 2) {
     const [platform, code] = pathSegments;
-
-    if (supportedPlatforms.includes(platform)) {
-      // Rewrite to API route
+    if (SUPPORTED_PLATFORMS.includes(platform as any)) {
       const url = request.nextUrl.clone();
       url.pathname = `/api/${platform}/${code}`;
-
       console.log(`🔄 Rewriting ${pathname} to ${url.pathname}`);
       return NextResponse.rewrite(url);
     }
   }
 
-  // Check if this is a localized platform/code pattern (e.g., /en/instagram/ALjmGE)
-  if (pathSegments.length === 3) {
-    const [locale, platform, code] = pathSegments;
-
-    // Check if first segment is a locale and second is a supported platform
-    if (routing.locales.includes(locale as any) && supportedPlatforms.includes(platform)) {
-      // Rewrite to API route (without locale since API routes don't need localization)
-      const url = request.nextUrl.clone();
-      url.pathname = `/api/${platform}/${code}`;
-
-      console.log(`🔄 Rewriting ${pathname} to ${url.pathname}`);
-      return NextResponse.rewrite(url);
-    }
-  }
-
-  // Continue with your existing middleware logic...
+  // Process internationalization first
   let response = intlMiddleware(request);
 
-  // Create a Supabase client configured to use cookies
+  // Create Supabase client for auth checking
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -75,78 +59,50 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Get the current session
-  const { data: { session } } = await supabase.auth.getSession();
+  try {
+    // Get user session
+    const { data: { user } } = await supabase.auth.getUser();
 
-  // Get the pathname without locale prefix for route matching
-  const pathnameWithoutLocale = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
+    // Determine route type
+    const routeType = getRouteType(pathname);
 
-  // Your existing protected routes logic...
-  const protectedRoutes = [
-    '/dashboard',
-    '/account',
-    '/billing',
-    '/create-link',
-    '/my-links',
-    '/analytics',
-    '/faq',
-    '/support',
-  ];
+    // Handle route protection logic
+    switch (routeType) {
+      case 'protected':
+        if (!user) {
+          const loginUrl = new URL(`/${locale}/login`, request.url);
+          loginUrl.searchParams.set('redirect', pathname);
+          console.log(`🔒 Redirecting unauthenticated user from ${pathname} to login`);
+          return NextResponse.redirect(loginUrl);
+        }
+        break;
 
-  const publicRoutes = [
-    '/login',
-    '/signup',
-    '/reset-password',
-  ];
+      case 'public':
+        if (user) {
+          const redirectTo = request.nextUrl.searchParams.get('redirect');
+          if (redirectTo && redirectTo !== pathname) {
+            console.log(`🔄 Redirecting authenticated user to: ${redirectTo}`);
+            return NextResponse.redirect(new URL(redirectTo, request.url));
+          }
+          // Redirect to dashboard instead of /protected
+          const dashboardUrl = new URL(`/${locale}/dashboard`, request.url);
+          console.log(`🔄 Redirecting authenticated user to dashboard: ${dashboardUrl.pathname}`);
+          return NextResponse.redirect(dashboardUrl);
+        }
+        break;
 
-  const openRoutes = [
-    '/',
-    '/email-verified',
-    '/auth-code'
-  ];
-
-  // Check if current path is protected
-  const isProtectedRoute = protectedRoutes.some(route =>
-    pathnameWithoutLocale.startsWith(route)
-  );
-
-  const isPublicRoute = publicRoutes.some(route =>
-    pathnameWithoutLocale.startsWith(route)
-  );
-
-  const isOpenRoute = openRoutes.some(route =>
-    pathnameWithoutLocale === route ||
-    (route !== '/' && pathnameWithoutLocale.startsWith(route))
-  );
-
-  // Handle protected routes
-  if (isProtectedRoute && !session) {
-    const localeMatch = pathname.match(/^\/([a-z]{2})\//);
-    const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
-    const loginUrl = new URL(`/${locale}/login`, request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Handle public routes
-  if (isPublicRoute && session) {
-    const localeMatch = pathname.match(/^\/([a-z]{2})\//);
-    const locale = localeMatch ? localeMatch[1] : routing.defaultLocale;
-    const redirectTo = request.nextUrl.searchParams.get('redirect');
-
-    if (redirectTo) {
-      return NextResponse.redirect(new URL(redirectTo, request.url));
+      case 'open':
+        // Open routes - no auth restrictions, just update session
+        break;
     }
 
-    const dashboardUrl = new URL(`/${locale}/dashboard`, request.url);
-    return NextResponse.redirect(dashboardUrl);
-  }
+    // Update session for all requests
+    return await updateSession(request, response);
 
-  if (isOpenRoute) {
+  } catch (error) {
+    console.error('Middleware error:', error);
     return await updateSession(request, response);
   }
-
-  return await updateSession(request, response);
 }
 
 export const config = {

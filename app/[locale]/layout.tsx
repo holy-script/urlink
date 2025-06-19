@@ -7,6 +7,7 @@ import { routing } from '@/i18n/routing';
 import "@/app/globals.css";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { RouteGuard } from "@/components/RouteGuard";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -52,7 +53,9 @@ export default async function RootLayout({
         >
           <NextIntlClientProvider>
             <AuthProvider>
-              {children}
+              <RouteGuard>
+                {children}
+              </RouteGuard>
             </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProvider>

@@ -1,8 +1,122 @@
 // app/api/[platform]/[code]/route.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { lookup, LookupResult, reload } from 'ip-location-api';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Types based on your SQL schema
+// Configure ip-location-api for synchronous mode (faster for redirects)
+// This should be done once at startup
+let isConfigured = false;
+const configureIpLocationApi = async () => {
+    if (!isConfigured) {
+        try {
+            // Configure for country-only data with synchronous mode for optimal performance
+            await reload({
+                fields: 'country,country_name,continent,timezone', // Only fields we need
+                addCountryInfo: true, // Add country name info
+                smallMemory: false, // Use synchronous mode for speed
+                silent: true // Reduce console noise
+            });
+            isConfigured = true;
+            console.log('✅ IP Location API configured for synchronous mode');
+        } catch (error) {
+            console.error('⚠️ Failed to configure IP Location API:', error);
+        }
+    }
+};
+
+// Type guards for handling the union return type
+function isPromise<T>(value: T | Promise<T>): value is Promise<T> {
+    return value != null && typeof (value as Promise<T>).then === 'function';
+}
+
+function isLookupResult(value: any): value is LookupResult {
+    return value != null &&
+        typeof value === 'object' &&
+        ('country' in value || 'country_name' in value);
+}
+
+// Enhanced IP and Country extraction with type safety
+function getClientIPAndCountry(request: NextRequest): { ip: string; country: string | null; } {
+    console.log('🔍 === IP AND GEOLOCATION EXTRACTION ===');
+
+    const headers = {
+        forwarded: request.headers.get('x-forwarded-for'),
+        realIP: request.headers.get('x-real-ip'),
+        cfIP: request.headers.get('cf-connecting-ip'),
+        trueClientIP: request.headers.get('true-client-ip')
+    };
+
+    console.log('🌐 IP Headers found:', headers);
+
+    // Extract IP with priority order
+    let finalIP = '127.0.0.1';
+
+    if (headers.forwarded) {
+        finalIP = headers.forwarded.split(',')[0].trim();
+        console.log('🌐 Using x-forwarded-for IP:', finalIP);
+    } else if (headers.realIP) {
+        finalIP = headers.realIP;
+        console.log('🌐 Using x-real-ip:', finalIP);
+    } else if (headers.cfIP) {
+        finalIP = headers.cfIP;
+        console.log('🌐 Using cf-connecting-ip:', finalIP);
+    } else if (headers.trueClientIP) {
+        finalIP = headers.trueClientIP;
+        console.log('🌐 Using true-client-ip:', finalIP);
+    } else {
+        console.log('🌐 Using fallback IP:', finalIP);
+    }
+
+    // Get country from IP using ip-location-api with type safety
+    let country: string | null = null;
+
+    try {
+        // Skip geolocation for localhost/private IPs
+        if (finalIP === '127.0.0.1' || finalIP === '::1' ||
+            finalIP.startsWith('192.168.') || finalIP.startsWith('10.') ||
+            finalIP.startsWith('172.')) {
+            console.log('🌐 Skipping geolocation for local/private IP');
+            return { ip: finalIP, country: null };
+        }
+
+        console.log('🌐 Looking up country for IP:', finalIP);
+
+        // Call lookup function - it can return LookupResult | Promise<LookupResult | null> | null
+        const lookupResult = lookup(finalIP);
+
+        // Type guard to handle the union return type
+        if (isPromise(lookupResult)) {
+            // This shouldn't happen in sync mode, but handle it just in case
+            console.warn('⚠️ Unexpected async result from lookup - this may slow down redirects');
+            // For redirect performance, we'll skip async lookup and return null
+            console.log('🌐 Skipping async geolocation lookup for performance');
+            country = null;
+        } else if (isLookupResult(lookupResult)) {
+            // Synchronous result - exactly what we want for performance
+            country = lookupResult.country || null;
+
+            console.log('🌐 Geolocation result (sync):', {
+                ip: finalIP,
+                country: country,
+                country_name: lookupResult.country_name,
+                continent: lookupResult.continent,
+                timezone: lookupResult.timezone
+            });
+        } else {
+            // Result is null
+            console.log('🌐 No geolocation data found for IP:', finalIP);
+            country = null;
+        }
+
+    } catch (error) {
+        console.error('⚠️ Geolocation lookup failed:', error);
+        country = null;
+    }
+
+    return { ip: finalIP, country };
+}
+
+// Rest of your existing types remain the same
 type PlatformEnum = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' | 'amazon';
 type DeviceType = 'mobile' | 'tablet' | 'desktop';
 type RedirectType = 'android_deeplink' | 'ios_deeplink' | 'web_fallback';
@@ -41,15 +155,10 @@ interface ClickData {
     redirect_type: RedirectType;
 }
 
-// Create admin client with explicit service role configuration
+// Create admin client (unchanged)
 function createAdminClient(): SupabaseClient {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-    console.log('🔧 Creating admin client:');
-    console.log('  - URL:', supabaseUrl);
-    console.log('  - Service key length:', serviceRoleKey.length);
-    console.log('  - Service key prefix:', serviceRoleKey.substring(0, 20));
 
     return createClient(supabaseUrl, serviceRoleKey, {
         auth: {
@@ -74,6 +183,9 @@ export async function GET(
 ) {
     console.log('🚀 === URLINK REDIRECT API STARTED ===');
     console.log('🎯 Platform: Deep Link Generation & Pay-per-Click Analytics');
+
+    // Configure IP Location API on first run
+    await configureIpLocationApi();
 
     // Environment validation
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -109,25 +221,23 @@ export async function GET(
     try {
         console.log('🔍 === DATABASE OPERATIONS ===');
 
-        // Step 1: Fetch link using the public policy for redirection
-        console.log('📋 Querying links table with public policy...');
-
+        // Step 1: Fetch link (unchanged from your current code)
         const { data: linkData, error: fetchError } = await supabase
             .from('links')
             .select(`
-        id,
-        user_id,
-        original_url,
-        android_deeplink,
-        ios_deeplink,
-        platform,
-        short_code,
-        title,
-        is_active,
-        deleted_at,
-        created_at,
-        updated_at
-      `)
+                id,
+                user_id,
+                original_url,
+                android_deeplink,
+                ios_deeplink,
+                platform,
+                short_code,
+                title,
+                is_active,
+                deleted_at,
+                created_at,
+                updated_at
+            `)
             .eq('platform', platform)
             .eq('short_code', code)
             .eq('is_active', true)
@@ -138,13 +248,9 @@ export async function GET(
         console.log('  - Success:', !fetchError);
         console.log('  - Data found:', !!linkData);
         console.log('  - Error:', fetchError?.message || 'none');
-        console.log('  - Error code:', fetchError?.code || 'none');
 
-        // Handle database errors
         if (fetchError) {
-            console.log(fetchError);
             if (fetchError.code === 'PGRST116') {
-                console.log('📝 No matching active link found');
                 return NextResponse.json({
                     error: 'Link not found or inactive',
                     platform,
@@ -152,26 +258,6 @@ export async function GET(
                 }, { status: 404 });
             }
 
-            // Log permission error details
-            if (fetchError.code === '42501') {
-                console.error('🔒 Permission denied - RLS policy issue:');
-                console.error('  - Code:', fetchError.code);
-                console.error('  - Message:', fetchError.message);
-                console.error('  - Details:', fetchError.details);
-                console.error('  - Hint:', fetchError.hint);
-
-                return NextResponse.json({
-                    error: 'Database access denied',
-                    debug: {
-                        code: fetchError.code,
-                        message: fetchError.message,
-                        serviceKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-                        serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length
-                    }
-                }, { status: 500 });
-            }
-
-            console.error('❌ Database query failed:', fetchError);
             return NextResponse.json({
                 error: 'Database query failed',
                 details: fetchError.message,
@@ -180,67 +266,38 @@ export async function GET(
         }
 
         if (!linkData) {
-            console.log('❌ Link data is null');
             return NextResponse.json({ error: 'Link not found' }, { status: 404 });
         }
 
         const link = linkData as LinkData;
-        console.log('✅ Link found successfully:');
-        console.log('  - Link ID:', link.id);
-        console.log('  - User ID:', link.user_id);
-        console.log('  - Platform:', link.platform);
-        console.log('  - Original URL:', link.original_url);
-        console.log('  - Has Android deep link:', !!link.android_deeplink);
-        console.log('  - Has iOS deep link:', !!link.ios_deeplink);
+        console.log('✅ Link found successfully:', link.id);
 
-        // Step 2: Check user click limits (500 free clicks model from your project doc)
-        console.log('🔍 === USER CLICK LIMIT CHECK ===');
-        console.log('👤 Checking limits for user:', link.user_id);
-
+        // Step 2: Check user click limits (unchanged)
         const { data: canClick, error: usageError } = await supabase
             .rpc('can_user_perform_click', { p_user_id: link.user_id });
 
-        console.log('📊 Usage check result:');
-        console.log('  - Can perform click:', canClick);
-        console.log('  - Usage error:', usageError?.message || 'none');
+        console.log('📊 Usage check result:', { canClick, error: usageError?.message || 'none' });
 
-        if (usageError) {
-            console.error('⚠️ Usage check failed:', usageError);
-            // Continue with redirect but don't increment usage
-        }
-
-        // Step 3: Device detection for deep link routing
-        console.log('🔍 === DEVICE DETECTION ===');
+        // Step 3: Device detection (unchanged)
         const userAgent = request.headers.get('user-agent') || '';
         const deviceInfo = detectDevice(userAgent);
 
-        console.log('📱 Device analysis:');
-        console.log('  - Type:', deviceInfo.type);
-        console.log('  - Platform:', deviceInfo.platform);
-        console.log('  - Is Android:', deviceInfo.isAndroid);
-        console.log('  - Is iOS:', deviceInfo.isiOS);
-        console.log('  - Is Mobile:', deviceInfo.isMobile);
-
-        // Step 4: Deep link routing decision
-        console.log('🔍 === DEEP LINK ROUTING ===');
+        // Step 4: Determine redirect URL (unchanged)
         const redirectUrl = determineRedirectUrl(link, deviceInfo, userAgent);
         const redirectType = getRedirectType(link, deviceInfo);
 
-        console.log('🎯 Redirect decision:');
-        console.log('  - Final URL:', redirectUrl);
-        console.log('  - Redirect type:', redirectType);
-        console.log('  - Strategy:', getRedirectStrategy(link, deviceInfo));
+        console.log('🎯 Redirect decision:', { redirectUrl, redirectType });
 
-        // Step 5: Record click analytics
+        // Step 5: Record click analytics with geolocation
         console.log('🔍 === ANALYTICS RECORDING ===');
-        const clientIP = getClientIP(request);
+        const { ip: clientIP, country } = getClientIPAndCountry(request);
 
         const clickData: ClickData = {
             link_id: link.id,
             ip_address: clientIP,
             user_agent: userAgent,
             referrer_url: request.headers.get('referer'),
-            country_code: null, // Can integrate IP geolocation service
+            country_code: country, // Now properly typed and validated!
             device_type: deviceInfo.type,
             redirect_type: redirectType
         };
@@ -248,8 +305,8 @@ export async function GET(
         console.log('📝 Recording click data:');
         console.log('  - Link ID:', clickData.link_id);
         console.log('  - IP:', clientIP);
+        console.log('  - Country:', country || 'Unknown');
         console.log('  - Device type:', clickData.device_type);
-        console.log('  - Redirect type:', clickData.redirect_type);
 
         const { error: clickError } = await supabase
             .from('link_clicks')
@@ -257,47 +314,28 @@ export async function GET(
 
         if (clickError) {
             console.error('⚠️ Click tracking failed:', clickError);
-            // Continue with redirect even if analytics fails
         } else {
-            console.log('✅ Click analytics recorded successfully');
+            console.log('✅ Click analytics recorded with geolocation');
         }
 
-        // Step 6: Update user usage (pay-per-click model)
-        console.log('🔍 === USAGE INCREMENT ===');
+        // Step 6: Update user usage (unchanged)
         if (canClick) {
-            console.log('💰 User within limits, incrementing click count...');
-
-            const { data: incrementResult, error: incrementError } = await supabase
+            const { error: incrementError } = await supabase
                 .rpc('increment_user_click_count', { p_user_id: link.user_id });
-
-            console.log('📊 Usage increment result:');
-            console.log('  - Success:', incrementResult);
-            console.log('  - Error:', incrementError?.message || 'none');
 
             if (incrementError) {
                 console.error('⚠️ Failed to increment usage:', incrementError);
             } else {
-                console.log('✅ User click count incremented (pay-per-click)');
+                console.log('✅ User click count incremented');
             }
-        } else {
-            console.log('🚫 User at click limit - redirect continues but no usage increment');
         }
 
         // Step 7: Execute redirect
-        console.log('🔍 === FINAL REDIRECT ===');
-        console.log('🎯 Redirecting user to:', redirectUrl);
-        console.log('📊 Using HTTP 307 (Temporary Redirect)');
-        console.log('✅ === URLINK REDIRECT COMPLETED ===');
-
+        console.log('🎯 Redirecting to:', redirectUrl);
         return NextResponse.redirect(redirectUrl, { status: 307 });
 
     } catch (error) {
-        console.error('💥 === CRITICAL ROUTE ERROR ===');
-        console.error('💥 Error type:', error?.constructor?.name);
-        console.error('💥 Error message:', error instanceof Error ? error.message : 'Unknown error');
-        console.error('💥 Error stack:', error instanceof Error ? error.stack : 'No stack');
-        console.error('💥 Context:', { platform, code, url: request.url });
-
+        console.error('💥 Critical route error:', error);
         return NextResponse.json({
             error: 'Internal server error',
             timestamp: new Date().toISOString(),
@@ -307,117 +345,52 @@ export async function GET(
     }
 }
 
-// Helper function: Extract real client IP
-function getClientIP(request: NextRequest): string {
-    const headers = {
-        forwarded: request.headers.get('x-forwarded-for'),
-        realIP: request.headers.get('x-real-ip'),
-        cfIP: request.headers.get('cf-connecting-ip'), // Cloudflare
-        trueClientIP: request.headers.get('true-client-ip') // Cloudflare Enterprise
-    };
-
-    // Priority order for IP extraction
-    if (headers.forwarded) {
-        return headers.forwarded.split(',')[0].trim();
-    }
-    if (headers.realIP) {
-        return headers.realIP;
-    }
-    if (headers.cfIP) {
-        return headers.cfIP;
-    }
-    if (headers.trueClientIP) {
-        return headers.trueClientIP;
-    }
-
-    return '127.0.0.1'; // Fallback
-}
-
-// Helper function: Advanced device detection
+// Keep all your existing helper functions unchanged
 function detectDevice(userAgent: string): DeviceInfo {
     const ua = userAgent.toLowerCase();
-
-    // Platform detection
     const isAndroid = ua.includes('android');
     const isiOS = /iphone|ipad|ipod/.test(ua);
     const isMobile = isAndroid || isiOS || /mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua);
     const isTablet = /tablet|ipad|playbook|silk/i.test(ua);
 
-    // Device type classification
     let type: DeviceType = 'desktop';
-    if (isTablet) {
-        type = 'tablet';
-    } else if (isMobile) {
-        type = 'mobile';
-    }
+    if (isTablet) type = 'tablet';
+    else if (isMobile) type = 'mobile';
 
     return {
         type,
         platform: isAndroid ? 'android' : isiOS ? 'ios' : 'web',
-        isAndroid,
-        isiOS,
-        isMobile,
-        isTablet
+        isAndroid, isiOS, isMobile, isTablet
     };
 }
 
-// Helper function: Smart deep link routing
 function determineRedirectUrl(linkData: LinkData, deviceInfo: DeviceInfo, userAgent: string): string {
-    // Priority 1: Android deep link for Android devices with app
-    if (deviceInfo.isAndroid && linkData.android_deeplink) {
-        const hasApp = hasAppInstalled(linkData.platform, userAgent);
-        if (hasApp) {
-            return linkData.android_deeplink;
-        }
+    if (deviceInfo.isAndroid && linkData.android_deeplink && hasAppInstalled(linkData.platform, userAgent)) {
+        return linkData.android_deeplink;
     }
-
-    // Priority 2: iOS deep link for iOS devices with app
-    if (deviceInfo.isiOS && linkData.ios_deeplink) {
-        const hasApp = hasAppInstalled(linkData.platform, userAgent);
-        if (hasApp) {
-            return linkData.ios_deeplink;
-        }
+    if (deviceInfo.isiOS && linkData.ios_deeplink && hasAppInstalled(linkData.platform, userAgent)) {
+        return linkData.ios_deeplink;
     }
-
-    // Fallback: Original web URL
     return linkData.original_url;
 }
 
-// Helper function: Get redirect type for analytics
 function getRedirectType(linkData: LinkData, deviceInfo: DeviceInfo): RedirectType {
     if (deviceInfo.isAndroid && linkData.android_deeplink) return 'android_deeplink';
     if (deviceInfo.isiOS && linkData.ios_deeplink) return 'ios_deeplink';
     return 'web_fallback';
 }
 
-// Helper function: Get human-readable redirect strategy
-function getRedirectStrategy(linkData: LinkData, deviceInfo: DeviceInfo): string {
-    if (deviceInfo.isAndroid && linkData.android_deeplink) return 'Android app deep link';
-    if (deviceInfo.isiOS && linkData.ios_deeplink) return 'iOS app deep link';
-    return 'Web browser fallback';
-}
-
-// Helper function: App installation detection based on user agent
 function hasAppInstalled(platform: PlatformEnum, userAgent: string): boolean {
     const ua = userAgent.toLowerCase();
-
-    // App signature detection for each platform
     const appSignatures: Record<PlatformEnum, string[]> = {
-        'instagram': ['instagram', 'fbav'], // Facebook app also handles Instagram
+        'instagram': ['instagram', 'fbav'],
         'youtube': ['youtube'],
         'facebook': ['fbav', 'facebook'],
         'tiktok': ['tiktok', 'musical_ly'],
         'amazon': ['amazon'],
-        'google-maps': ['googlemaps', 'maps'] // Most devices have Maps
+        'google-maps': ['googlemaps', 'maps']
     };
 
     const signatures = appSignatures[platform] || [];
-    const detected = signatures.some(sig => ua.includes(sig));
-
-    // Special case: Google Maps is usually available on mobile devices
-    if (platform === 'google-maps') {
-        return true; // Assume Maps is available
-    }
-
-    return detected;
+    return signatures.some(sig => ua.includes(sig)) || platform === 'google-maps';
 }

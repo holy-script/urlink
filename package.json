@@ -29,6 +29,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.10.0",
+    "ip-location-api": "^3.0.3",
     "lucide-react": "^0.468.0",
     "next": "latest",
     "next-intl": "^4.1.0",
