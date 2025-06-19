@@ -29,7 +29,6 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.10.0",
-    "geoip-lite": "^1.4.10",
     "lucide-react": "^0.468.0",
     "next": "latest",
     "next-intl": "^4.1.0",
@@ -44,7 +43,6 @@
     "zod": "^3.24.3"
   },
   "devDependencies": {
-    "@types/geoip-lite": "^1.4.4",
     "@types/node": "22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "19.0.2",
