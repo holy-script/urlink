@@ -2,7 +2,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Types based on your SQL schema (unchanged)
+// Types based on your SQL schema
 type PlatformEnum = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' | 'amazon';
 type DeviceType = 'mobile' | 'tablet' | 'desktop';
 type RedirectType = 'android_deeplink' | 'ios_deeplink' | 'web_fallback';
@@ -39,6 +39,8 @@ interface ClickData {
     country_code: string | null;
     device_type: string;
     redirect_type: RedirectType;
+    is_billable: boolean;
+    billing_month: string | null;
 }
 
 // IPinfo Lite API response interface
@@ -134,7 +136,7 @@ async function getCountryFromIPinfoLite(ip: string): Promise<string | null> {
     }
 }
 
-// Create admin client with explicit service role configuration (unchanged)
+// Create admin client with explicit service role configuration
 function createAdminClient(): SupabaseClient {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -219,8 +221,8 @@ export async function GET(
     try {
         console.log('🔍 === DATABASE OPERATIONS ===');
 
-        // Step 1: Fetch link (unchanged from your code)
-        console.log('📋 Querying links table with public policy...');
+        // Step 1: Fetch link
+        console.log('📋 Querying links table...');
 
         const { data: linkData, error: fetchError } = await supabase
             .from('links')
@@ -248,11 +250,8 @@ export async function GET(
         console.log('  - Success:', !fetchError);
         console.log('  - Data found:', !!linkData);
         console.log('  - Error:', fetchError?.message || 'none');
-        console.log('  - Error code:', fetchError?.code || 'none');
 
-        // Handle database errors (unchanged from your code)
         if (fetchError) {
-            console.log(fetchError);
             if (fetchError.code === 'PGRST116') {
                 console.log('📝 No matching active link found');
                 return NextResponse.json({
@@ -260,24 +259,6 @@ export async function GET(
                     platform,
                     code
                 }, { status: 404 });
-            }
-
-            if (fetchError.code === '42501') {
-                console.error('🔒 Permission denied - RLS policy issue:');
-                console.error('  - Code:', fetchError.code);
-                console.error('  - Message:', fetchError.message);
-                console.error('  - Details:', fetchError.details);
-                console.error('  - Hint:', fetchError.hint);
-
-                return NextResponse.json({
-                    error: 'Database access denied',
-                    debug: {
-                        code: fetchError.code,
-                        message: fetchError.message,
-                        serviceKeyExists: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-                        serviceKeyLength: process.env.SUPABASE_SERVICE_ROLE_KEY?.length
-                    }
-                }, { status: 500 });
             }
 
             console.error('❌ Database query failed:', fetchError);
@@ -294,15 +275,9 @@ export async function GET(
         }
 
         const link = linkData as LinkData;
-        console.log('✅ Link found successfully:');
-        console.log('  - Link ID:', link.id);
-        console.log('  - User ID:', link.user_id);
-        console.log('  - Platform:', link.platform);
-        console.log('  - Original URL:', link.original_url);
-        console.log('  - Has Android deep link:', !!link.android_deeplink);
-        console.log('  - Has iOS deep link:', !!link.ios_deeplink);
+        console.log('✅ Link found successfully:', link.id);
 
-        // Step 2: Check user click limits (unchanged)
+        // Step 2: Check user click limits (updated for verification + lifetime model)
         console.log('🔍 === USER CLICK LIMIT CHECK ===');
         console.log('👤 Checking limits for user:', link.user_id);
 
@@ -313,31 +288,47 @@ export async function GET(
         console.log('  - Can perform click:', canClick);
         console.log('  - Usage error:', usageError?.message || 'none');
 
-        if (usageError) {
-            console.error('⚠️ Usage check failed:', usageError);
+        if (!canClick) {
+            console.log('🚫 User has exceeded their click limit');
+
+            // Get user verification status to determine redirect
+            const { data: userData } = await supabase
+                .from('users')
+                .select('is_email_verified, lifetime_clicks_used')
+                .eq('id', link.user_id)
+                .single();
+
+            if (userData && !userData.is_email_verified) {
+                // Unverified user exceeded 20 clicks - redirect to email verification
+                const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/verify-email`;
+                console.log('🎯 Redirecting unverified user to email verification:', verifyUrl);
+                return NextResponse.redirect(verifyUrl, { status: 307 });
+            } else {
+                // Verified user exceeded 500 clicks - redirect to billing
+                const billingUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/billing`;
+                console.log('🎯 Redirecting verified user to billing page:', billingUrl);
+                return NextResponse.redirect(billingUrl, { status: 307 });
+            }
         }
 
-        // Step 3: Device detection (unchanged)
+        // Step 3: Device detection
         console.log('🔍 === DEVICE DETECTION ===');
         const userAgent = request.headers.get('user-agent') || '';
         const deviceInfo = detectDevice(userAgent);
 
-        console.log('📱 Device analysis:');
-        console.log('  - Type:', deviceInfo.type);
-        console.log('  - Platform:', deviceInfo.platform);
-        console.log('  - Is Android:', deviceInfo.isAndroid);
-        console.log('  - Is iOS:', deviceInfo.isiOS);
-        console.log('  - Is Mobile:', deviceInfo.isMobile);
+        console.log('📱 Device analysis:', {
+            type: deviceInfo.type,
+            platform: deviceInfo.platform,
+            isAndroid: deviceInfo.isAndroid,
+            isiOS: deviceInfo.isiOS
+        });
 
-        // Step 4: Deep link routing (unchanged)
+        // Step 4: Determine redirect URL
         console.log('🔍 === DEEP LINK ROUTING ===');
         const redirectUrl = determineRedirectUrl(link, deviceInfo, userAgent);
         const redirectType = getRedirectType(link, deviceInfo);
 
-        console.log('🎯 Redirect decision:');
-        console.log('  - Final URL:', redirectUrl);
-        console.log('  - Redirect type:', redirectType);
-        console.log('  - Strategy:', getRedirectStrategy(link, deviceInfo));
+        console.log('🎯 Redirect decision:', { redirectUrl, redirectType });
 
         // Step 5: Record click analytics with enhanced geolocation
         console.log('🔍 === ANALYTICS RECORDING ===');
@@ -355,14 +346,27 @@ export async function GET(
             country = null;
         }
 
+        // Determine if this click is billable
+        const { data: userStatus } = await supabase
+            .from('users')
+            .select('is_email_verified, lifetime_clicks_used, verified_free_clicks_limit')
+            .eq('id', link.user_id)
+            .single();
+
+        const isBillable = userStatus &&
+            userStatus.is_email_verified &&
+            userStatus.lifetime_clicks_used >= (userStatus.verified_free_clicks_limit || 500);
+
         const clickData: ClickData = {
             link_id: link.id,
             ip_address: clientIP,
             user_agent: userAgent,
             referrer_url: request.headers.get('referer'),
-            country_code: country, // Now populated with IPinfo Lite data including IPv6 support!
+            country_code: country,
             device_type: deviceInfo.type,
-            redirect_type: redirectType
+            redirect_type: redirectType,
+            is_billable: isBillable || false,
+            billing_month: isBillable ? new Date().toISOString().slice(0, 7) + '-01' : null
         };
 
         console.log('📝 Recording click data:');
@@ -370,7 +374,7 @@ export async function GET(
         console.log('  - IP:', clientIP, clientIP === '::1' ? '(IPv6 loopback)' : '');
         console.log('  - Country:', country || 'Unknown');
         console.log('  - Device type:', clickData.device_type);
-        console.log('  - Redirect type:', clickData.redirect_type);
+        console.log('  - Is billable:', clickData.is_billable);
 
         const { error: clickError } = await supabase
             .from('link_clicks')
@@ -379,44 +383,39 @@ export async function GET(
         if (clickError) {
             console.error('⚠️ Click tracking failed:', clickError);
         } else {
-            console.log('✅ Click analytics recorded with enhanced geolocation (IPv4/IPv6 support)');
+            console.log('✅ Click analytics recorded with enhanced geolocation');
         }
 
-        // Step 6: Update user usage (unchanged)
+        // Step 6: Update user usage (updated for verification + lifetime model)
         console.log('🔍 === USAGE INCREMENT ===');
-        if (canClick) {
-            console.log('💰 User within limits, incrementing click count...');
+        console.log('💰 Incrementing lifetime click count...');
 
-            const { data: incrementResult, error: incrementError } = await supabase
-                .rpc('increment_user_click_count', { p_user_id: link.user_id });
+        const { data: incrementResult, error: incrementError } = await supabase
+            .rpc('increment_user_click_count', { p_user_id: link.user_id });
 
-            console.log('📊 Usage increment result:');
-            console.log('  - Success:', incrementResult);
-            console.log('  - Error:', incrementError?.message || 'none');
+        console.log('📊 Usage increment result:');
+        console.log('  - Success:', incrementResult);
+        console.log('  - Error:', incrementError?.message || 'none');
 
-            if (incrementError) {
-                console.error('⚠️ Failed to increment usage:', incrementError);
-            } else {
-                console.log('✅ User click count incremented (pay-per-click)');
-            }
+        if (incrementError) {
+            console.error('⚠️ Failed to increment usage:', incrementError);
         } else {
-            console.log('🚫 User at click limit - redirect continues but no usage increment');
+            console.log('✅ Lifetime click count incremented');
+
+            // Check if we need to deactivate links
+            await supabase.rpc('check_and_deactivate_user_links', { p_user_id: link.user_id });
         }
 
-        // Step 7: Execute redirect (unchanged)
+        // Step 7: Execute redirect
         console.log('🔍 === FINAL REDIRECT ===');
         console.log('🎯 Redirecting user to:', redirectUrl);
-        console.log('📊 Using HTTP 307 (Temporary Redirect)');
         console.log('✅ === URLINK REDIRECT COMPLETED ===');
 
         return NextResponse.redirect(redirectUrl, { status: 307 });
 
     } catch (error) {
         console.error('💥 === CRITICAL ROUTE ERROR ===');
-        console.error('💥 Error type:', error?.constructor?.name);
-        console.error('💥 Error message:', error instanceof Error ? error.message : 'Unknown error');
-        console.error('💥 Error stack:', error instanceof Error ? error.stack : 'No stack');
-        console.error('💥 Context:', { platform, code, url: request.url });
+        console.error('💥 Error:', error instanceof Error ? error.message : 'Unknown error');
 
         return NextResponse.json({
             error: 'Internal server error',
@@ -434,13 +433,13 @@ function getClientIP(request: NextRequest): string {
     const headers = {
         forwarded: request.headers.get('x-forwarded-for'),
         realIP: request.headers.get('x-real-ip'),
-        cfIP: request.headers.get('cf-connecting-ip'), // Cloudflare
-        trueClientIP: request.headers.get('true-client-ip') // Cloudflare Enterprise
+        cfIP: request.headers.get('cf-connecting-ip'),
+        trueClientIP: request.headers.get('true-client-ip')
     };
 
     console.log('🌐 Available IP headers:', headers);
 
-    let finalIP = '127.0.0.1'; // Default IPv4 fallback
+    let finalIP = '127.0.0.1';
 
     if (headers.forwarded) {
         finalIP = headers.forwarded.split(',')[0].trim();
@@ -458,7 +457,6 @@ function getClientIP(request: NextRequest): string {
         console.log('🌐 Using fallback IP:', finalIP);
     }
 
-    // Log IP version for debugging
     if (finalIP.includes(':')) {
         console.log('🌐 Final IP is IPv6:', finalIP);
         if (finalIP === '::1') {
@@ -508,12 +506,6 @@ function getRedirectType(linkData: LinkData, deviceInfo: DeviceInfo): RedirectTy
     if (deviceInfo.isAndroid && linkData.android_deeplink) return 'android_deeplink';
     if (deviceInfo.isiOS && linkData.ios_deeplink) return 'ios_deeplink';
     return 'web_fallback';
-}
-
-function getRedirectStrategy(linkData: LinkData, deviceInfo: DeviceInfo): string {
-    if (deviceInfo.isAndroid && linkData.android_deeplink) return 'Android app deep link';
-    if (deviceInfo.isiOS && linkData.ios_deeplink) return 'iOS app deep link';
-    return 'Web browser fallback';
 }
 
 function hasAppInstalled(platform: PlatformEnum, userAgent: string): boolean {

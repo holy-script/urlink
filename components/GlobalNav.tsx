@@ -25,7 +25,8 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 
 interface GlobalNavProps {
-  onToggleSidebar: () => void;
+  onToggleSidebar?: () => void;
+  isMobile?: boolean;
 }
 
 interface UserData {
@@ -33,7 +34,7 @@ interface UserData {
   limit: number;
 }
 
-export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
+export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps) {
   const { user, loading, error, signOut } = useAuth();
   const router = useRouter();
 
@@ -142,14 +143,17 @@ export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
             <div className="h-full w-full flex items-center justify-between">
               {/* Left side */}
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-2 hover:bg-gray-100"
-                  disabled={true}
-                >
-                  <Menu className="h-5 w-5 text-gray-400" />
-                </Button>
+                {/* Only show menu button on mobile */}
+                {isMobile && onToggleSidebar && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-2 hover:bg-gray-100"
+                    disabled={true}
+                  >
+                    <Menu className="h-5 w-5 text-gray-400" />
+                  </Button>
+                )}
 
                 <Link href="/dashboard" className="flex items-center">
                   <Image
@@ -183,14 +187,17 @@ export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
             <div className="h-full w-full flex items-center justify-between">
               {/* Left side */}
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-2 hover:bg-gray-100"
-                  disabled={true}
-                >
-                  <Menu className="h-5 w-5 text-gray-400" />
-                </Button>
+                {/* Only show menu button on mobile */}
+                {isMobile && onToggleSidebar && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-2 hover:bg-gray-100"
+                    disabled={true}
+                  >
+                    <Menu className="h-5 w-5 text-gray-400" />
+                  </Button>
+                )}
 
                 <Link href="/dashboard" className="flex items-center">
                   <Image
@@ -233,16 +240,18 @@ export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
 
             {/* Left side - Hamburger Menu and Logo */}
             <div className="flex items-center gap-3">
-              {/* Hamburger Menu Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onToggleSidebar}
-                className="p-2 hover:bg-gray-100 transition-colors duration-200"
-                aria-label="Toggle sidebar"
-              >
-                <Menu className="h-5 w-5 text-gray-600" />
-              </Button>
+              {/* Hamburger Menu Button - Only show on mobile when onToggleSidebar is provided */}
+              {isMobile && onToggleSidebar && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggleSidebar}
+                  className="p-2 hover:bg-gray-100 transition-colors duration-200"
+                  aria-label="Toggle sidebar"
+                >
+                  <Menu className="h-5 w-5 text-gray-600" />
+                </Button>
+              )}
 
               {/* Logo */}
               <Link href="/dashboard" className="flex items-center">
@@ -259,7 +268,6 @@ export function GlobalNav({ onToggleSidebar }: GlobalNavProps) {
 
             {/* Right side - Usage Badge and User Menu */}
             <div className="flex items-center gap-4">
-
               {/* Usage Badge */}
               {dataLoading ? (
                 <div className="hidden md:flex items-center justify-center">

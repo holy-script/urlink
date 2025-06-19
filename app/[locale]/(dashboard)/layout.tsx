@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Sidebar state
+  // Sidebar state - only for mobile
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Mobile detection state
@@ -48,11 +48,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     payment_method_id: null
   });
 
-  // Mobile detection logic - inline in component
+  // Mobile detection logic
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 1023px)');
     const handleChange = (event: MediaQueryListEvent) => {
       setIsMobile(event.matches);
+      // Auto-close sidebar when switching to desktop
+      if (!event.matches) {
+        setIsSidebarOpen(false);
+      }
     };
 
     // Initial check
@@ -68,11 +72,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const isActive = (path: string) => pathname === path;
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    // Only allow toggle on mobile
+    if (isMobile) {
+      setIsSidebarOpen(!isSidebarOpen);
+    }
   };
 
   const closeSidebar = () => {
-    setIsSidebarOpen(false);
+    // Only close on mobile
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
   };
 
   // Helper function to conditionally close sidebar
@@ -90,19 +100,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [pathname, isMobile]);
 
-  // Close sidebar on escape key
+  // Close sidebar on escape key (mobile only)
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && isMobile) {
         closeSidebar();
       }
     };
 
-    if (isSidebarOpen) {
+    if (isSidebarOpen && isMobile) {
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
     }
-  }, [isSidebarOpen]);
+  }, [isSidebarOpen, isMobile]);
 
   const navigationItems = [
     { path: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -112,15 +122,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { path: '/support', icon: HelpCircle, label: 'Support' },
   ];
 
+  // Determine if sidebar should be visible
+  const sidebarVisible = !isMobile || isSidebarOpen;
+
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Global Navigation */}
-      <GlobalNav onToggleSidebar={toggleSidebar} />
+      {/* Global Navigation - pass toggle function only for mobile */}
+      <GlobalNav
+        onToggleSidebar={isMobile ? toggleSidebar : undefined}
+        isMobile={isMobile}
+      />
 
       {/* Mobile Overlay - only show on mobile */}
       {isSidebarOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
           onClick={closeSidebar}
           aria-hidden="true"
         />
@@ -131,7 +147,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         className={`
           fixed top-16 left-0 h-[calc(100vh-4rem)] w-[280px] lg:w-64 bg-[#EDE7F6] 
           overflow-y-auto z-50 transition-transform duration-300 ease-in-out
-          ${isSidebarOpen ? 'translate-x-0 lg:translate-x-0' : '-translate-x-full lg:-translate-x-full'}
+          ${sidebarVisible ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
         `}
         aria-label="Main navigation"
       >
@@ -213,25 +230,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main
-        className={`
-          min-h-screen transition-all duration-300 ease-in-out pt-16
-          ${isSidebarOpen ? 'lg:pl-64' : 'lg:pl-0'}
-        `}
-      >
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-6">
-          <div className={`
-            w-full mx-auto transition-all duration-300
-            ${isSidebarOpen ? 'max-w-6xl' : 'max-w-7xl'}
-          `}>
-            {children}
-          </div>
+      <main className="min-h-screen transition-all duration-300 ease-in-out pt-16 lg:pl-64">
+        <div className="w-full mx-auto">
+          {children}
         </div>
       </main>
 
       {/* Mobile Floating Action Button */}
       {!isSidebarOpen && isMobile && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

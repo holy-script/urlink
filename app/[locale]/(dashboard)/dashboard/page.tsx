@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { OnboardingProgress } from '@/components/OnboardingProgress';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { AlertTriangle, Copy, Edit, Share2, ExternalLink, TrendingUp, MousePointerClick, Globe, Users, Play, BookOpen } from 'lucide-react';
+import { AlertTriangle, Copy, Edit, Share2, ExternalLink, TrendingUp, MousePointerClick, Globe, Users, Play, BookOpen, Shield, CheckCircle, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChartCard } from '@/components/analytics/ChartCard';
@@ -16,11 +16,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { supabase } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 
-// Updated interface to match your database schema
+// Updated interface to match your new database schema
 interface SmartLink {
   id: string;
   title: string | null;
-  original_url: string; // Updated to match your schema
+  original_url: string;
   android_deeplink: string | null;
   ios_deeplink: string | null;
   platform: string;
@@ -48,6 +48,23 @@ interface DashboardStats {
   activeLinks: number;
   clicksLast7Days: number;
   clickPercentageChange: number;
+  // New fields for email verification model
+  lifetimeClicksUsed: number;
+  isEmailVerified: boolean;
+  clicksRemaining: number;
+  hasActiveSubscription: boolean;
+}
+
+interface UserStatus {
+  is_email_verified: boolean;
+  name: string | null;
+  avatar_url: string | null;
+}
+
+interface OnboardingSteps {
+  createLink: boolean;
+  setupBilling: boolean;
+  customizeProfile: boolean;
 }
 
 export default function Dashboard() {
@@ -56,13 +73,24 @@ export default function Dashboard() {
   const [links, setLinks] = useState<SmartLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userStatus, setUserStatus] = useState<UserStatus | null>(null);
+  const [onboardingSteps, setOnboardingSteps] = useState<OnboardingSteps>({
+    createLink: false,
+    setupBilling: false,
+    customizeProfile: false,
+  });
+  const [showOnboardingOverlay, setShowOnboardingOverlay] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     totalClicks: 0,
     clicksToday: 0,
     totalLinks: 0,
     activeLinks: 0,
     clicksLast7Days: 0,
-    clickPercentageChange: 0
+    clickPercentageChange: 0,
+    lifetimeClicksUsed: 0,
+    isEmailVerified: false,
+    clicksRemaining: 0,
+    hasActiveSubscription: false
   });
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
   const [deviceData, setDeviceData] = useState<DeviceData[]>([]);
@@ -73,6 +101,74 @@ export default function Dashboard() {
       loadDashboardData();
     }
   }, [user]);
+
+  // Mock data for demonstration when onboarding not complete
+  const getMockLinks = (): SmartLink[] => [
+    {
+      id: 'mock-1',
+      title: 'Instagram Post',
+      original_url: 'https://instagram.com/p/ABC123',
+      android_deeplink: 'intent://instagram.com/p/ABC123/#Intent;package=com.instagram.android;scheme=https;end',
+      ios_deeplink: 'instagram://media?id=ABC123',
+      platform: 'instagram',
+      short_code: 'demo1',
+      clicks: 42,
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      is_active: true
+    },
+    {
+      id: 'mock-2',
+      title: 'YouTube Video',
+      original_url: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
+      android_deeplink: 'vnd.youtube:dQw4w9WgXcQ',
+      ios_deeplink: 'youtube://dQw4w9WgXcQ',
+      platform: 'youtube',
+      short_code: 'demo2',
+      clicks: 128,
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      is_active: true
+    },
+    {
+      id: 'mock-3',
+      title: 'Amazon Product',
+      original_url: 'https://amazon.com/dp/B08N5WRWNW',
+      android_deeplink: 'com.amazon.mobile.shopping.web://amazon.com/dp/B08N5WRWNW/',
+      ios_deeplink: 'com.amazon.mobile.shopping.web://amazon.com/dp/B08N5WRWNW/',
+      platform: 'amazon',
+      short_code: 'demo3',
+      clicks: 76,
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+      is_active: true
+    }
+  ];
+
+  const getMockStats = (): DashboardStats => ({
+    totalClicks: 246,
+    clicksToday: 12,
+    totalLinks: 3,
+    activeLinks: 3,
+    clicksLast7Days: 89,
+    clickPercentageChange: 23,
+    lifetimeClicksUsed: 246,
+    isEmailVerified: true,
+    clicksRemaining: 254,
+    hasActiveSubscription: false
+  });
+
+  const getMockAnalyticsData = (): AnalyticsData[] => [
+    { source: 'Android App', percentage: 45 },
+    { source: 'iOS App', percentage: 35 },
+    { source: 'Web Browser', percentage: 20 }
+  ];
+
+  const getMockDeviceData = (): DeviceData[] => [
+    { device: 'Mobile', percentage: 65 },
+    { device: 'Desktop', percentage: 25 },
+    { device: 'Tablet', percentage: 10 }
+  ];
 
   const loadDashboardData = async () => {
     if (!user) {
@@ -87,7 +183,36 @@ export default function Dashboard() {
 
       console.log('📊 Loading dashboard data for user:', user.id);
 
-      // Load user's links with click counts
+      // Load user status first - UPDATED to match your actual schema
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select(`
+          is_email_verified,
+          name,
+          avatar_url
+        `)
+        .eq('id', user.id)
+        .single();
+
+      if (userError) {
+        console.error('❌ Error loading user data:', userError);
+        throw userError;
+      }
+
+      setUserStatus(userData);
+
+      // Check for active subscription
+      const { data: subscriptionData } = await supabase
+        .from('subscriptions')
+        .select('status, canceled_at')
+        .eq('user_id', user.id)
+        .in('status', ['active', 'trialing'])
+        .maybeSingle();
+
+      const hasActiveSubscription = !!subscriptionData &&
+        (subscriptionData.canceled_at === null || new Date(subscriptionData.canceled_at) > new Date());
+
+      // Check if user has created any links
       const { data: linksData, error: linksError } = await supabase
         .from('links')
         .select(`
@@ -106,7 +231,7 @@ export default function Dashboard() {
         .eq('is_active', true)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
-        .limit(10); // Show last 10 links on dashboard
+        .limit(10);
 
       if (linksError) {
         throw linksError;
@@ -115,16 +240,118 @@ export default function Dashboard() {
       const userLinks = linksData || [];
       console.log('✅ Found', userLinks.length, 'links for dashboard');
 
-      if (userLinks.length === 0) {
-        setLinks([]);
+      // Calculate onboarding completion - UPDATED logic
+      const hasCreatedLink = userLinks.length > 0;
+      const hasBilling = hasActiveSubscription;
+      const hasCompleteProfile = userData.is_email_verified &&
+        userData.name &&
+        userData.name.trim() !== '' &&
+        userData.avatar_url;
+
+      setOnboardingSteps({
+        createLink: hasCreatedLink,
+        setupBilling: hasBilling,
+        customizeProfile: hasCompleteProfile,
+      });
+
+      // Show onboarding overlay if profile or billing is incomplete (even if link is created)
+      const shouldShowOnboarding = !hasCompleteProfile || !hasBilling;
+
+      if (shouldShowOnboarding) {
+        console.log('🎯 Showing onboarding overlay - incomplete steps:', {
+          hasCreatedLink,
+          hasCompleteProfile,
+          hasBilling
+        });
+        setShowOnboardingOverlay(true);
+
+        // Use real data but still show overlay
+        if (userLinks.length > 0) {
+          // Load real data since user has links
+          const linkIds = userLinks.map(link => link.id);
+
+          const { data: clicksData, error: clicksError } = await supabase
+            .from('link_clicks')
+            .select(`
+              id,
+              link_id,
+              clicked_at,
+              device_type,
+              redirect_type,
+              referrer_url
+            `)
+            .in('link_id', linkIds);
+
+          const clicks = clicksData || [];
+
+          // Count clicks per link
+          const clickCounts = new Map<string, number>();
+          clicks.forEach(click => {
+            const currentCount = clickCounts.get(click.link_id) || 0;
+            clickCounts.set(click.link_id, currentCount + 1);
+          });
+
+          // Add click counts to links
+          const linksWithCounts: SmartLink[] = userLinks.map(link => ({
+            ...link,
+            clicks: clickCounts.get(link.id) || 0
+          }));
+
+          setLinks(linksWithCounts);
+
+          // Calculate real stats
+          const totalClicks = clicks.length;
+          const today = new Date();
+          const clicksToday = clicks.filter(click =>
+            isToday(parseISO(click.clicked_at))
+          ).length;
+
+          setStats({
+            totalClicks,
+            clicksToday,
+            totalLinks: userLinks.length,
+            activeLinks: userLinks.filter(link => link.is_active).length,
+            clicksLast7Days: 0, // You can calculate this if needed
+            clickPercentageChange: 0, // You can calculate this if needed
+            lifetimeClicksUsed: totalClicks,
+            isEmailVerified: userData.is_email_verified,
+            clicksRemaining: Math.max(0, 1000 - totalClicks), // Using your old limit for now
+            hasActiveSubscription
+          });
+        } else {
+          // Use mock data if no links
+          setLinks(getMockLinks());
+          setStats(getMockStats());
+          setAnalyticsData(getMockAnalyticsData());
+          setDeviceData(getMockDeviceData());
+        }
+
         setIsLoading(false);
         return;
       }
 
-      // Get click data for these links
+      // If onboarding is complete, load real data normally
+      if (userLinks.length === 0) {
+        setLinks([]);
+        setStats({
+          totalClicks: 0,
+          clicksToday: 0,
+          totalLinks: 0,
+          activeLinks: 0,
+          clicksLast7Days: 0,
+          clickPercentageChange: 0,
+          lifetimeClicksUsed: 0,
+          isEmailVerified: userData.is_email_verified,
+          clicksRemaining: 1000, // Using your old limit
+          hasActiveSubscription
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Load real data for completed onboarding
       const linkIds = userLinks.map(link => link.id);
 
-      // Get all clicks for user's links
       const { data: clicksData, error: clicksError } = await supabase
         .from('link_clicks')
         .select(`
@@ -139,7 +366,6 @@ export default function Dashboard() {
 
       if (clicksError) {
         console.warn('Error fetching clicks:', clicksError);
-        // Continue with 0 clicks rather than failing
       }
 
       const clicks = clicksData || [];
@@ -187,7 +413,11 @@ export default function Dashboard() {
         totalLinks: userLinks.length,
         activeLinks: userLinks.filter(link => link.is_active).length,
         clicksLast7Days,
-        clickPercentageChange
+        clickPercentageChange,
+        lifetimeClicksUsed: totalClicks,
+        isEmailVerified: userData.is_email_verified,
+        clicksRemaining: Math.max(0, 1000 - totalClicks),
+        hasActiveSubscription
       });
 
       // Process analytics data for charts
@@ -201,7 +431,7 @@ export default function Dashboard() {
 
       const analyticsChartData: AnalyticsData[] = Array.from(redirectTypeMap.entries()).map(([source, count]) => ({
         source,
-        percentage: totalClicks > 0 ? Math.round((count / totalClicks) * 100) : 0
+        percentage: clicks.length > 0 ? Math.round((count / clicks.length) * 100) : 0
       }));
 
       setAnalyticsData(analyticsChartData);
@@ -216,7 +446,7 @@ export default function Dashboard() {
 
       const deviceChartData: DeviceData[] = Array.from(deviceMap.entries()).map(([device, count]) => ({
         device,
-        percentage: totalClicks > 0 ? Math.round((count / totalClicks) * 100) : 0
+        percentage: clicks.length > 0 ? Math.round((count / clicks.length) * 100) : 0
       }));
 
       setDeviceData(deviceChartData);
@@ -265,11 +495,15 @@ export default function Dashboard() {
   };
 
   const handleEdit = (linkId: string) => {
+    if (linkId.startsWith('mock-')) {
+      toast.info('This is a demo link. Create your first real link to get started!');
+      router.push('/create-link');
+      return;
+    }
     router.push(`/links/${linkId}/edit`);
   };
 
   const getPlatformIcon = (platform: string) => {
-    // You can import actual platform icons here
     return <Globe className="w-4 h-4" />;
   };
 
@@ -282,6 +516,38 @@ export default function Dashboard() {
     label: item.device,
     value: item.percentage
   }));
+
+  // Helper function to get status message based on new model
+  const getStatusMessage = () => {
+    if (!stats.isEmailVerified) {
+      return {
+        type: 'warning' as const,
+        message: `Email verification required`,
+        action: 'Verify Email',
+        actionUrl: '/account'
+      };
+    }
+
+    if (stats.clicksRemaining === 0 && !stats.hasActiveSubscription) {
+      return {
+        type: 'error' as const,
+        message: 'You\'ve used all free clicks. Subscribe to continue.',
+        action: 'View Plans',
+        actionUrl: '/billing'
+      };
+    }
+
+    if (stats.clicksRemaining <= 50 && !stats.hasActiveSubscription) {
+      return {
+        type: 'warning' as const,
+        message: `${stats.clicksRemaining} free clicks remaining`,
+        action: 'View Plans',
+        actionUrl: '/billing'
+      };
+    }
+
+    return null;
+  };
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -302,27 +568,96 @@ export default function Dashboard() {
           className="mt-4 text-red-600 hover:text-red-700"
           variant="outline"
         >
+          <RefreshCw className="w-4 h-4 mr-2" />
           Try Again
         </Button>
       </Card>
     );
   }
 
+  // Show onboarding if no links created (original behavior)
+  if (links.length === 0 && !showOnboardingOverlay) {
+    return <OnboardingProgress />;
+  }
+
+  const statusMessage = getStatusMessage();
+
   return (
     <TooltipProvider>
-      {links.length === 0 ? (
-        <OnboardingProgress />
-      ) : (
-        <div className="p-4 md:p-6 space-y-6">
+      <div className="relative">
+        {/* Main Dashboard Content */}
+        <div className={`p-4 md:p-6 space-y-6 ${showOnboardingOverlay ? 'blur-sm pointer-events-none' : ''}`}>
           {/* Welcome Section */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome back! 👋
-            </h1>
-            <p className="text-gray-600">
-              Here's what's happening with your smart links today.
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  Welcome back! 👋
+                </h1>
+                <p className="text-gray-600">
+                  {showOnboardingOverlay
+                    ? "Complete the remaining steps to unlock all features!"
+                    : "Here's what's happening with your smart links today."
+                  }
+                </p>
+              </div>
+              <Button
+                onClick={loadDashboardData}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+            </div>
           </div>
+
+          {/* Demo Banner */}
+          {showOnboardingOverlay && (
+            <Card className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+              <div className="flex items-center gap-3">
+                <Play className="w-6 h-6 text-purple-600" />
+                <div>
+                  <h3 className="font-medium text-purple-800">Complete Your Setup</h3>
+                  <p className="text-purple-600 text-sm">You've created your first link! Complete your profile and billing setup to unlock all features.</p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Status Alert */}
+          {statusMessage && !showOnboardingOverlay && (
+            <Card className={`p-4 border-2 ${statusMessage.type === 'error'
+              ? 'bg-red-50 border-red-200'
+              : 'bg-yellow-50 border-yellow-200'
+              }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {statusMessage.type === 'error' ? (
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
+                  ) : (
+                    <Shield className="w-5 h-5 text-yellow-500" />
+                  )}
+                  <span className={`font-medium ${statusMessage.type === 'error' ? 'text-red-800' : 'text-yellow-800'
+                    }`}>
+                    {statusMessage.message}
+                  </span>
+                </div>
+                <Button
+                  onClick={() => router.push(statusMessage.actionUrl)}
+                  size="sm"
+                  className={
+                    statusMessage.type === 'error'
+                      ? 'bg-red-600 hover:bg-red-700 text-white'
+                      : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                  }
+                >
+                  {statusMessage.action}
+                </Button>
+              </div>
+            </Card>
+          )}
 
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -359,9 +694,10 @@ export default function Dashboard() {
             <Card className="p-4 bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-orange-600">7-Day Growth</p>
-                  <p className="text-2xl font-bold text-orange-900">
-                    {stats.clickPercentageChange > 0 ? '+' : ''}{stats.clickPercentageChange}%
+                  <p className="text-sm font-medium text-orange-600">Account Status</p>
+                  <p className="text-lg font-bold text-orange-900">
+                    {stats.hasActiveSubscription ? 'Subscribed' :
+                      stats.isEmailVerified ? 'Verified' : 'Unverified'}
                   </p>
                 </div>
                 <Users className="w-8 h-8 text-orange-500" />
@@ -374,7 +710,7 @@ export default function Dashboard() {
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-xl font-bold text-gray-800">Recent Smart Links</CardTitle>
               <Button
-                onClick={() => router.push('/links')}
+                onClick={() => router.push('/my-links')}
                 variant="outline"
                 size="sm"
                 className="text-[#5e17eb] border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
@@ -631,7 +967,19 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      )}
+
+        {/* Onboarding Overlay - positioned over dashboard content only with proper z-index */}
+        {showOnboardingOverlay && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
+            <div className="relative w-full overflow-y-auto">
+              <OnboardingProgress
+                showAsOverlay={true}
+                onDismiss={() => setShowOnboardingOverlay(false)}
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </TooltipProvider>
   );
 }
