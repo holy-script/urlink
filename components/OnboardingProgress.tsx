@@ -380,7 +380,7 @@ export function OnboardingProgress({ showAsOverlay = false, onDismiss }: Onboard
               {hasCreatedLink && (
                 <Button
                   onClick={handleDismiss}
-                  className="bg-[#5e17eb] hover:bg-[#4e13c4] text-white flex-1"
+                  className="bg-[#5e17eb] hover:bg-[#4e13c4] text-white flex-1 border-black border"
                   disabled={isLoading}
                 >
                   Continue to Dashboard

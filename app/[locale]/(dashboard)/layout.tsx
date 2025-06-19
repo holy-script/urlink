@@ -238,7 +238,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Mobile Floating Action Button */}
       {!isSidebarOpen && isMobile && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
