@@ -163,185 +163,239 @@ function createAdminClient(): SupabaseClient {
     });
 }
 
-// Enhanced function to detect if the request is likely from a direct paste
-function isDirectPaste(request: NextRequest): boolean {
-    const referer = request.headers.get('referer');
-    const userAgent = request.headers.get('user-agent') || '';
+// Enhanced platform-specific deep link generation functions
 
-    // No referer usually means direct navigation (paste/type)
-    if (!referer) {
-        console.log('🔍 No referer detected - likely direct paste/navigation');
-        return true;
-    }
+// YouTube Deep Link Generation
+function createYouTubeDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const videoId = extractYouTubeVideoId(originalUrl);
 
-    // Check if referer is the same domain (browser address bar)
-    const url = new URL(request.url);
-    try {
-        const refererUrl = new URL(referer);
-        if (refererUrl.hostname === url.hostname) {
-            console.log('🔍 Same-domain referer - likely direct navigation');
-            return true;
+    if (deviceInfo.isAndroid) {
+        if (videoId) {
+            // Android YouTube app intent with video ID - based on URLgenius strategy
+            const intentUrl = `intent://www.youtube.com/watch?v=${videoId}#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🎥 Generated Android YouTube intent:', intentUrl);
+            return intentUrl;
+        } else {
+            // General YouTube intent for channels, playlists, etc.
+            const intentUrl = `intent://${originalUrl.replace(/https?:\/\//, '')}#Intent;package=com.google.android.youtube;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🎥 Generated Android YouTube general intent:', intentUrl);
+            return intentUrl;
         }
-    } catch {
-        // Invalid referer URL
     }
 
-    // Check for in-app browsers that might not handle deep links well
-    const inAppBrowsers = ['fbav', 'instagram', 'linkedin', 'twitter', 'snapchat'];
-    const isInAppBrowser = inAppBrowsers.some(browser => userAgent.toLowerCase().includes(browser));
-
-    if (isInAppBrowser) {
-        console.log('🔍 In-app browser detected - using enhanced deep linking');
-        return true;
+    if (deviceInfo.isiOS) {
+        if (videoId) {
+            // iOS YouTube app URL scheme - URLgenius approach
+            const iosUrl = `youtube://www.youtube.com/watch?v=${videoId}`;
+            console.log('🎥 Generated iOS YouTube URL:', iosUrl);
+            return iosUrl;
+        } else {
+            // For iOS, use the original URL with UTM parameters for better app detection
+            const url = new URL(originalUrl);
+            url.searchParams.set('utm_source', 'urlink_app');
+            url.searchParams.set('utm_medium', 'deeplink');
+            console.log('🎥 Generated iOS YouTube universal link:', url.toString());
+            return url.toString();
+        }
     }
 
-    return false;
+    return originalUrl;
 }
 
-// Platform-specific intent URL generators based on URLgenius strategies
-function createAndroidIntentUrl(linkData: LinkData): string {
-    const packageMappings: Record<PlatformEnum, string> = {
-        'youtube': 'com.google.android.youtube',
-        'instagram': 'com.instagram.android',
-        'facebook': 'com.facebook.katana',
-        'tiktok': 'com.zhiliaoapp.musically',
-        'amazon': 'com.amazon.mShop.android.shopping',
-        'google-maps': 'com.google.android.apps.maps'
-    };
+// Instagram Deep Link Generation
+function createInstagramDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const instagramPath = extractInstagramPath(originalUrl);
 
-    const packageName = packageMappings[linkData.platform];
-    if (!packageName) {
-        console.log('🔍 No package mapping for platform:', linkData.platform);
-        return linkData.original_url;
+    if (deviceInfo.isAndroid) {
+        if (instagramPath.type === 'post') {
+            const intentUrl = `intent://instagram.com/p/${instagramPath.id}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('📷 Generated Android Instagram post intent:', intentUrl);
+            return intentUrl;
+        } else if (instagramPath.type === 'reel') {
+            const intentUrl = `intent://instagram.com/reel/${instagramPath.id}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('📷 Generated Android Instagram reel intent:', intentUrl);
+            return intentUrl;
+        } else {
+            // Profile or general Instagram content
+            const intentUrl = `intent://instagram.com/${instagramPath.path}#Intent;package=com.instagram.android;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('📷 Generated Android Instagram profile intent:', intentUrl);
+            return intentUrl;
+        }
     }
 
-    let intentUrl = '';
-
-    switch (linkData.platform) {
-        case 'youtube':
-            // YouTube strategy: Extract video ID for direct app opening
-            const videoId = extractYouTubeVideoId(linkData.original_url);
-            if (videoId) {
-                // Direct video intent for better app opening
-                intentUrl = `intent://www.youtube.com/watch?v=${videoId}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                // Channel or general YouTube content
-                intentUrl = `intent://${linkData.original_url.replace(/https?:\/\//, '')}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        case 'instagram':
-            // Instagram strategy: Handle posts, reels, and profiles
-            const instagramPath = extractInstagramPath(linkData.original_url);
-            if (instagramPath.type === 'post') {
-                intentUrl = `intent://instagram.com/p/${instagramPath.id}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else if (instagramPath.type === 'reel') {
-                intentUrl = `intent://instagram.com/reel/${instagramPath.id}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                // Profile or general Instagram content
-                intentUrl = `intent://instagram.com/${instagramPath.path}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        case 'tiktok':
-            // TikTok strategy: Handle video links and profiles
-            const tiktokPath = extractTikTokPath(linkData.original_url);
-            if (tiktokPath.type === 'video') {
-                intentUrl = `intent://tiktok.com/@${tiktokPath.username}/video/${tiktokPath.videoId}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                intentUrl = `intent://tiktok.com/${tiktokPath.path}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        case 'amazon':
-            // Amazon strategy: Extract ASIN for direct product linking
-            const asin = extractAmazonASIN(linkData.original_url);
-            if (asin) {
-                intentUrl = `intent://amazon.com/dp/${asin}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                intentUrl = `intent://${linkData.original_url.replace(/https?:\/\//, '')}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        case 'google-maps':
-            // Google Maps strategy: Handle places and coordinates
-            const mapsData = extractGoogleMapsData(linkData.original_url);
-            if (mapsData.placeId) {
-                intentUrl = `intent://maps.google.com/maps/place/?q=place_id:${mapsData.placeId}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else if (mapsData.query) {
-                intentUrl = `intent://maps.google.com/maps?q=${encodeURIComponent(mapsData.query)}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                intentUrl = `intent://maps.google.com#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        case 'facebook':
-            // Facebook strategy: Handle posts, pages, and profiles
-            const facebookPath = extractFacebookPath(linkData.original_url);
-            if (facebookPath.type === 'post') {
-                intentUrl = `intent://facebook.com/${facebookPath.path}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            } else {
-                intentUrl = `intent://facebook.com/${facebookPath.path}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-            }
-            break;
-
-        default:
-            intentUrl = `intent://${linkData.original_url.replace(/https?:\/\//, '')}#Intent;package=${packageName};scheme=https;S.browser_fallback_url=${encodeURIComponent(linkData.original_url)};end`;
-    }
-
-    console.log('🚀 Generated Android intent URL:', intentUrl);
-    return intentUrl;
-}
-
-// Enhanced iOS Universal Link creation based on URLgenius strategies
-function createIOSUniversalLink(linkData: LinkData): string {
-    // For iOS, enhance the URL to better trigger universal links
-    const url = new URL(linkData.original_url);
-
-    // Platform-specific iOS enhancements
-    switch (linkData.platform) {
-        case 'youtube':
-            // YouTube iOS app handles these URLs well with proper parameters
-            const videoId = extractYouTubeVideoId(linkData.original_url);
-            if (videoId) {
-                return `https://www.youtube.com/watch?v=${videoId}&utm_source=urlink_app&utm_medium=deeplink`;
-            }
-            break;
-
-        case 'instagram':
-            // Instagram universal links work best with clean URLs and UTM parameters
-            return linkData.original_url + (linkData.original_url.includes('?') ? '&' : '?') + 'utm_source=urlink_app&utm_medium=deeplink';
-
-        case 'tiktok':
-            // TikTok universal links with enhanced parameters
-            return linkData.original_url + (linkData.original_url.includes('?') ? '&' : '?') + 'utm_source=urlink_app&utm_medium=deeplink';
-
-        case 'amazon':
-            // Amazon iOS app handles these well with affiliate tags
-            const amazonUrl = new URL(linkData.original_url);
-            amazonUrl.searchParams.set('tag', 'urlink-20');
-            amazonUrl.searchParams.set('utm_source', 'urlink_app');
-            amazonUrl.searchParams.set('utm_medium', 'deeplink');
-            return amazonUrl.toString();
-
-        case 'google-maps':
-            // Google Maps iOS universal links
+    if (deviceInfo.isiOS) {
+        if (instagramPath.type === 'post' && instagramPath.id) {
+            const iosUrl = `instagram://media?id=${instagramPath.id}`;
+            console.log('📷 Generated iOS Instagram post URL:', iosUrl);
+            return iosUrl;
+        } else if (instagramPath.type === 'reel' && instagramPath.id) {
+            const iosUrl = `instagram://media?id=${instagramPath.id}`;
+            console.log('📷 Generated iOS Instagram reel URL:', iosUrl);
+            return iosUrl;
+        } else {
+            // Enhanced universal link for iOS
+            const url = new URL(originalUrl);
             url.searchParams.set('utm_source', 'urlink_app');
             url.searchParams.set('utm_medium', 'deeplink');
             return url.toString();
+        }
+    }
 
-        case 'facebook':
-            // Facebook iOS universal links
-            return linkData.original_url + (linkData.original_url.includes('?') ? '&' : '?') + 'utm_source=urlink_app&utm_medium=deeplink';
+    return originalUrl;
+}
 
-        default:
+// TikTok Deep Link Generation
+function createTikTokDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const tiktokPath = extractTikTokPath(originalUrl);
+
+    if (deviceInfo.isAndroid) {
+        if (tiktokPath.type === 'video' && tiktokPath.username && tiktokPath.videoId) {
+            const intentUrl = `intent://tiktok.com/@${tiktokPath.username}/video/${tiktokPath.videoId}#Intent;package=com.zhiliaoapp.musically;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🎵 Generated Android TikTok video intent:', intentUrl);
+            return intentUrl;
+        } else {
+            const intentUrl = `intent://tiktok.com/${tiktokPath.path}#Intent;package=com.zhiliaoapp.musically;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🎵 Generated Android TikTok general intent:', intentUrl);
+            return intentUrl;
+        }
+    }
+
+    if (deviceInfo.isiOS) {
+        if (tiktokPath.type === 'video' && tiktokPath.videoId) {
+            const iosUrl = `tiktok://video/${tiktokPath.videoId}`;
+            console.log('🎵 Generated iOS TikTok video URL:', iosUrl);
+            return iosUrl;
+        } else {
+            // Enhanced universal link for iOS
+            const url = new URL(originalUrl);
             url.searchParams.set('utm_source', 'urlink_app');
             url.searchParams.set('utm_medium', 'deeplink');
             return url.toString();
+        }
     }
 
-    console.log('🍎 Enhanced iOS URL:', url.toString());
-    return url.toString();
+    return originalUrl;
+}
+
+// Amazon Deep Link Generation
+function createAmazonDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const asin = extractAmazonASIN(originalUrl);
+
+    if (deviceInfo.isAndroid) {
+        if (asin) {
+            const intentUrl = `intent://amazon.com/dp/${asin}#Intent;package=com.amazon.mShop.android.shopping;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🛒 Generated Android Amazon ASIN intent:', intentUrl);
+            return intentUrl;
+        } else {
+            const intentUrl = `intent://${originalUrl.replace(/https?:\/\//, '')}#Intent;package=com.amazon.mShop.android.shopping;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🛒 Generated Android Amazon general intent:', intentUrl);
+            return intentUrl;
+        }
+    }
+
+    if (deviceInfo.isiOS) {
+        if (asin) {
+            const iosUrl = `com.amazon.mobile.shopping.web://amazon.com/dp/${asin}/`;
+            console.log('🛒 Generated iOS Amazon ASIN URL:', iosUrl);
+            return iosUrl;
+        } else {
+            // Enhanced universal link with affiliate tags
+            const url = new URL(originalUrl);
+            url.searchParams.set('tag', 'urlink-20');
+            url.searchParams.set('utm_source', 'urlink_app');
+            url.searchParams.set('utm_medium', 'deeplink');
+            return url.toString();
+        }
+    }
+
+    return originalUrl;
+}
+
+// Facebook Deep Link Generation
+function createFacebookDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const facebookPath = extractFacebookPath(originalUrl);
+
+    if (deviceInfo.isAndroid) {
+        if (facebookPath.type === 'post') {
+            const intentUrl = `intent://facebook.com/${facebookPath.path}#Intent;package=com.facebook.katana;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('👥 Generated Android Facebook post intent:', intentUrl);
+            return intentUrl;
+        } else {
+            const intentUrl = `intent://facebook.com/${facebookPath.path}#Intent;package=com.facebook.katana;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('👥 Generated Android Facebook general intent:', intentUrl);
+            return intentUrl;
+        }
+    }
+
+    if (deviceInfo.isiOS) {
+        if (facebookPath.type === 'post') {
+            const iosUrl = `fb://post/${facebookPath.path}`;
+            console.log('👥 Generated iOS Facebook post URL:', iosUrl);
+            return iosUrl;
+        } else {
+            const iosUrl = `fb://page/${facebookPath.path}`;
+            console.log('👥 Generated iOS Facebook page URL:', iosUrl);
+            return iosUrl;
+        }
+    }
+
+    return originalUrl;
+}
+
+// Google Maps Deep Link Generation
+function createGoogleMapsDeepLink(originalUrl: string, deviceInfo: DeviceInfo): string {
+    const mapsData = extractGoogleMapsData(originalUrl);
+
+    if (deviceInfo.isAndroid) {
+        if (mapsData.placeId) {
+            const intentUrl = `intent://maps.google.com/maps/place/?q=place_id:${mapsData.placeId}#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🗺️ Generated Android Maps place intent:', intentUrl);
+            return intentUrl;
+        } else if (mapsData.query) {
+            const intentUrl = `intent://maps.google.com/maps?q=${encodeURIComponent(mapsData.query)}#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            console.log('🗺️ Generated Android Maps query intent:', intentUrl);
+            return intentUrl;
+        } else {
+            const intentUrl = `intent://maps.google.com#Intent;package=com.google.android.apps.maps;scheme=https;S.browser_fallback_url=${encodeURIComponent(originalUrl)};end`;
+            return intentUrl;
+        }
+    }
+
+    if (deviceInfo.isiOS) {
+        if (mapsData.query) {
+            const iosUrl = `maps://?q=${encodeURIComponent(mapsData.query)}`;
+            console.log('🗺️ Generated iOS Maps URL:', iosUrl);
+            return iosUrl;
+        } else {
+            const iosUrl = `maps://?q=${encodeURIComponent(originalUrl)}`;
+            return iosUrl;
+        }
+    }
+
+    return originalUrl;
+}
+
+// Enhanced platform-specific deep link creation
+function createPlatformDeepLink(linkData: LinkData, deviceInfo: DeviceInfo): string {
+    console.log('🔗 Creating platform deep link for:', linkData.platform);
+
+    switch (linkData.platform) {
+        case 'youtube':
+            return createYouTubeDeepLink(linkData.original_url, deviceInfo);
+        case 'instagram':
+            return createInstagramDeepLink(linkData.original_url, deviceInfo);
+        case 'tiktok':
+            return createTikTokDeepLink(linkData.original_url, deviceInfo);
+        case 'amazon':
+            return createAmazonDeepLink(linkData.original_url, deviceInfo);
+        case 'facebook':
+            return createFacebookDeepLink(linkData.original_url, deviceInfo);
+        case 'google-maps':
+            return createGoogleMapsDeepLink(linkData.original_url, deviceInfo);
+        default:
+            console.log('🌐 No platform-specific deep link available, using original URL');
+            return linkData.original_url;
+    }
 }
 
 // Helper functions for extracting platform-specific identifiers
@@ -355,9 +409,13 @@ function extractYouTubeVideoId(url: string): string | null {
 
     for (const pattern of patterns) {
         const match = url.match(pattern);
-        if (match) return match[1];
+        if (match) {
+            console.log('🎥 Extracted YouTube video ID:', match[1]);
+            return match[1];
+        }
     }
 
+    console.log('🎥 No YouTube video ID found in URL:', url);
     return null;
 }
 
@@ -473,67 +531,6 @@ function extractFacebookPath(url: string): { type: string; path: string; } {
     }
 }
 
-// Enhanced redirect URL determination
-function determineRedirectUrl(linkData: LinkData, deviceInfo: DeviceInfo, userAgent: string, request: NextRequest): string {
-    const isPasted = isDirectPaste(request);
-
-    console.log('🔍 Navigation type analysis:', {
-        isPasted,
-        referer: request.headers.get('referer'),
-        deviceType: deviceInfo.type,
-        platform: deviceInfo.platform,
-        userAgent: userAgent.substring(0, 100)
-    });
-
-    // For mobile devices with direct paste or in-app browsers, use enhanced URLs
-    if (deviceInfo.isMobile && isPasted) {
-        if (deviceInfo.isAndroid) {
-            return createAndroidIntentUrl(linkData);
-        }
-        if (deviceInfo.isiOS) {
-            return createIOSUniversalLink(linkData);
-        }
-    }
-
-    // For clicked links, use stored deep links if available, otherwise enhance them
-    if (deviceInfo.isAndroid) {
-        if (linkData.android_deeplink) {
-            console.log('🤖 Using stored Android deep link');
-            return linkData.android_deeplink;
-        } else {
-            console.log('🤖 Creating enhanced Android intent URL');
-            return createAndroidIntentUrl(linkData);
-        }
-    }
-
-    if (deviceInfo.isiOS) {
-        if (linkData.ios_deeplink) {
-            console.log('🍎 Using stored iOS deep link');
-            return linkData.ios_deeplink;
-        } else {
-            console.log('🍎 Creating enhanced iOS universal link');
-            return createIOSUniversalLink(linkData);
-        }
-    }
-
-    // Fallback to original URL
-    console.log('🌐 Falling back to original URL');
-    return linkData.original_url;
-}
-
-// Function to handle inactive/deleted links with proper redirects
-function getInactiveRedirectUrl(platform: string, isDeleted: boolean = false): string {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com';
-
-    if (isDeleted) {
-        // For deleted links, redirect to a page explaining the link was removed
-        return `${baseUrl}/link-removed?platform=${platform}`;
-    } else {
-        // For inactive links, redirect to reactivation page
-        return `${baseUrl}/link-inactive?platform=${platform}`;
-    }
-}
-
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ platform: string; code: string; }>; }
@@ -592,7 +589,7 @@ export async function GET(
     try {
         console.log('🔍 === DATABASE OPERATIONS ===');
 
-        // Step 1: Fetch link (including inactive and deleted)
+        // Step 1: Fetch link
         console.log('📋 Querying links table...');
 
         const { data: linkData, error: fetchError } = await supabase
@@ -613,6 +610,8 @@ export async function GET(
             `)
             .eq('platform', platform)
             .eq('short_code', code)
+            .eq('is_active', true)
+            .is('deleted_at', null)
             .single();
 
         console.log('📊 Link query result:');
@@ -622,9 +621,12 @@ export async function GET(
 
         if (fetchError) {
             if (fetchError.code === 'PGRST116') {
-                console.log('📝 No matching link found - redirecting to 404 page');
-                const notFoundUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/link-not-found?platform=${platform}&code=${code}`;
-                return NextResponse.redirect(notFoundUrl, { status: 307 });
+                console.log('📝 No matching active link found');
+                return NextResponse.json({
+                    error: 'Link not found or inactive',
+                    platform,
+                    code
+                }, { status: 404 });
             }
 
             console.error('❌ Database query failed:', fetchError);
@@ -637,27 +639,13 @@ export async function GET(
 
         if (!linkData) {
             console.log('❌ Link data is null');
-            const notFoundUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/link-not-found?platform=${platform}&code=${code}`;
-            return NextResponse.redirect(notFoundUrl, { status: 307 });
+            return NextResponse.json({ error: 'Link not found' }, { status: 404 });
         }
 
         const link = linkData as LinkData;
-        console.log('✅ Link found:', link.id);
+        console.log('✅ Link found successfully:', link.id);
 
-        // Step 2: Check if link is deleted or inactive
-        if (link.deleted_at) {
-            console.log('🗑️ Link is deleted - redirecting to removal page');
-            const deletedUrl = getInactiveRedirectUrl(platform, true);
-            return NextResponse.redirect(deletedUrl, { status: 301 }); // Permanent redirect for deleted
-        }
-
-        if (!link.is_active) {
-            console.log('⏸️ Link is inactive - redirecting to inactive page');
-            const inactiveUrl = getInactiveRedirectUrl(platform, false);
-            return NextResponse.redirect(inactiveUrl, { status: 307 }); // Temporary redirect for inactive
-        }
-
-        // Step 3: Check user click limits (updated for verification + lifetime model)
+        // Step 2: Check user click limits (updated for verification + lifetime model)
         console.log('🔍 === USER CLICK LIMIT CHECK ===');
         console.log('👤 Checking limits for user:', link.user_id);
 
@@ -679,19 +667,19 @@ export async function GET(
                 .single();
 
             if (userData && !userData.is_email_verified) {
-                // Unverified user exceeded clicks - redirect to email verification
+                // Unverified user exceeded 20 clicks - redirect to email verification
                 const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/verify-email`;
                 console.log('🎯 Redirecting unverified user to email verification:', verifyUrl);
                 return NextResponse.redirect(verifyUrl, { status: 307 });
             } else {
-                // Verified user exceeded clicks - redirect to billing
+                // Verified user exceeded 500 clicks - redirect to billing
                 const billingUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://smarturlink.com'}/billing`;
                 console.log('🎯 Redirecting verified user to billing page:', billingUrl);
                 return NextResponse.redirect(billingUrl, { status: 307 });
             }
         }
 
-        // Step 4: Device detection
+        // Step 3: Device detection
         console.log('🔍 === DEVICE DETECTION ===');
         const userAgent = request.headers.get('user-agent') || '';
         const deviceInfo = detectDevice(userAgent);
@@ -703,14 +691,14 @@ export async function GET(
             isiOS: deviceInfo.isiOS
         });
 
-        // Step 5: Determine redirect URL with enhanced logic
+        // Step 4: Determine redirect URL with enhanced platform-specific logic
         console.log('🔍 === ENHANCED DEEP LINK ROUTING ===');
-        const redirectUrl = determineRedirectUrl(link, deviceInfo, userAgent, request);
-        const redirectType = getRedirectType(link, deviceInfo, request);
+        const redirectUrl = determineRedirectUrl(link, deviceInfo, userAgent);
+        const redirectType = getRedirectType(link, deviceInfo);
 
         console.log('🎯 Redirect decision:', { redirectUrl, redirectType });
 
-        // Step 6: Record click analytics with enhanced geolocation
+        // Step 5: Record click analytics with enhanced geolocation
         console.log('🔍 === ANALYTICS RECORDING ===');
 
         // Wait for country lookup with timeout protection
@@ -754,7 +742,6 @@ export async function GET(
         console.log('  - IP:', clientIP, clientIP === '::1' ? '(IPv6 loopback)' : '');
         console.log('  - Country:', country || 'Unknown');
         console.log('  - Device type:', clickData.device_type);
-        console.log('  - Redirect type:', clickData.redirect_type);
         console.log('  - Is billable:', clickData.is_billable);
 
         const { error: clickError } = await supabase
@@ -767,7 +754,7 @@ export async function GET(
             console.log('✅ Click analytics recorded with enhanced geolocation');
         }
 
-        // Step 7: Update user usage (updated for verification + lifetime model)
+        // Step 6: Update user usage (updated for verification + lifetime model)
         console.log('🔍 === USAGE INCREMENT ===');
         console.log('💰 Incrementing lifetime click count...');
 
@@ -787,7 +774,7 @@ export async function GET(
             await supabase.rpc('check_and_deactivate_user_links', { p_user_id: link.user_id });
         }
 
-        // Step 8: Execute redirect
+        // Step 7: Execute redirect
         console.log('🔍 === FINAL REDIRECT ===');
         console.log('🎯 Redirecting user to:', redirectUrl);
         console.log('✅ === URLINK REDIRECT COMPLETED ===');
@@ -869,17 +856,54 @@ function detectDevice(userAgent: string): DeviceInfo {
     };
 }
 
-// Enhanced redirect type determination
-function getRedirectType(linkData: LinkData, deviceInfo: DeviceInfo, request: NextRequest): RedirectType {
-    const isPasted = isDirectPaste(request);
+// Updated redirect URL determination with enhanced platform-specific logic
+function determineRedirectUrl(linkData: LinkData, deviceInfo: DeviceInfo, userAgent: string): string {
+    console.log('🔗 Determining redirect URL for platform:', linkData.platform);
 
-    if (deviceInfo.isAndroid) {
-        return 'android_deeplink';
+    // For mobile devices, try platform-specific deep links first
+    if (deviceInfo.isMobile) {
+        const platformDeepLink = createPlatformDeepLink(linkData, deviceInfo);
+        if (platformDeepLink !== linkData.original_url) {
+            console.log('📱 Using enhanced platform deep link');
+            return platformDeepLink;
+        }
     }
 
-    if (deviceInfo.isiOS) {
-        return 'ios_deeplink';
+    // Fallback to stored deep links
+    if (deviceInfo.isAndroid && linkData.android_deeplink) {
+        console.log('🤖 Using stored Android deep link');
+        return linkData.android_deeplink;
     }
 
+    if (deviceInfo.isiOS && linkData.ios_deeplink) {
+        console.log('🍎 Using stored iOS deep link');
+        return linkData.ios_deeplink;
+    }
+
+    console.log('🌐 Falling back to original URL');
+    return linkData.original_url;
+}
+
+function getRedirectType(linkData: LinkData, deviceInfo: DeviceInfo): RedirectType {
+    if (deviceInfo.isAndroid) return 'android_deeplink';
+    if (deviceInfo.isiOS) return 'ios_deeplink';
     return 'web_fallback';
+}
+
+function hasAppInstalled(platform: PlatformEnum, userAgent: string): boolean {
+    const ua = userAgent.toLowerCase();
+    const appSignatures: Record<PlatformEnum, string[]> = {
+        'instagram': ['instagram', 'fbav'],
+        'youtube': ['youtube'],
+        'facebook': ['fbav', 'facebook'],
+        'tiktok': ['tiktok', 'musical_ly'],
+        'amazon': ['amazon'],
+        'google-maps': ['googlemaps', 'maps']
+    };
+
+    const signatures = appSignatures[platform] || [];
+    const detected = signatures.some(sig => ua.includes(sig));
+
+    if (platform === 'google-maps') return true;
+    return detected;
 }
