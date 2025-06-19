@@ -1250,7 +1250,7 @@ export default function Dashboard() {
             </div>
 
             {/* Video Tutorials Section */}
-            <div className="xl:col-span-1">
+            <div className="xl:col-span-1 mb-8 xl:mb-0">
               <Card className="bg-gray-100 shadow-lg shadow-[#5e17eb]/20 rounded-xl">
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -1306,15 +1306,6 @@ export default function Dashboard() {
                           <p className="text-sm text-gray-500">QR codes and customization</p>
                         </div>
                       </div>
-                    </Button>
-                  </div>
-
-                  <div className="pt-4 border-t border-gray-200">
-                    <Button
-                      onClick={() => router.push('/create-link')}
-                      className="w-full bg-[#5e17eb] text-white hover:bg-[#4e13c4]"
-                    >
-                      <span className="text-white">Create New Smart Link</span>
                     </Button>
                   </div>
                 </CardContent>

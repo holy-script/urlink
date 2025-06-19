@@ -525,7 +525,7 @@ export default function MyLinksPage() {
       <div className="relative min-h-screen bg-gray-50">
         {/* Main Content */}
         <div className={`px-4 py-6 sm:px-6 lg:px-8 ${showOnboardingOverlay ? 'blur-sm pointer-events-none' : ''}`}>
-          <div className="mx-auto max-w-4xl space-y-6">
+          <div className="mx-auto w-full space-y-6">
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>

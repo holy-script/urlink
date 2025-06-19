@@ -235,7 +235,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </main>
 
       {/* Mobile Floating Action Button */}
-      {!isSidebarOpen && isMobile && (
+      {!isSidebarOpen && isMobile && pathname.includes('dashboard') && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30">
           <TooltipProvider>
             <Tooltip>

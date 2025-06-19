@@ -44,7 +44,7 @@ export default function FAQ() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full p-4 mx-auto">
       <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-6">
         Frequently Asked Questions
       </h1>
