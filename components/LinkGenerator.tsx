@@ -81,7 +81,6 @@ export function LinkGenerator() {
       const pathParts = url.pathname.split('/');
 
       if (pathParts.includes('p')) {
-        // Instagram post: /p/POST_ID/
         const postIndex = pathParts.indexOf('p');
         const postId = pathParts[postIndex + 1];
 
@@ -90,7 +89,6 @@ export function LinkGenerator() {
           ios: `instagram://media?id=${postId}`
         };
       } else if (pathParts.includes('reel')) {
-        // Instagram reel: /reel/REEL_ID/
         const reelIndex = pathParts.indexOf('reel');
         const reelId = pathParts[reelIndex + 1];
 
@@ -99,7 +97,6 @@ export function LinkGenerator() {
           ios: `instagram://media?id=${reelId}`
         };
       } else {
-        // Profile or other Instagram content
         return {
           android: `intent://${url.hostname}${url.pathname}#Intent;package=com.instagram.android;scheme=https;end`,
           ios: `instagram://user?username=${pathParts[1] || ''}`
@@ -130,7 +127,6 @@ export function LinkGenerator() {
         };
       }
 
-      // For channels, playlists, etc.
       return {
         android: `vnd.youtube:${url.pathname}${url.search}`,
         ios: `youtube://${url.pathname}${url.search}`
@@ -359,7 +355,9 @@ export function LinkGenerator() {
         // Ignore title extraction errors
       }
 
-      // Insert link into database using new schema
+      console.log('📝 Creating link with QR enabled:', qrEnabled);
+
+      // Insert link into database using updated schema with isqrenabled (lowercase)
       const { data: linkData, error: insertError } = await supabase
         .from('links')
         .insert({
@@ -370,9 +368,10 @@ export function LinkGenerator() {
           platform: currentPlatform,
           short_code: shortCode,
           title: title,
-          is_active: true
+          is_active: true,
+          isqrenabled: qrEnabled // Updated to match your database column name
         })
-        .select('id, short_code, platform')
+        .select('id, short_code, platform, isqrenabled')
         .single();
 
       if (insertError) {
@@ -380,10 +379,12 @@ export function LinkGenerator() {
         throw new Error('Failed to create link. Please try again.');
       }
 
+      console.log('✅ Link created successfully with QR enabled:', linkData.isqrenabled);
+
       // Success!
       const smartUrl = `smarturlink.com/${linkData.platform}/${linkData.short_code}`;
       toast.success('Smart link created successfully!', {
-        description: `URL: ${smartUrl}`,
+        description: `URL: ${smartUrl}${qrEnabled ? ' (QR Code enabled)' : ''}`,
         action: {
           label: 'View Links',
           onClick: () => router.push('/my-links')
@@ -414,209 +415,208 @@ export function LinkGenerator() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col gap-4 sm:gap-6">
-        {/* URL Input */}
-        <div className="space-y-2">
-          <Input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Paste a link from Instagram, YouTube, Amazon, TikTok, Facebook, or Google Maps..."
-            className="w-full text-base py-4 px-4 rounded-lg border-2 border-gray-200 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] transition-all sm:text-lg sm:py-6 sm:px-6 sm:rounded-xl text-gray-900 placeholder:text-gray-500"
-            required
-            disabled={isLoading}
-          />
-          {detectedPlatform && (
-            <div className="flex items-center gap-2 text-sm text-green-600">
-              <Smartphone className="w-4 h-4" />
-              Detected platform: <span className="font-medium capitalize">{detectedPlatform}</span>
+    <TooltipProvider>
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col gap-4 sm:gap-6">
+          {/* URL Input */}
+          <div className="space-y-2">
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Paste a link from Instagram, YouTube, Amazon, TikTok, Facebook, or Google Maps..."
+              className="w-full text-base py-4 px-4 rounded-lg border-2 border-gray-200 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] transition-all sm:text-lg sm:py-6 sm:px-6 sm:rounded-xl text-gray-900 placeholder:text-gray-500 bg-white"
+              required
+              disabled={isLoading}
+            />
+            {detectedPlatform && (
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <Smartphone className="w-4 h-4 text-green-600" />
+                Detected platform: <span className="font-medium capitalize text-green-700">{detectedPlatform}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Platform Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Platform</label>
+            <Select
+              value={manualPlatform || ''}
+              onValueChange={(value) => setManualPlatform(value as Platform)}
+              disabled={isLoading}
+            >
+              <SelectTrigger className="w-full text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
+                <SelectValue placeholder="Select platform (auto-detected if available)" />
+              </SelectTrigger>
+              <SelectContent className='text-gray-900 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]'>
+                <SelectItem value="youtube" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  YouTube
+                </SelectItem>
+                <SelectItem value="instagram" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  Instagram
+                </SelectItem>
+                <SelectItem value="facebook" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  Facebook
+                </SelectItem>
+                <SelectItem value="tiktok" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  TikTok
+                </SelectItem>
+                <SelectItem value="google-maps" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  Google Maps
+                </SelectItem>
+                <SelectItem value="amazon" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
+                  Amazon
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Preview Smart URL */}
+          {currentPlatform && url && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="text-sm text-blue-800">
+                <strong className="text-blue-900">Smart URL Preview:</strong> smarturlink.com/{currentPlatform}/[your-code]
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Platform Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Platform</label>
-          <Select
-            value={manualPlatform || ''}
-            onValueChange={(value) => setManualPlatform(value as Platform)}
-            disabled={isLoading}
-          >
-            <SelectTrigger className="w-full text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
-              <SelectValue placeholder="Select platform (auto-detected if available)"
-              />
-            </SelectTrigger>
-            <SelectContent className='text-gray-900 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]'>
-              <SelectItem value="youtube" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                YouTube
-              </SelectItem>
-              <SelectItem value="instagram" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                Instagram
-              </SelectItem>
-              <SelectItem value="facebook" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                Facebook
-              </SelectItem>
-              <SelectItem value="tiktok" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                TikTok
-              </SelectItem>
-              <SelectItem value="google-maps" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                Google Maps
-              </SelectItem>
-              <SelectItem value="amazon" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                Amazon
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Feature Toggles */}
+          <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+              <div className="flex items-center justify-between sm:justify-start gap-2">
+                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <QrCode className="w-4 h-4 text-gray-700" />
+                  QR Code
+                </span>
+                <Switch
+                  checked={qrEnabled}
+                  onCheckedChange={setQrEnabled}
+                  disabled={isLoading}
+                  className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
+                />
+              </div>
 
-        {/* Preview Smart URL */}
-        {currentPlatform && url && (
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="text-sm text-blue-800">
-              <strong>Smart URL Preview:</strong> smarturlink.com/{currentPlatform}/[your-code]
+              <div className="flex items-center justify-between sm:justify-start gap-2">
+                <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                  <Tags className="w-4 h-4 text-gray-700" />
+                  UTM Parameters
+                </span>
+                <Switch
+                  checked={utmEnabled}
+                  onCheckedChange={setUtmEnabled}
+                  disabled={isLoading}
+                  className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
+                />
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Feature Toggles */}
-        <div className="flex flex-col gap-4 px-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <div className="flex items-center justify-between sm:justify-start gap-2">
-              <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <QrCode className="w-4 h-4" />
-                QR Code
-              </span>
-              <Switch
-                checked={qrEnabled}
-                onCheckedChange={setQrEnabled}
-                disabled={isLoading}
-                className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
-              />
-            </div>
-
-            <div className="flex items-center justify-between sm:justify-start gap-2">
-              <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <Tags className="w-4 h-4" />
-                UTM Parameters
-              </span>
-              <Switch
-                checked={utmEnabled}
-                onCheckedChange={setUtmEnabled}
-                disabled={isLoading}
-                className="data-[state=checked]:bg-[#5e17eb] [&_[data-state=checked]>span]:bg-white [&_span]:bg-white data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border-gray-300 data-[state=checked]:border-[#5e17eb] data-[state=unchecked]:border"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* UTM Parameters Section */}
-        {utmEnabled && (
-          <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-medium text-gray-700 sm:text-base">UTM Parameters</h3>
-              <TooltipProvider>
+          {/* UTM Parameters Section */}
+          {utmEnabled && (
+            <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-medium text-gray-700 sm:text-base">UTM Parameters</h3>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-4 h-4 text-gray-400" />
                   </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p>Track your marketing campaigns with UTM parameters</p>
+                  <TooltipContent className="max-w-xs bg-white text-gray-700 border border-gray-200">
+                    <p className="text-gray-700">Track your marketing campaigns with UTM parameters</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-            </div>
+              </div>
 
-            <div className="space-y-3 sm:space-y-4">
-              <div className="space-y-3 sm:grid sm:grid-cols-1 md:grid-cols-3 sm:gap-4 sm:space-y-0">
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-500 block sm:hidden">Source</label>
-                  <Input
-                    value={utmSource}
-                    onChange={(e) => setUtmSource(e.target.value)}
-                    placeholder="utm_source (e.g., google)"
-                    disabled={isLoading}
-                    className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-500 block sm:hidden">Medium</label>
-                  <Input
-                    value={utmMedium}
-                    onChange={(e) => setUtmMedium(e.target.value)}
-                    placeholder="utm_medium (e.g., cpc)"
-                    disabled={isLoading}
-                    className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs text-gray-500 block sm:hidden">Campaign</label>
-                  <Input
-                    value={utmCampaign}
-                    onChange={(e) => setUtmCampaign(e.target.value)}
-                    placeholder="utm_campaign (e.g., spring_sale)"
-                    disabled={isLoading}
-                    className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500"
-                  />
+              <div className="space-y-3 sm:space-y-4">
+                <div className="space-y-3 sm:grid sm:grid-cols-1 md:grid-cols-3 sm:gap-4 sm:space-y-0">
+                  <div className="space-y-1">
+                    <label className="text-xs text-gray-500 block sm:hidden">Source</label>
+                    <Input
+                      value={utmSource}
+                      onChange={(e) => setUtmSource(e.target.value)}
+                      placeholder="utm_source (e.g., google)"
+                      disabled={isLoading}
+                      className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-gray-500 block sm:hidden">Medium</label>
+                    <Input
+                      value={utmMedium}
+                      onChange={(e) => setUtmMedium(e.target.value)}
+                      placeholder="utm_medium (e.g., cpc)"
+                      disabled={isLoading}
+                      className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-gray-500 block sm:hidden">Campaign</label>
+                    <Input
+                      value={utmCampaign}
+                      onChange={(e) => setUtmCampaign(e.target.value)}
+                      placeholder="utm_campaign (e.g., spring_sale)"
+                      disabled={isLoading}
+                      className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Card>
-        )}
-
-        {/* QR Code Preview */}
-        {qrEnabled && canShowQRPreview && currentPlatform && (
-          <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-4 text-center sm:text-left sm:text-base">
-              QR Code Preview
-            </h3>
-            <div className="flex justify-center">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <QRCodeCanvas
-                  value={`https://smarturlink.com/${currentPlatform}/preview`}
-                  size={150}
-                  fgColor={qrColor}
-                  level="H"
-                  includeMargin
-                  className="sm:w-[200px] sm:h-[200px]"
-                />
-              </div>
-            </div>
-            <p className="text-xs text-gray-500 text-center mt-3 sm:text-sm">
-              QR code will redirect to your smart link
-            </p>
-          </Card>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="text-red-600 text-sm p-3 bg-red-50 border border-red-200 rounded-lg sm:text-base sm:p-4">
-            <div className="flex items-start gap-2">
-              <span className="text-red-500 mt-0.5">⚠</span>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          disabled={isLoading || !url.trim() || !currentPlatform}
-          className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 text-base rounded-lg flex items-center justify-center gap-2 transition-all sm:py-6 sm:text-lg sm:rounded-xl sm:gap-3"
-        >
-          {isLoading ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white sm:h-6 sm:w-6"></div>
-              Creating your smart link...
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
-              Create smart link
-            </>
+            </Card>
           )}
-        </Button>
-      </div>
-    </form>
+
+          {/* QR Code Preview */}
+          {qrEnabled && canShowQRPreview && currentPlatform && (
+            <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
+              <h3 className="text-sm font-medium text-gray-700 mb-4 text-center sm:text-left sm:text-base">
+                QR Code Preview
+              </h3>
+              <div className="flex justify-center">
+                <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                  <QRCodeCanvas
+                    value={`https://smarturlink.com/${currentPlatform}/preview`}
+                    size={150}
+                    fgColor={qrColor}
+                    level="H"
+                    includeMargin
+                    className="sm:w-[200px] sm:h-[200px]"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 text-center mt-3 sm:text-sm">
+                QR code will redirect to your smart link
+              </p>
+            </Card>
+          )}
+
+          {/* Error Display */}
+          {error && (
+            <div className="text-red-600 text-sm p-3 bg-red-50 border border-red-200 rounded-lg sm:text-base sm:p-4">
+              <div className="flex items-start gap-2">
+                <span className="text-red-500 mt-0.5">⚠</span>
+                <span className="text-red-600">{error}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={isLoading || !url.trim() || !currentPlatform}
+            className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-4 text-base rounded-lg flex items-center justify-center gap-2 transition-all sm:py-6 sm:text-lg sm:rounded-xl sm:gap-3"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white sm:h-6 sm:w-6"></div>
+                <span className="text-white">Creating your smart link...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <span className="text-white">Create smart link {qrEnabled && '+ QR Code'}</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </TooltipProvider>
   );
 }
