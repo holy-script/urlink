@@ -1,6 +1,6 @@
 // app/api/[platform]/[code]/route.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import * as geoip from 'geoip-country';
+import geoip from 'geoip-lite';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Types based on your SQL schema
@@ -234,11 +234,11 @@ export async function GET(
 
         // Step 5: Record click analytics
         console.log('🔍 === ANALYTICS RECORDING ===');
-        const { ip, country } = getClientIPAndCountry(request);
+        const { ip: clientIP, country } = getClientIPAndCountry(request);
 
         const clickData: ClickData = {
             link_id: link.id,
-            ip_address: ip,
+            ip_address: clientIP,
             user_agent: userAgent,
             referrer_url: request.headers.get('referer'),
             country_code: country,
@@ -248,7 +248,7 @@ export async function GET(
 
         console.log('📝 Recording click data:');
         console.log('  - Link ID:', clickData.link_id);
-        console.log('  - IP:', ip);
+        console.log('  - IP:', clientIP);
         console.log('  - Device type:', clickData.device_type);
         console.log('  - Redirect type:', clickData.redirect_type);
 
@@ -308,7 +308,7 @@ export async function GET(
     }
 }
 
-// Helper function: Extract real client IP & geolocation
+// Helper function: Extract real client IP & country
 function getClientIPAndCountry(request: NextRequest): { ip: string; country: string | null; } {
     const headers = {
         forwarded: request.headers.get('x-forwarded-for'),
@@ -329,7 +329,7 @@ function getClientIPAndCountry(request: NextRequest): { ip: string; country: str
         finalIP = headers.trueClientIP;
     }
 
-    // Get country from IP
+    // Get country from IP using geoip-lite
     const geo = geoip.lookup(finalIP);
     const country = geo ? geo.country : null;
 
