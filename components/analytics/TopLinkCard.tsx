@@ -39,7 +39,7 @@ export function TopLinkCard({ link, chartData, onViewDetails }: TopLinkProps) {
   };
 
   return (
-    <Card className="p-6 bg-white shadow-sm">
+    <Card className="p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">
           Top Performing Link This Week

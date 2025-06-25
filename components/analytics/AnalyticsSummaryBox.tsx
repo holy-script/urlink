@@ -26,7 +26,7 @@ export function AnalyticsSummaryBox({
   };
 
   return (
-    <Card className={`${variantStyles[variant]} p-6`}>
+    <Card className={`${variantStyles[variant]} p-6 shadow-lg shadow-[#5e17eb]/20 bg-white`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-600">{label}</p>

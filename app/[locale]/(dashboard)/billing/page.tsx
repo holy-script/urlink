@@ -275,7 +275,7 @@ export default function BillingPage() {
         <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Billing & Usage</h1>
 
         {/* Current Plan */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-2">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -327,7 +327,7 @@ export default function BillingPage() {
         </Card>
 
         {/* Usage This Month */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl">Usage This Month</h2>
           <div className="space-y-4">
             <div>
@@ -374,7 +374,7 @@ export default function BillingPage() {
         </Card>
 
         {/* Payment Method */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl">Payment Method</h2>
 
           {userPlan.payment_method_id ? (
@@ -421,7 +421,7 @@ export default function BillingPage() {
         </Card>
 
         {/* Billing History */}
-        <Card className="p-4 sm:p-6">
+        <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl">Billing History</h2>
 
           <div className="overflow-x-auto -mx-4 sm:mx-0">

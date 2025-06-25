@@ -491,7 +491,7 @@ export default function Analytics() {
 
         {/* Device and Country Breakdown */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
-          <Card className="p-4 sm:p-6">
+          <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Device Breakdown</h3>
             <div className="space-y-4">
               {data.deviceBreakdown.length > 0 ? (
@@ -507,7 +507,7 @@ export default function Analytics() {
             </div>
           </Card>
 
-          <Card className="p-4 sm:p-6">
+          <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Top Countries</h3>
             <div className="space-y-4">
               {data.countryBreakdown.length > 0 ? (

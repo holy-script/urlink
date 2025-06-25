@@ -263,7 +263,7 @@ export default function EditLinkPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
@@ -282,7 +282,7 @@ export default function EditLinkPage() {
         </div>
 
         {/* Link Info Card */}
-        <Card className="p-6 bg-white border border-gray-200">
+        <Card className="p-6 bg-white border border-gray-200 shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Link Information</h2>
           <div className="space-y-4">
             <div>
@@ -310,7 +310,7 @@ export default function EditLinkPage() {
 
         {/* Edit Form */}
         <form onSubmit={handleSave} className="space-y-6">
-          <Card className="p-6 bg-white border border-gray-200">
+          <Card className="p-6 bg-white border border-gray-200 shadow-lg shadow-[#5e17eb]/20">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Edit Settings</h2>
 
             <div className="space-y-4">
@@ -362,7 +362,7 @@ export default function EditLinkPage() {
 
           {/* QR Code Preview */}
           {qrEnabled && (
-            <Card className="p-6 bg-white border border-gray-200">
+            <Card className="p-6 bg-white border border-gray-200 shadow-lg shadow-[#5e17eb]/20">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">QR Code Preview</h3>
               <div className="flex justify-center">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">

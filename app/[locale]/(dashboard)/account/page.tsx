@@ -453,19 +453,19 @@ export default function AccountPage() {
       <div className="mx-auto w-full">
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
-          <Button
+          {/* <Button
             onClick={loadUserProfile}
             variant="outline"
             size="sm"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-[#5e17eb] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
-          </Button>
+          </Button> */}
         </div>
 
         {/* Personal Information */}
-        <Card className="p-4 mb-6 sm:p-6 sm:mb-8">
+        <Card className="p-4 mb-6 sm:p-6 sm:mb-8 bg-white shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">Personal Information</h2>
 
           {/* Profile Picture Section with Shadcn Avatar */}
@@ -583,7 +583,7 @@ export default function AccountPage() {
         </Card>
 
         {/* Change Password */}
-        <Card className="p-4 mb-6 sm:p-6 sm:mb-8">
+        <Card className="p-4 mb-6 sm:p-6 sm:mb-8 bg-white shadow-lg shadow-[#5e17eb]/20">
           <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">Change Password</h2>
           <form onSubmit={handlePasswordChange} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
@@ -621,7 +621,7 @@ export default function AccountPage() {
               />
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col lg:flex-row justify-between items-center gap-2">
               <Button
                 type="submit"
                 variant="outline"
@@ -629,6 +629,18 @@ export default function AccountPage() {
                 className="w-full sm:w-auto border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
               >
                 {loading ? 'Updating...' : 'Update Password'}
+              </Button>
+              <Button
+                type='button'
+                variant="link"
+                onClick={() => {
+                  toast.info('Reset Password link sent to your email', {
+                    description: 'Please check your inbox.'
+                  });
+                }}
+                className="w-full sm:w-auto text-[#5e17eb] hover:text-[#4e13c4] text-sm sm:text-base"
+              >
+                Forgot your password?
               </Button>
             </div>
           </form>
@@ -651,7 +663,7 @@ export default function AccountPage() {
 
         {/* Delete Account Modal */}
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <DialogContent className="mx-4 max-w-md sm:mx-auto">
+          <DialogContent className="mx-4 max-w-md sm:mx-auto bg-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-red-600 text-lg">
                 <AlertTriangle className="h-5 w-5" />
@@ -675,7 +687,7 @@ export default function AccountPage() {
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
                   placeholder="Type DELETE to confirm"
-                  className="font-mono"
+                  className="font-mono bg-gray-50 text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-[#5e17eb] w-full"
                   autoComplete="off"
                   autoCapitalize="off"
                   spellCheck="false"
@@ -689,7 +701,7 @@ export default function AccountPage() {
                   setShowDeleteDialog(false);
                   setDeleteConfirmation('');
                 }}
-                className="w-full order-2 sm:order-1 sm:w-auto"
+                className="w-full order-2 sm:order-1 sm:w-auto text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </Button>
@@ -697,7 +709,7 @@ export default function AccountPage() {
                 variant="destructive"
                 onClick={handleDeleteAccount}
                 disabled={deleteConfirmation !== 'DELETE' || loading}
-                className="w-full order-1 sm:order-2 sm:w-auto"
+                className="w-full order-1 sm:order-2 sm:w-auto bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Deleting...' : 'Yes, delete my account'}
               </Button>

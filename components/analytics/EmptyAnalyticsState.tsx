@@ -28,7 +28,7 @@ export function EmptyAnalyticsState({
         </p>
         <Button
           onClick={onAction}
-          className="bg-[#5e17eb] hover:bg-[#4e13c4]"
+          className="bg-[#5e17eb] hover:bg-[#4e13c4] text-white"
         >
           <Sparkles className="w-4 h-4 mr-2" />
           {actionText}

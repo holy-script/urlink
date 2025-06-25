@@ -21,7 +21,7 @@ export function ChartCard({
   onTimeRangeChange
 }: ChartCardProps) {
   return (
-    <Card className="p-6">
+    <Card className="p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

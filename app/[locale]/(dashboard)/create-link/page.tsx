@@ -3,13 +3,15 @@
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { LinkGenerator } from '@/components/LinkGenerator';
-import { Sparkles, Play } from 'lucide-react';
+import { Sparkles, Play, X } from 'lucide-react';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export default function CreateLinkPage() {
   const [showVideoOverlay, setShowVideoOverlay] = useState(false);
@@ -24,7 +26,7 @@ export default function CreateLinkPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto">
         {/* Header with Video Tutorial Button */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="text-center sm:text-left">
@@ -60,7 +62,7 @@ export default function CreateLinkPage() {
 
         <div className="space-y-4 sm:space-y-6">
           {/* Step 1: Basic Info */}
-          <Card className="p-4 sm:p-6">
+          <Card className="p-4 sm:p-6 bg-white shadow-lg shadow-[#5e17eb]/20">
             <div className="mb-4 sm:mb-6">
               <h2 className="text-lg font-semibold text-gray-900 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center gap-2 justify-center sm:justify-start">
@@ -79,7 +81,7 @@ export default function CreateLinkPage() {
           </Card>
 
           {/* Success Tips */}
-          <Card className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border-none sm:p-6">
+          <Card className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-[#5d17eb] sm:p-6">
             <div className="flex flex-col gap-3 text-center sm:flex-row sm:items-start sm:text-left">
               <Sparkles className="w-5 h-5 text-[#5e17eb] mx-auto sm:mx-0 sm:mt-1 flex-shrink-0" />
               <div className="space-y-3">
@@ -114,6 +116,11 @@ export default function CreateLinkPage() {
           <DialogContent className="max-w-4xl w-full bg-white border border-gray-200">
             <DialogHeader>
               <DialogTitle className="text-gray-900">{currentVideoTitle}</DialogTitle>
+              <DialogClose asChild>
+                <Button variant="ghost" size="icon" className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                  <X className="h-5 w-5" />
+                </Button>
+              </DialogClose>
             </DialogHeader>
             <div className="aspect-video w-full">
               <iframe

@@ -140,7 +140,7 @@ export function FreeClicksCard({
 
   if (isLoading) {
     return (
-      <Card className="bg-[#F4ECFF] p-5 w-full">
+      <Card className="bg-[#F4ECFF] p-5 w-full border border-[#5d17eb]">
         <div className="flex items-center gap-2">
           <RefreshCw className="w-4 h-4 animate-spin text-[#5F40C2]" />
           <h3 className="text-sm font-medium text-[#5F40C2]">Loading Click Usage...</h3>
@@ -168,7 +168,7 @@ export function FreeClicksCard({
   }
 
   return (
-    <Card className="bg-[#F4ECFF] p-5 w-full">
+    <Card className="bg-[#F4ECFF] p-5 w-full border border-[#5d17eb]">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-medium text-[#5F40C2]">Click Usage</h3>
         <Button
