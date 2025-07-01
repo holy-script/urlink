@@ -90,9 +90,18 @@ serve(async (req: Request) => {
     // Get environment variables
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY');
     const jwtSecret = Deno.env.get('EMAIL_VERIFICATION_JWT_SECRET');
 
-    if (!supabaseUrl || !supabaseServiceKey || !jwtSecret) {
+    // Debug logging
+    console.log('Environment variables check:');
+    console.log('SUPABASE_URL exists:', !!supabaseUrl);
+    console.log('SUPABASE_SERVICE_ROLE_KEY exists:', !!supabaseServiceKey);
+    console.log('SUPABASE_SERVICE_ROLE_KEY prefix:', supabaseServiceKey?.substring(0, 10));
+    console.log('SUPABASE_ANON_KEY exists:', !!supabaseAnonKey);
+    console.log('JWT_SECRET exists:', !!jwtSecret);
+
+    if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey || !jwtSecret) {
       throw new Error('Missing required environment variables');
     }
 
@@ -104,20 +113,40 @@ serve(async (req: Request) => {
 
     console.log('Auth header found');
 
-    // Initialize Supabase admin client (bypasses RLS)
+    // Create admin client with service role (BYPASSES RLS)
+    console.log('Creating admin client with service role...');
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false
+      },
+      db: {
+        schema: 'public'
+      },
+      global: {
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'apikey': supabaseServiceKey
+        }
       }
     });
 
-    // Verify user token using admin client
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    // Create regular client for user authentication verification only
+    console.log('Creating auth client for user verification...');
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
 
-    if (authError || !user) {
-      throw new Error('Authentication failed');
+    // Verify user token using auth client
+    const token = authHeader.replace('Bearer ', '');
+    console.log('Verifying user token...');
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
+
+    if (authError) {
+      console.error('Auth error:', authError);
+      throw new Error(`Authentication failed: ${authError.message}`);
+    }
+
+    if (!user) {
+      throw new Error('No user found');
     }
 
     console.log('User authenticated:', user.id);
@@ -131,17 +160,47 @@ serve(async (req: Request) => {
 
     console.log('Email validation passed');
 
-    // Get user data from users table using admin client
+    // CRITICAL: Use admin client to bypass RLS and access users table
+    console.log('Querying users table with admin client (should bypass RLS)...');
+
+    // First, let's test if we can access the table at all
+    try {
+      const { data: testData, error: testError } = await supabaseAdmin
+        .from('users')
+        .select('count')
+        .limit(1);
+
+      console.log('Test query result:', { testData, testError });
+
+      if (testError) {
+        console.error('Test query failed:', testError);
+        throw new Error(`Cannot access users table: ${testError.message}`);
+      }
+    } catch (testErr) {
+      console.error('Failed to access users table for testing:', testErr);
+      throw new Error('Database access test failed');
+    }
+
+    // Now perform the actual query
     const { data: userData, error: userFetchError } = await supabaseAdmin
       .from('users')
       .select('is_email_verified, name')
       .eq('email', email)
-      .single();
+      .maybeSingle(); // Use maybeSingle() instead of single() to avoid errors if no rows found
+
+    console.log('User query result:', { userData, userFetchError });
 
     if (userFetchError) {
-      console.error('User fetch error:', userFetchError);
+      console.error('User fetch error details:', userFetchError);
       throw new Error(`Failed to fetch user data: ${userFetchError.message}`);
     }
+
+    if (!userData) {
+      console.log('No user found with email:', email);
+      throw new Error('User not found in users table');
+    }
+
+    console.log('User data retrieved successfully:', userData);
 
     if (userData?.is_email_verified) {
       return new Response(
@@ -162,7 +221,9 @@ serve(async (req: Request) => {
     const verificationPayload = {
       userId: user.id,
       email: user.email,
-      purpose: 'email_verification'
+      purpose: 'email_verification',
+      aud: 'email-verification', // Add audience claim
+      iss: 'smarturlink' // Add issuer claim
     };
 
     const verificationToken = await generateJWT(verificationPayload, jwtSecret, 24 * 60 * 60); // 24 hours

@@ -28,7 +28,8 @@ export function verifyToken(token: string): VerificationTokenPayload {
     try {
         const decoded = jwt.verify(token, secret, {
             issuer: 'smarturlink',
-            audience: 'email-verification'
+            audience: 'email-verification',
+            algorithms: ['HS256']
         }) as VerificationTokenPayload;
 
         return decoded;
@@ -36,6 +37,7 @@ export function verifyToken(token: string): VerificationTokenPayload {
         if (error instanceof jwt.TokenExpiredError) {
             throw new Error('Verification link has expired');
         } else if (error instanceof jwt.JsonWebTokenError) {
+            console.error('Invalid token:', error.message);
             throw new Error('Invalid verification link');
         } else {
             throw new Error('Token verification failed');

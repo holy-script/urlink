@@ -45,7 +45,7 @@ export default function VerificationErrorPage() {
           <Button
             onClick={() => router.push('/dashboard')}
             variant="outline"
-            className="w-full"
+            className="w-full border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
           >
             Go to Dashboard
           </Button>
