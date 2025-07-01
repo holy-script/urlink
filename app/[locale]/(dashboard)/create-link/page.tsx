@@ -12,8 +12,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export default function CreateLinkPage() {
+  const t = useTranslations('CreateLink');
+
   const [showVideoOverlay, setShowVideoOverlay] = useState(false);
   const [currentVideoUrl, setCurrentVideoUrl] = useState('');
   const [currentVideoTitle, setCurrentVideoTitle] = useState('');
@@ -24,22 +27,25 @@ export default function CreateLinkPage() {
     setShowVideoOverlay(true);
   };
 
+  // Define keys for the tips items
+  const tipKeys = ['0', '1', '2', '3'] as const;
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto">
         {/* Header with Video Tutorial Button */}
         <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Create Smart Link</h1>
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t('header.title')}</h1>
             <p className="mt-2 text-sm text-gray-600 sm:text-base">
-              Generate a deep link that works across all platforms and track its performance.
+              {t('header.subtitle')}
             </p>
           </div>
 
           {/* Video Tutorial Button next to header */}
           <div className="flex justify-center sm:justify-end">
             <button
-              onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', 'How to Create Smart Links')}
+              onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', t('videoTutorial.defaultTitle'))}
               className="group relative overflow-hidden rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-0.5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
               <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 group-hover:bg-gray-50 transition-colors">
@@ -52,8 +58,8 @@ export default function CreateLinkPage() {
                   </div>
                 </div>
                 <div className="text-left">
-                  <div className="font-semibold text-gray-900 text-sm">Watch Video</div>
-                  <div className="font-medium text-gray-700 text-xs">Tutorial</div>
+                  <div className="font-semibold text-gray-900 text-sm">{t('videoTutorial.watchVideo')}</div>
+                  <div className="font-medium text-gray-700 text-xs">{t('videoTutorial.tutorial')}</div>
                 </div>
               </div>
             </button>
@@ -67,13 +73,13 @@ export default function CreateLinkPage() {
               <h2 className="text-lg font-semibold text-gray-900 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2">
                 <div className="flex items-center gap-2 justify-center sm:justify-start">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#5e17eb] text-white text-sm font-medium">
-                    1
+                    {t('steps.basicInfo.stepNumber')}
                   </span>
-                  <span>Basic Information</span>
+                  <span>{t('steps.basicInfo.title')}</span>
                 </div>
               </h2>
               <p className="text-sm text-gray-500 mt-2 text-center sm:text-left sm:mt-1">
-                Start by entering the URL you want to convert into a smart link.
+                {t('steps.basicInfo.description')}
               </p>
             </div>
 
@@ -86,25 +92,15 @@ export default function CreateLinkPage() {
               <Sparkles className="w-5 h-5 text-[#5e17eb] mx-auto sm:mx-0 sm:mt-1 flex-shrink-0" />
               <div className="space-y-3">
                 <h3 className="font-medium text-gray-900 text-base sm:text-lg">
-                  Tips for better performance
+                  {t('tips.title')}
                 </h3>
                 <ul className="space-y-2 text-sm text-gray-600 sm:text-base">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#5e17eb] font-bold mt-0.5">•</span>
-                    <span>Use UTM parameters to track your marketing campaigns</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#5e17eb] font-bold mt-0.5">•</span>
-                    <span>Generate a QR code for offline-to-online conversion</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#5e17eb] font-bold mt-0.5">•</span>
-                    <span>Test your links before sharing them widely</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#5e17eb] font-bold mt-0.5">•</span>
-                    <span>Monitor analytics to optimize your strategy</span>
-                  </li>
+                  {tipKeys.map((key) => (
+                    <li key={key} className="flex items-start gap-2">
+                      <span className="text-[#5e17eb] font-bold mt-0.5">•</span>
+                      <span>{t(`tips.items.${key}`)}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

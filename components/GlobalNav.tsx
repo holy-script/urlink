@@ -23,6 +23,8 @@ import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
+import { supabase } from '@/utils/supabase/client';
 
 interface GlobalNavProps {
   onToggleSidebar?: () => void;
@@ -34,13 +36,19 @@ interface UserData {
   limit: number;
 }
 
+interface UserProfile {
+  name: string | null;
+  avatar_url: string | null;
+}
+
 export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps) {
   const { user, loading, error, signOut } = useAuth();
   const router = useRouter();
+  const t = useTranslations('DashboardLayout.globalNav');
 
   // State management
   const [usageData, setUsageData] = useState<UserData>({ clicks: 0, limit: 500 });
-  const [fullName, setFullName] = useState('');
+  const [userProfile, setUserProfile] = useState<UserProfile>({ name: null, avatar_url: null });
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [logoutLoading, setLogoutLoading] = useState(false);
@@ -63,43 +71,54 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
     setDataError(null);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Loading user profile data for:', user.id);
 
-      const userData = {
-        name: user.user_metadata?.name || '',
-        click_usage: user.user_metadata?.click_usage || 0,
-        click_limit: user.user_metadata?.click_limit || 500
-      };
+      // Fetch user profile from users table (following account page pattern)
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('name, avatar_url')
+        .eq('id', user.id)
+        .single();
 
-      // Handle no data case
-      if (!userData) {
-        setUsageData({ clicks: 0, limit: 500 });
-        setFullName(user.email?.split('@')[0] || '');
-        toast.warning('User data not found, using defaults');
-        return;
+      if (profileError) {
+        console.error('Profile load error:', profileError);
+        throw profileError;
       }
 
-      // Set the data
-      setUsageData({
-        clicks: userData.click_usage || 0,
-        limit: userData.click_limit || 500
+      if (!profileData) {
+        throw new Error('Profile not found');
+      }
+
+      console.log('Profile loaded successfully');
+
+      // Set the profile data
+      setUserProfile({
+        name: profileData.name,
+        avatar_url: profileData.avatar_url
       });
-      setFullName(userData.name || user.email?.split('@')[0] || '');
+
+      // Set usage data (you can implement actual usage fetching here)
+      setUsageData({
+        clicks: 0, // Replace with actual click usage if you have it
+        limit: 500
+      });
 
     } catch (error) {
       console.error('Error loading user data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load user data';
+      const errorMessage = error instanceof Error ? error.message : t('messages.loadUserDataFailed');
       setDataError(errorMessage);
 
       // Set fallback data
+      setUserProfile({
+        name: null,
+        avatar_url: null
+      });
       setUsageData({ clicks: 0, limit: 500 });
-      setFullName(user.email?.split('@')[0] || '');
 
-      toast.error('Failed to load user data', {
-        description: 'Using cached data. Click to retry.',
+      toast.error(t('messages.loadUserDataFailed'), {
+        description: t('messages.usingCachedData'),
         action: {
-          label: 'Retry',
+          label: t('messages.retryAction'),
           onClick: () => loadUserData(),
         },
       });
@@ -112,12 +131,12 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
     setLogoutLoading(true);
     try {
       await signOut();
-      toast.success('Logged out successfully');
+      toast.success(t('messages.logoutSuccess'));
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      toast.error('Failed to log out', {
-        description: 'Please try again',
+      toast.error(t('messages.logoutFailed'), {
+        description: t('messages.logoutRetry'),
       });
     } finally {
       setLogoutLoading(false);
@@ -126,12 +145,24 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
 
   // Computed values
   const isOverLimit = usageData.clicks >= 500;
+  const displayName = userProfile.name || user?.email?.split('@')[0] || t('userMenu.fallbackName');
+
+  // Get initials from name or email (following account page pattern)
+  const getInitials = () => {
+    if (userProfile.name && userProfile.name.trim()) {
+      return userProfile.name.trim().charAt(0).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.charAt(0).toUpperCase();
+    }
+    return '?';
+  };
 
   const menuItems = [
-    { icon: "👤", label: "My Account", href: "/account" },
-    { icon: "💳", label: "Billing & Usage", href: "/billing" },
-    { icon: "🛠️", label: "Support", href: "/support" },
-    { icon: "🔓", label: "Log out", onClick: handleLogout, danger: true },
+    { icon: t('userMenu.items.myAccount.icon'), label: t('userMenu.items.myAccount.label'), href: "/account" },
+    { icon: t('userMenu.items.billing.icon'), label: t('userMenu.items.billing.label'), href: "/billing" },
+    { icon: t('userMenu.items.support.icon'), label: t('userMenu.items.support.label'), href: "/support" },
+    { icon: t('userMenu.items.logout.icon'), label: t('userMenu.items.logout.label'), onClick: handleLogout, danger: true },
   ];
 
   // Loading state
@@ -214,7 +245,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
               {/* Error state */}
               <div className="flex items-center gap-2 text-red-600">
                 <AlertTriangle className="h-5 w-5" />
-                <span className="text-sm hidden sm:inline">Authentication error</span>
+                <span className="text-sm hidden sm:inline">{t('loading.authError')}</span>
                 <Button
                   variant="outline"
                   size="sm"
@@ -247,7 +278,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                   size="sm"
                   onClick={onToggleSidebar}
                   className="p-2 hover:bg-gray-100 transition-colors duration-200"
-                  aria-label="Toggle sidebar"
+                  aria-label={t('accessibility.toggleSidebar')}
                 >
                   <Menu className="h-5 w-5 text-gray-600" />
                 </Button>
@@ -281,7 +312,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                   className="hidden md:flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50"
                 >
                   <AlertTriangle className="h-4 w-4" />
-                  <span className="text-xs">Retry</span>
+                  <span className="text-xs">{t('messages.retryAction')}</span>
                 </Button>
               ) : (
                 <Badge
@@ -294,7 +325,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                     }
                   `}
                 >
-                  {isOverLimit ? 'Pay-per-click' : 'Free Tier'}
+                  {isOverLimit ? t('badges.payPerClick') : t('badges.freeTier')}
                 </Badge>
               )}
 
@@ -308,14 +339,14 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={user?.user_metadata?.avatar_url}
-                        alt={fullName || 'User avatar'}
+                        src={userProfile.avatar_url || undefined}
+                        alt={displayName || t('accessibility.userAvatar')}
                       />
                       <AvatarFallback className='bg-purple-100 text-purple-600'>
                         {dataLoading ? (
                           <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#5e17eb]"></div>
                         ) : (
-                          fullName ? fullName.charAt(0).toUpperCase() : 'U'
+                          getInitials()
                         )}
                       </AvatarFallback>
                     </Avatar>
@@ -325,7 +356,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                       ) : (
                         <>
                           <span className="text-sm font-medium text-gray-700 max-w-[150px] truncate">
-                            {fullName || 'User'}
+                            {displayName}
                           </span>
                           <ChevronDown className="h-4 w-4 text-gray-500 ml-1" />
                         </>
@@ -344,15 +375,15 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                       {dataLoading ? (
                         <div className="flex items-center gap-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#5e17eb]"></div>
-                          <span className="text-sm text-gray-500">Loading...</span>
+                          <span className="text-sm text-gray-500">{t('userMenu.loadingData')}</span>
                         </div>
                       ) : dataError ? (
                         <div className="flex items-center gap-2">
                           <AlertTriangle className="h-4 w-4 text-red-500" />
-                          <span className="text-sm text-red-600">Error loading data</span>
+                          <span className="text-sm text-red-600">{t('userMenu.errorLoadingData')}</span>
                         </div>
                       ) : (
-                        <p className="text-sm font-medium text-gray-900">{fullName || 'User'}</p>
+                        <p className="text-sm font-medium text-gray-900">{displayName}</p>
                       )}
                       <p className="text-xs text-gray-500 truncate">
                         {user?.email || 'user@example.com'}
@@ -371,7 +402,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                       >
                         <div className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md flex items-center gap-2 w-full h-full px-3 py-2">
                           <RefreshCw className="h-4 w-4" />
-                          <span className='truncate'>Retry loading data</span>
+                          <span className='truncate'>{t('userMenu.retryLoadingData')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator className="bg-gray-200" />
@@ -397,7 +428,7 @@ export function GlobalNav({ onToggleSidebar, isMobile = false }: GlobalNavProps)
                             <span className="mr-2">{item.icon}</span>
                           )}
                           <span className='truncate'>
-                            {item.onClick === handleLogout && logoutLoading ? 'Logging out...' : item.label}
+                            {item.onClick === handleLogout && logoutLoading ? t('userMenu.loggingOut') : item.label}
                           </span>
                         </div>
                       </DropdownMenuItem>

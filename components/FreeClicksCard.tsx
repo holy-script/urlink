@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { CreditCard, RefreshCw } from 'lucide-react';
 import { supabase } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
 
 interface FreeClicksCardProps {
   total?: number;
@@ -27,6 +28,8 @@ export function FreeClicksCard({
   refreshTrigger
 }: FreeClicksCardProps) {
   const { user } = useAuth();
+  const t = useTranslations('DashboardLayout.freeClicksCard');
+
   const [clickData, setClickData] = useState<UserClickData>({
     lifetimeClicksUsed: 0,
     isEmailVerified: false,
@@ -100,7 +103,7 @@ export function FreeClicksCard({
 
     } catch (err) {
       console.error('Error loading click data:', err);
-      setError('Failed to load click data');
+      setError(t('errors.loadFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -143,7 +146,7 @@ export function FreeClicksCard({
       <Card className="bg-[#F4ECFF] p-5 w-full border border-[#5d17eb]">
         <div className="flex items-center gap-2">
           <RefreshCw className="w-4 h-4 animate-spin text-[#5F40C2]" />
-          <h3 className="text-sm font-medium text-[#5F40C2]">Loading Click Usage...</h3>
+          <h3 className="text-sm font-medium text-[#5F40C2]">{t('loading')}</h3>
         </div>
       </Card>
     );
@@ -152,7 +155,7 @@ export function FreeClicksCard({
   if (error) {
     return (
       <Card className="bg-red-50 p-5 w-full border-red-200">
-        <h3 className="text-sm font-medium text-red-600 mb-2">Click Usage</h3>
+        <h3 className="text-sm font-medium text-red-600 mb-2">{t('title')}</h3>
         <p className="text-sm text-red-600">{error}</p>
         <Button
           onClick={loadClickData}
@@ -161,7 +164,7 @@ export function FreeClicksCard({
           className="mt-2 text-red-600 border-red-300 hover:bg-red-50"
         >
           <RefreshCw className="w-3 h-3 mr-1" />
-          Retry
+          {t('retry')}
         </Button>
       </Card>
     );
@@ -170,7 +173,7 @@ export function FreeClicksCard({
   return (
     <Card className="bg-[#F4ECFF] p-5 w-full border border-[#5d17eb]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-medium text-[#5F40C2]">Click Usage</h3>
+        <h3 className="text-sm font-medium text-[#5F40C2]">{t('title')}</h3>
         <Button
           onClick={loadClickData}
           variant="ghost"
@@ -187,7 +190,7 @@ export function FreeClicksCard({
           <span className="text-base text-gray-500">/ {freeLimit.toLocaleString()}</span>
         )}
         {isUnlimited && (
-          <span className="text-base text-green-600 font-medium">Unlimited</span>
+          <span className="text-base text-green-600 font-medium">{t('status.unlimited')}</span>
         )}
       </div>
 
@@ -209,14 +212,14 @@ export function FreeClicksCard({
       {/* Status Messages */}
       {isUnlimited ? (
         <p className="mt-3 text-sm text-green-600 font-medium">
-          ✨ Unlimited clicks with your subscription
+          {t('status.unlimitedMessage')}
         </p>
       ) : !clickData.isEmailVerified ? (
         <>
           <p className="mt-3 text-sm text-orange-600 font-medium">
             {remaining > 0
-              ? `${remaining} clicks left (unverified account)`
-              : 'Verify your email to get more free clicks'
+              ? t('status.unverifiedClicksLeft', { remaining })
+              : t('status.verifyEmailMessage')
             }
           </p>
           {isExceeded && (
@@ -224,19 +227,19 @@ export function FreeClicksCard({
               onClick={() => window.location.href = '/account'}
               className="w-full mt-3 bg-orange-600 hover:bg-orange-700 text-white"
             >
-              Verify Email for More Clicks
+              {t('status.verifyEmailButton')}
             </Button>
           )}
         </>
       ) : !isExceeded ? (
         <p className="mt-3 text-sm text-green-600 font-medium">
-          You have {remaining.toLocaleString()} free clicks left
+          {t('status.clicksLeft', { remaining: remaining.toLocaleString() })}
         </p>
       ) : (
         <>
           <div className="flex items-start mt-3">
             <p className="text-sm text-red-600 font-medium">
-              You've used all free clicks. Add payment method for pay-per-click.
+              {t('status.limitExceeded')}
             </p>
           </div>
           <Button
@@ -244,10 +247,13 @@ export function FreeClicksCard({
             className="w-full mt-3 bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            Add Payment Method
+            {t('status.addPaymentButton')}
           </Button>
           <p className="text-xs text-gray-600 mt-2 text-center">
-            €{((used - freeLimit) * 0.003).toFixed(2)} estimated for {(used - freeLimit)} extra clicks
+            {t('status.costEstimation', {
+              cost: ((used - freeLimit) * 0.003).toFixed(2),
+              count: (used - freeLimit)
+            })}
           </p>
         </>
       )}

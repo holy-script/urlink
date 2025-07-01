@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTranslations } from 'next-intl';
 
 // Platform type definition
 type Platform = 'youtube' | 'instagram' | 'facebook' | 'tiktok' | 'google-maps' | 'amazon';
@@ -30,15 +31,16 @@ interface DeepLinks {
 export function LinkGenerator() {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('CreateLink.linkGenerator');
 
   // Form state
   const [url, setUrl] = useState('');
   const [detectedPlatform, setDetectedPlatform] = useState<Platform | null>(null);
-  const [manualPlatform, setManualPlatform] = useState<Platform | null>(null);
   const [utmEnabled, setUtmEnabled] = useState(false);
-  const [qrEnabled, setQrEnabled] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [qrEnabled, setQrEnabled] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasShownUnsupportedToast, setHasShownUnsupportedToast] = useState(false);
 
   // UTM parameters
   const [utmSource, setUtmSource] = useState('');
@@ -48,7 +50,7 @@ export function LinkGenerator() {
   // QR code settings
   const [qrColor, setQrColor] = useState('#000000');
 
-  // Platform detection logic
+  // Enhanced platform detection logic
   const detectPlatform = (url: string): Platform | null => {
     const normalizedUrl = url.toLowerCase();
 
@@ -64,17 +66,50 @@ export function LinkGenerator() {
     if (normalizedUrl.includes('tiktok.com')) {
       return 'tiktok';
     }
-    if (normalizedUrl.includes('maps.google.com') || normalizedUrl.includes('goo.gl/maps')) {
+    // Enhanced Google Maps detection
+    if (normalizedUrl.includes('maps.google.com') ||
+      normalizedUrl.includes('goo.gl/maps') ||
+      normalizedUrl.includes('maps.app.goo.gl') ||
+      normalizedUrl.includes('www.google.com/maps')) {
       return 'google-maps';
     }
-    if (normalizedUrl.includes('amazon.com') || normalizedUrl.includes('amzn.to')) {
+    // Enhanced Amazon detection for all domains and regional short links
+    if (normalizedUrl.match(/amazon\.[a-z]{2,3}(\.[a-z]{2})?/) || // amazon.com, amazon.it, amazon.co.uk, etc.
+      normalizedUrl.includes('amzn.to') ||
+      normalizedUrl.includes('amzn.eu') ||
+      normalizedUrl.includes('amzn.asia') ||
+      normalizedUrl.includes('amzn.com')) {
       return 'amazon';
     }
 
     return null;
   };
 
-  // Deep link generation functions
+  // Auto-detect platform when URL changes and show toast for unsupported platforms
+  useEffect(() => {
+    if (url.trim()) {
+      const detected = detectPlatform(url);
+      setDetectedPlatform(detected);
+
+      // Show toast immediately if no platform is detected and we haven't shown it yet for this URL
+      if (!detected && !hasShownUnsupportedToast) {
+        toast.error("Unsupported Platform", {
+          description: "We don't currently support this platform yet. Please use a link from YouTube, Instagram, Facebook, TikTok, Google Maps, or Amazon."
+        });
+        setHasShownUnsupportedToast(true);
+      }
+
+      // Reset the toast flag when a platform is detected
+      if (detected) {
+        setHasShownUnsupportedToast(false);
+      }
+    } else {
+      setDetectedPlatform(null);
+      setHasShownUnsupportedToast(false);
+    }
+  }, [url, hasShownUnsupportedToast]);
+
+  // Deep link generation functions (same as before)
   const generateInstagramDeepLinks = (originalUrl: string): DeepLinks => {
     try {
       const url = new URL(originalUrl);
@@ -230,21 +265,8 @@ export function LinkGenerator() {
     }
   };
 
-  // Auto-detect platform when URL changes
-  useEffect(() => {
-    if (url.trim()) {
-      const detected = detectPlatform(url);
-      setDetectedPlatform(detected);
-      if (!manualPlatform && detected) {
-        setManualPlatform(detected);
-      }
-    } else {
-      setDetectedPlatform(null);
-    }
-  }, [url]);
-
   const canShowQRPreview = qrEnabled && url && (url.startsWith('http://') || url.startsWith('https://'));
-  const currentPlatform = manualPlatform || detectedPlatform;
+  const currentPlatform = detectedPlatform;
 
   // Generate unique short code
   const generateShortCode = (): string => {
@@ -297,22 +319,22 @@ export function LinkGenerator() {
     setError(null);
 
     if (!user) {
-      toast.error('Please log in to create links');
+      toast.error(t('messages.error.loginRedirect'));
       router.push('/login');
       return;
     }
 
     if (!url.trim()) {
-      setError('Please enter a valid URL');
+      setError(t('validation.urlRequired'));
       return;
     }
 
+    // No need to check platform here - button is already disabled if no platform
     if (!currentPlatform) {
-      setError('Please select a platform or enter a URL from a supported platform');
-      return;
+      return; // This shouldn't happen since button is disabled, but just in case
     }
 
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       // Validate and normalize URL
@@ -325,7 +347,7 @@ export function LinkGenerator() {
       try {
         new URL(finalUrl);
       } catch {
-        throw new Error('Invalid URL format. Please enter a valid URL.');
+        throw new Error(t('validation.invalidUrl'));
       }
 
       // Add UTM parameters if enabled
@@ -343,7 +365,7 @@ export function LinkGenerator() {
       // Generate unique short code
       const shortCode = await generateUniqueShortCode();
       if (!shortCode) {
-        throw new Error('Failed to generate unique short code. Please try again.');
+        throw new Error(t('validation.uniqueCodeFailed'));
       }
 
       // Extract title from URL (optional)
@@ -355,9 +377,9 @@ export function LinkGenerator() {
         // Ignore title extraction errors
       }
 
-      console.log('📝 Creating link with QR enabled:', qrEnabled);
+      console.log(t('console.creatingLink'), qrEnabled);
 
-      // Insert link into database using updated schema with isqrenabled (lowercase)
+      // Insert link into database
       const { data: linkData, error: insertError } = await supabase
         .from('links')
         .insert({
@@ -369,31 +391,32 @@ export function LinkGenerator() {
           short_code: shortCode,
           title: title,
           is_active: true,
-          isqrenabled: qrEnabled // Updated to match your database column name
+          isqrenabled: qrEnabled
         })
         .select('id, short_code, platform, isqrenabled')
         .single();
 
       if (insertError) {
-        console.error('Database insert error:', insertError);
-        throw new Error('Failed to create link. Please try again.');
+        console.error(t('console.insertError'), insertError);
+        throw new Error(t('validation.createFailed'));
       }
 
-      console.log('✅ Link created successfully with QR enabled:', linkData.isqrenabled);
+      console.log(t('console.linkCreated'), linkData.isqrenabled);
 
       // Success!
       const smartUrl = `smarturlink.com/${linkData.platform}/${linkData.short_code}`;
-      toast.success('Smart link created successfully!', {
-        description: `URL: ${smartUrl}${qrEnabled ? ' (QR Code enabled)' : ''}`,
+      toast.success(t('messages.success.title'), {
+        description: qrEnabled
+          ? t('messages.success.descriptionWithQR', { smartUrl })
+          : t('messages.success.description', { smartUrl }),
         action: {
-          label: 'View Links',
+          label: t('messages.success.actionLabel'),
           onClick: () => router.push('/my-links')
         }
       });
 
       // Clear form
       setUrl('');
-      setManualPlatform(null);
       setUtmSource('');
       setUtmMedium('');
       setUtmCampaign('');
@@ -403,14 +426,14 @@ export function LinkGenerator() {
       router.push('/my-links');
 
     } catch (error) {
-      console.error('Error creating link:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error(t('console.createError'), error);
+      const errorMessage = error instanceof Error ? error.message : t('validation.unexpectedError');
       setError(errorMessage);
-      toast.error('Failed to create link', {
+      toast.error(t('messages.error.title'), {
         description: errorMessage
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -424,7 +447,7 @@ export function LinkGenerator() {
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Paste a link from Instagram, YouTube, Amazon, TikTok, Facebook, or Google Maps..."
+              placeholder={t('form.urlInput.placeholder')}
               className="w-full text-base py-4 px-4 rounded-lg border-2 border-gray-200 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] transition-all sm:text-lg sm:py-6 sm:px-6 sm:rounded-xl text-gray-900 placeholder:text-gray-500 bg-white"
               required
               disabled={isLoading}
@@ -432,40 +455,39 @@ export function LinkGenerator() {
             {detectedPlatform && (
               <div className="flex items-center gap-2 text-sm text-green-600">
                 <Smartphone className="w-4 h-4 text-green-600" />
-                Detected platform: <span className="font-medium capitalize text-green-700">{detectedPlatform}</span>
+                {t('form.urlInput.detectedPlatform')} <span className="font-medium capitalize text-green-700">{detectedPlatform}</span>
               </div>
             )}
           </div>
 
-          {/* Platform Selection */}
+          {/* Platform Selection - Read-only */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Platform</label>
+            <label className="text-sm font-medium text-gray-700">{t('form.platformSelect.label')}</label>
             <Select
-              value={manualPlatform || ''}
-              onValueChange={(value) => setManualPlatform(value as Platform)}
-              disabled={isLoading}
+              value={currentPlatform || ''}
+              disabled={false} // Controlled programmatically only
             >
               <SelectTrigger className="w-full text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb] bg-gray-100 placeholder:text-gray-500 [&[data-placeholder]>span]:text-gray-500 [&>svg]:text-gray-600">
-                <SelectValue placeholder="Select platform (auto-detected if available)" />
+                <SelectValue placeholder={currentPlatform ? currentPlatform.charAt(0).toUpperCase() + currentPlatform.slice(1).replace('-', ' ') : t('form.platformSelect.placeholder')} />
               </SelectTrigger>
               <SelectContent className='text-gray-900 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]'>
                 <SelectItem value="youtube" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  YouTube
+                  {t('form.platformSelect.options.youtube')}
                 </SelectItem>
                 <SelectItem value="instagram" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  Instagram
+                  {t('form.platformSelect.options.instagram')}
                 </SelectItem>
                 <SelectItem value="facebook" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  Facebook
+                  {t('form.platformSelect.options.facebook')}
                 </SelectItem>
                 <SelectItem value="tiktok" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  TikTok
+                  {t('form.platformSelect.options.tiktok')}
                 </SelectItem>
                 <SelectItem value="google-maps" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  Google Maps
+                  {t('form.platformSelect.options.googleMaps')}
                 </SelectItem>
                 <SelectItem value="amazon" className='text-gray-900 hover:bg-gray-100 focus:bg-gray-100'>
-                  Amazon
+                  {t('form.platformSelect.options.amazon')}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -475,7 +497,7 @@ export function LinkGenerator() {
           {currentPlatform && url && (
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="text-sm text-blue-800">
-                <strong className="text-blue-900">Smart URL Preview:</strong> smarturlink.com/{currentPlatform}/[your-code]
+                <strong className="text-blue-900">{t('form.preview.title')}</strong> {t('form.preview.format', { platform: currentPlatform })}
               </div>
             </div>
           )}
@@ -486,7 +508,7 @@ export function LinkGenerator() {
               <div className="flex items-center justify-between sm:justify-start gap-2">
                 <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <QrCode className="w-4 h-4 text-gray-700" />
-                  QR Code
+                  {t('features.qrCode.label')}
                 </span>
                 <Switch
                   checked={qrEnabled}
@@ -499,7 +521,7 @@ export function LinkGenerator() {
               <div className="flex items-center justify-between sm:justify-start gap-2">
                 <span className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Tags className="w-4 h-4 text-gray-700" />
-                  UTM Parameters
+                  {t('features.utmParameters.label')}
                 </span>
                 <Switch
                   checked={utmEnabled}
@@ -515,13 +537,13 @@ export function LinkGenerator() {
           {utmEnabled && (
             <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-medium text-gray-700 sm:text-base">UTM Parameters</h3>
+                <h3 className="text-sm font-medium text-gray-700 sm:text-base">{t('features.utmParameters.title')}</h3>
                 <Tooltip>
                   <TooltipTrigger>
                     <HelpCircle className="w-4 h-4 text-gray-400" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs bg-white text-gray-700 border border-gray-200">
-                    <p className="text-gray-700">Track your marketing campaigns with UTM parameters</p>
+                    <p className="text-gray-700">{t('features.utmParameters.helpText')}</p>
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -529,31 +551,31 @@ export function LinkGenerator() {
               <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-3 sm:grid sm:grid-cols-1 md:grid-cols-3 sm:gap-4 sm:space-y-0">
                   <div className="space-y-1">
-                    <label className="text-xs text-gray-500 block sm:hidden">Source</label>
+                    <label className="text-xs text-gray-500 block sm:hidden">{t('features.utmParameters.fields.source.label')}</label>
                     <Input
                       value={utmSource}
                       onChange={(e) => setUtmSource(e.target.value)}
-                      placeholder="utm_source (e.g., google)"
+                      placeholder={t('features.utmParameters.fields.source.placeholder')}
                       disabled={isLoading}
                       className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-gray-500 block sm:hidden">Medium</label>
+                    <label className="text-xs text-gray-500 block sm:hidden">{t('features.utmParameters.fields.medium.label')}</label>
                     <Input
                       value={utmMedium}
                       onChange={(e) => setUtmMedium(e.target.value)}
-                      placeholder="utm_medium (e.g., cpc)"
+                      placeholder={t('features.utmParameters.fields.medium.placeholder')}
                       disabled={isLoading}
                       className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs text-gray-500 block sm:hidden">Campaign</label>
+                    <label className="text-xs text-gray-500 block sm:hidden">{t('features.utmParameters.fields.campaign.label')}</label>
                     <Input
                       value={utmCampaign}
                       onChange={(e) => setUtmCampaign(e.target.value)}
-                      placeholder="utm_campaign (e.g., spring_sale)"
+                      placeholder={t('features.utmParameters.fields.campaign.placeholder')}
                       disabled={isLoading}
                       className="w-full text-sm sm:text-base text-gray-900 placeholder:text-gray-500 bg-white border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
                     />
@@ -567,7 +589,7 @@ export function LinkGenerator() {
           {qrEnabled && canShowQRPreview && currentPlatform && (
             <Card className="p-4 bg-gray-50 border-gray-200 sm:p-6">
               <h3 className="text-sm font-medium text-gray-700 mb-4 text-center sm:text-left sm:text-base">
-                QR Code Preview
+                {t('features.qrCode.preview.title')}
               </h3>
               <div className="flex justify-center">
                 <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
@@ -582,7 +604,7 @@ export function LinkGenerator() {
                 </div>
               </div>
               <p className="text-xs text-gray-500 text-center mt-3 sm:text-sm">
-                QR code will redirect to your smart link
+                {t('features.qrCode.preview.description')}
               </p>
             </Card>
           )}
@@ -606,12 +628,14 @@ export function LinkGenerator() {
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white sm:h-6 sm:w-6"></div>
-                <span className="text-white">Creating your smart link...</span>
+                <span className="text-white">{t('submitButton.loading')}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                <span className="text-white">Create smart link {qrEnabled && '+ QR Code'}</span>
+                <span className="text-white">
+                  {qrEnabled ? t('submitButton.withQR') : t('submitButton.default')}
+                </span>
               </>
             )}
           </Button>

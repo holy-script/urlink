@@ -237,5 +237,915 @@
         "createAccount": "Create your free account now"
       }
     }
+  },
+  "Dashboard": {
+    "welcome": {
+      "title": "Welcome back! 👋",
+      "subtitle": "Here's what's happening with your smart links today.",
+      "subtitleOnboarding": "Complete the remaining steps to unlock all features!"
+    },
+    "actions": {
+      "refresh": "Refresh",
+      "createAccount": "Create your free account now",
+      "viewAllLinks": "View All Links",
+      "viewDetailedAnalytics": "View Detailed Analytics"
+    },
+    "onboarding": {
+      "banner": {
+        "title": "Complete Your Setup",
+        "description": "You've created your first link! Complete your profile and billing setup to unlock all features."
+      },
+      "dismissed": "Onboarding dismissed. You can complete the remaining steps anytime from your account settings."
+    },
+    "status": {
+      "emailVerificationRequired": "Email verification required",
+      "verifyEmail": "Verify Email",
+      "allClicksUsed": "You've used all free clicks. Subscribe to continue.",
+      "freeClicksRemaining": "{remaining} free clicks remaining",
+      "viewPlans": "View Plans"
+    },
+    "stats": {
+      "totalClicks": "Total Clicks",
+      "clicksToday": "Clicks Today",
+      "totalLinks": "Total Links",
+      "accountStatus": "Account Status",
+      "subscribed": "Subscribed",
+      "verified": "Verified",
+      "unverified": "Unverified"
+    },
+    "links": {
+      "title": "Recent Smart Links",
+      "caption": "Your most recently created smart links",
+      "headers": {
+        "platform": "Platform",
+        "shortLink": "Short Link",
+        "destination": "Destination",
+        "created": "Created",
+        "clicks": "Clicks",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "tooltips": {
+        "copyLink": "Copy Link",
+        "copied": "Copied!",
+        "editLink": "Edit Link",
+        "showQRCode": "Show QR Code",
+        "shareLink": "Share Link",
+        "openLink": "Open Link",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "deleteLink": "Delete Link"
+      },
+      "demo": {
+        "message": "This is a demo link. Create your first real link to get started!"
+      }
+    },
+    "analytics": {
+      "title": "Performance Analytics",
+      "clicksByType": "Clicks by Type",
+      "clicksByDevice": "Clicks by Device",
+      "noData": "No analytics data available yet.",
+      "noDataSubtext": "Start sharing your links to see insights!"
+    },
+    "gettingStarted": {
+      "title": "Getting Started",
+      "tutorials": {
+        "createLink": {
+          "title": "Creating Your First Smart Link",
+          "description": "Learn how to create deep links"
+        },
+        "analytics": {
+          "title": "Understanding Analytics",
+          "description": "Track your link performance"
+        },
+        "advanced": {
+          "title": "Advanced Features",
+          "description": "QR codes and customization"
+        }
+      }
+    },
+    "qrCode": {
+      "title": "QR Code",
+      "smartLink": "Smart Link",
+      "download": "Download QR Code"
+    },
+    "messages": {
+      "linkCopied": "Link copied to clipboard",
+      "linkCopyFailed": "Failed to copy link to clipboard",
+      "linkActivated": "Link {status} successfully",
+      "linkUpdateFailed": "Failed to update link status",
+      "linkDeleted": "Link deleted successfully",
+      "linkDeleteFailed": "Failed to delete link",
+      "qrDownloaded": "QR code downloaded successfully!",
+      "dashboardLoadFailed": "Failed to load dashboard data",
+      "refreshError": "Failed to load dashboard data"
+    },
+    "dialogs": {
+      "deleteLink": {
+        "title": "Delete Link",
+        "description": "Are you sure you want to delete this link? This action will deactivate the link and move it to deleted items.",
+        "cancel": "Cancel",
+        "confirm": "Delete Link"
+      }
+    },
+    "errors": {
+      "loadingTitle": "Error Loading Dashboard",
+      "tryAgain": "Try Again",
+      "loginRequired": "Please log in to view your dashboard"
+    }
+  },
+  "MyLinksPage": {
+    "header": {
+      "title": "My Smart Links",
+      "subtitle": "Manage and track your {count} smart links",
+      "subtitlePreview": "Here's a preview of how your links will look. Create your first link to get started!",
+      "actions": {
+        "refresh": "Refresh",
+        "createLink": "Create Link"
+      }
+    },
+    "banner": {
+      "preview": {
+        "title": "Links Preview",
+        "description": "This is how your links page will look with real data. Create your first link to get started!"
+      }
+    },
+    "search": {
+      "placeholder": "Search links...",
+      "resultsCount": "Showing {filtered} of {total} links"
+    },
+    "filters": {
+      "label": "Filters:",
+      "status": {
+        "label": "Status",
+        "all": "All Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "deleted": "Deleted"
+      },
+      "platform": {
+        "label": "Platform",
+        "all": "All Platforms",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "facebook": "Facebook",
+        "tiktok": "TikTok",
+        "amazon": "Amazon",
+        "googleMaps": "Google Maps"
+      },
+      "qr": {
+        "label": "QR Code",
+        "all": "All QR",
+        "enabled": "QR Enabled",
+        "disabled": "QR Disabled"
+      },
+      "clearAll": "Clear All"
+    },
+    "links": {
+      "untitledLink": "Untitled Smart Link",
+      "shortUrl": "Short URL",
+      "originalUrl": "Original URL",
+      "clicks": "clicks",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "deleted": "Deleted",
+        "qrEnabled": "QR",
+        "qrDisabled": "No QR"
+      },
+      "actions": {
+        "copy": "Copy Link",
+        "copied": "Copied!",
+        "edit": "Edit Link",
+        "showQR": "Show QR Code",
+        "share": "Share Link",
+        "open": "Open Link",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "delete": "Delete Link",
+        "restore": "Restore"
+      },
+      "deletedInfo": "Deleted {date}"
+    },
+    "qrCode": {
+      "title": "QR Code",
+      "smartLink": "Smart Link",
+      "download": "Download QR Code"
+    },
+    "emptyStates": {
+      "noResults": {
+        "title": "No links found",
+        "description": "No links match your current filters. Try adjusting your search or filters.",
+        "action": "Clear All Filters"
+      }
+    },
+    "messages": {
+      "linkCopied": "Link copied to clipboard",
+      "linkCopyFailed": "Failed to copy link to clipboard",
+      "linkActivated": "Link activated successfully",
+      "linkDeactivated": "Link deactivated successfully",
+      "linkUpdateFailed": "Failed to update link status",
+      "linkDeleted": "Link deleted successfully",
+      "linkDeleteFailed": "Failed to delete link",
+      "linkRestored": "Link restored successfully",
+      "linkRestoreFailed": "Failed to restore link",
+      "qrDownloaded": "QR code downloaded successfully!",
+      "demoLinkNotice": "This is a demo link. Create your first real link to get started!",
+      "onboardingDismissed": "Create your first link to access your dashboard!"
+    },
+    "dialogs": {
+      "deleteLink": {
+        "title": "Delete Link",
+        "description": "Are you sure you want to delete this link? This action will deactivate the link and move it to deleted items. You can restore it later if needed.",
+        "cancel": "Cancel",
+        "confirm": "Delete Link"
+      }
+    },
+    "errors": {
+      "loadingTitle": "Error Loading Links",
+      "loginRequired": "Please log in to view your links",
+      "tryAgain": "Try Again"
+    }
+  },
+  "Analytics": {
+    "header": {
+      "title": "Analytics",
+      "refresh": "Refresh"
+    },
+    "filters": {
+      "timeframe": {
+        "placeholder": "Select timeframe",
+        "allTime": "All Time",
+        "last7Days": "Last 7 days",
+        "last30Days": "Last 30 days",
+        "last90Days": "Last 90 days"
+      },
+      "links": {
+        "placeholder": "Select link",
+        "allLinks": "All Links"
+      }
+    },
+    "summaryCards": {
+      "totalClicks": "Total Clicks",
+      "clicksToday": "Clicks Today",
+      "countriesReached": "Countries Reached"
+    },
+    "charts": {
+      "clicksOverTime": {
+        "title": "Clicks Over Time",
+        "subtitle": "Last {dateRange} days",
+        "subtitleAllTime": "All Time"
+      }
+    },
+    "breakdown": {
+      "deviceBreakdown": {
+        "title": "Device Breakdown",
+        "noData": "No device data available"
+      },
+      "topCountries": {
+        "title": "Top Countries",
+        "noData": "No country data available"
+      }
+    },
+    "platforms": {
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "amazon": "Amazon",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "googleMaps": "Google Maps"
+    },
+    "emptyState": {
+      "title": "No analytics data yet",
+      "description": "Start sharing your smart links to see click data and insights.",
+      "actionText": "Create your first link"
+    },
+    "errors": {
+      "loadingTitle": "Error Loading Analytics",
+      "tryAgain": "Try Again",
+      "loadFailed": "Failed to load analytics data",
+      "linksFailed": "Failed to load links",
+      "unknownError": "Unknown error"
+    },
+    "messages": {
+      "loadingLinks": "Loading user links for analytics...",
+      "linksLoaded": "Links loaded for analytics: {count}",
+      "loadingData": "Loading analytics data...",
+      "dateRange": "Date range: {days} days",
+      "selectedLink": "Selected link: {link}",
+      "foundLinks": "Found {count} links for analytics",
+      "foundClicks": "Found {count} clicks in date range",
+      "noLinksFound": "No links found for user",
+      "filteringByLink": "Filtering by specific link: {linkId}",
+      "calculatedMetrics": "Calculated metrics",
+      "dataLoadedSuccess": "Analytics data loaded successfully"
+    }
+  },
+  "Account": {
+    "header": {
+      "title": "My Account",
+      "refresh": "Refresh"
+    },
+    "sections": {
+      "personalInfo": {
+        "title": "Personal Information",
+        "profilePicture": {
+          "label": "Profile Picture",
+          "description": "Upload a new profile picture or remove the current one",
+          "sizeLimit": "JPG, PNG or WebP. Max 2MB.",
+          "uploadTooltip": "Upload new photo",
+          "removeButton": "Remove"
+        },
+        "fullName": {
+          "label": "Full Name",
+          "placeholder": "Your name"
+        },
+        "email": {
+          "label": "Email",
+          "disclaimer": "Email cannot be changed. Contact support if you need to update your email."
+        },
+        "notifications": {
+          "label": "Receive product updates and notifications about your smart links"
+        },
+        "saveButton": "Save Changes",
+        "saving": "Saving..."
+      },
+      "emailVerification": {
+        "title": "Email Verification",
+        "verified": {
+          "title": "Email Verified",
+          "description": "Your email address has been confirmed.",
+          "verifiedAt": "Verified on"
+        },
+        "unverified": {
+          "title": "Email Not Verified",
+          "description": "Please check your inbox and click the verification link to confirm your email address."
+        },
+        "resendButton": "Resend Verification",
+        "sending": "Sending..."
+      },
+      "changePassword": {
+        "title": "Change Password",
+        "currentPassword": {
+          "label": "Current Password",
+          "placeholder": "Enter current password"
+        },
+        "newPassword": {
+          "label": "New Password",
+          "placeholder": "Enter new password (min 6 characters)"
+        },
+        "confirmPassword": {
+          "label": "Confirm New Password",
+          "placeholder": "Confirm new password"
+        },
+        "updateButton": "Update Password",
+        "updating": "Updating...",
+        "forgotPassword": "Forgot your password?"
+      },
+      "deleteAccount": {
+        "title": "Delete Your Account",
+        "description": "This action is irreversible. All your smart links, analytics data, and settings will be permanently deleted.",
+        "deleteButton": "Delete My Account"
+      }
+    },
+    "dialogs": {
+      "deleteAccount": {
+        "title": "Delete Account Permanently",
+        "warning": {
+          "title": "Warning: This cannot be undone",
+          "items": {
+            "0": "All your smart links will stop working immediately",
+            "1": "Your click analytics data will be deleted",
+            "2": "Your account settings will be lost",
+            "3": "Any remaining free clicks will be forfeited",
+            "4": "This action is permanent and immediate"
+          }
+        },
+        "confirmation": {
+          "instruction": "To confirm deletion, please type {deleteText} below:",
+          "deleteText": "DELETE",
+          "placeholder": "Type DELETE to confirm"
+        },
+        "buttons": {
+          "cancel": "Cancel",
+          "confirm": "Yes, delete my account",
+          "deleting": "Deleting..."
+        }
+      }
+    },
+    "messages": {
+      "profileUpdateSuccess": "Profile updated successfully",
+      "profileUpdateSuccessDesc": "Your account information has been saved.",
+      "profileUpdateError": "Failed to update profile",
+      "avatarUploadSuccess": "Profile picture updated successfully",
+      "avatarUploadError": "Failed to upload profile picture",
+      "avatarRemoveSuccess": "Profile picture removed successfully",
+      "avatarRemoveError": "Failed to remove profile picture",
+      "fileSizeError": "File size must be less than 2MB",
+      "fileTypeError": "Only JPG, PNG, and WebP images are allowed",
+      "passwordUpdateSuccess": "Password updated successfully",
+      "passwordUpdateSuccessDesc": "Your password has been changed.",
+      "passwordUpdateError": "Failed to update password",
+      "passwordMismatch": "New passwords don't match",
+      "passwordTooShort": "Password must be at least 6 characters long",
+      "passwordResetSent": "Reset Password link sent to your email",
+      "passwordResetSentDesc": "Please check your inbox.",
+      "accountDeleteSuccess": "Account deleted successfully",
+      "accountDeleteSuccessDesc": "Your account and all associated data have been deleted.",
+      "accountDeleteError": "Failed to delete account",
+      "accountDeleteErrorDesc": "{error} Please try again.",
+      "loadProfileError": "Failed to load user profile",
+      "loadProfileErrorDesc": "{error}",
+      "verificationEmailSent": "Verification email sent",
+      "verificationEmailSentDesc": "Please check your inbox and click the verification link.",
+      "verificationEmailError": "Failed to send verification email"
+    },
+    "errors": {
+      "authRequired": {
+        "title": "Authentication Required",
+        "description": "Please log in to view your account settings.",
+        "button": "Go to Login"
+      },
+      "loadingAccount": {
+        "title": "Error Loading Account",
+        "button": "Try Again"
+      },
+      "loginRequired": "Please log in to view your account",
+      "profileNotFound": "User profile not found"
+    },
+    "console": {
+      "loadingProfile": "📋 Loading user profile for:",
+      "profileLoaded": "✅ User profile loaded successfully",
+      "profileLoadError": "❌ Error loading user profile:",
+      "profileLoadFailed": "💥 Error loading user profile:",
+      "updatingProfile": "📝 Updating user profile...",
+      "profileUpdated": "✅ Profile updated successfully",
+      "profileUpdateError": "❌ Profile update error:",
+      "profileUpdateFailed": "💥 Error updating profile:",
+      "uploadingAvatar": "📤 Uploading avatar...",
+      "avatarUploaded": "📷 Avatar uploaded, updating profile...",
+      "avatarUploadError": "❌ Upload error:",
+      "avatarUploadFailed": "💥 Error uploading avatar:",
+      "removingAvatar": "🗑️ Removing avatar...",
+      "avatarRemoved": "✅ Avatar removed successfully",
+      "avatarRemoveError": "❌ Profile update error:",
+      "avatarRemoveFailed": "💥 Error removing avatar:",
+      "avatarDeleteWarning": "⚠️ Storage deletion warning:",
+      "updatingPassword": "🔒 Updating password...",
+      "passwordUpdated": "✅ Password updated successfully",
+      "passwordUpdateError": "❌ Password update error:",
+      "passwordUpdateFailed": "💥 Error updating password:",
+      "deletingAccount": "🚨 Deleting account...",
+      "accountDeleted": "✅ Account soft deleted successfully",
+      "accountDeleteError": "❌ Deletion error:",
+      "accountDeleteFailed": "💥 Error deleting account:",
+      "signOutError": "❌ Sign out error:"
+    }
+  },
+  "Billing": {
+    "header": {
+      "title": "Billing & Usage"
+    },
+    "currentPlan": {
+      "title": "Your Plan",
+      "badges": {
+        "payPerClick": "Pay-per-click",
+        "freeTier": "Free Tier"
+      },
+      "tooltips": {
+        "payPerClick": "You've exceeded the 500 free clicks. You now pay €0.003 per click, billed monthly.",
+        "freeTier": "You have 500 free clicks per month. You'll automatically switch to pay-per-click when you exceed this limit."
+      },
+      "descriptions": {
+        "free": "500 monthly free clicks. No card required.",
+        "payPerClick": "€0.003 per click. Billed monthly."
+      },
+      "upgradeButton": "Upgrade to Pay-per-click"
+    },
+    "usage": {
+      "title": "Usage This Month",
+      "clicksUsed": "{used} / {limit} clicks used",
+      "clicksLeft": "{remaining} clicks left",
+      "limitReached": {
+        "title": "You've reached your free limit",
+        "description": "Add a payment method to continue using URLINK"
+      },
+      "estimatedCost": {
+        "title": "Estimated cost this month: €{cost}",
+        "description": "Based on {excess} clicks above your free limit"
+      }
+    },
+    "paymentMethod": {
+      "title": "Payment Method",
+      "cardDisplay": "•••• {last4}",
+      "updateButton": "Update",
+      "noMethod": {
+        "message": "No payment method on file",
+        "addButton": "Add Payment Method"
+      }
+    },
+    "billingHistory": {
+      "title": "Billing History",
+      "headers": {
+        "month": "Month",
+        "clicks": "Clicks",
+        "amount": "Amount",
+        "invoice": "Invoice"
+      },
+      "viewInvoice": "View",
+      "noHistory": "No billing history available"
+    },
+    "dialog": {
+      "limitReached": {
+        "title": "You've reached your free click limit",
+        "description": "You now pay €0.003 per click. Estimated cost so far: €{cost}",
+        "paymentRequired": "Please add a payment method to continue using URLINK.",
+        "gotItButton": "Got it"
+      }
+    },
+    "loading": {
+      "billingData": "Loading billing data...",
+      "loading": "Loading...",
+      "updating": "Updating...",
+      "settingUp": "Setting up..."
+    },
+    "errors": {
+      "loadingTitle": "Error Loading Billing Data",
+      "tryAgain": "Try Again",
+      "userNotAuthenticated": "User not authenticated",
+      "failedToLoad": "Failed to load user data",
+      "userNotFound": "User data not found",
+      "failedBillingData": "Failed to load billing data. Please try again.",
+      "failedInvoiceHistory": "Failed to load invoice history",
+      "stripeNotLoaded": "Stripe not loaded",
+      "failedCheckout": "Failed to start checkout process. Please try again.",
+      "failedPaymentSetup": "Failed to set up payment method. Please try again."
+    },
+    "console": {
+      "loadingUserData": "Loading user data for billing...",
+      "userDataLoaded": "User billing data loaded successfully",
+      "loadingInvoices": "Loading invoice history...",
+      "invoicesLoaded": "Invoice history loaded successfully",
+      "startingCheckout": "Starting checkout process...",
+      "checkoutStarted": "Checkout process started successfully",
+      "setupPayment": "Setting up payment method...",
+      "paymentSetup": "Payment method setup completed"
+    }
+  },
+  "CreateLink": {
+    "header": {
+      "title": "Create Smart Link",
+      "subtitle": "Generate a deep link that works across all platforms and track its performance."
+    },
+    "videoTutorial": {
+      "watchVideo": "Watch Video",
+      "tutorial": "Tutorial",
+      "defaultTitle": "How to Create Smart Links"
+    },
+    "steps": {
+      "basicInfo": {
+        "stepNumber": "1",
+        "title": "Basic Information",
+        "description": "Start by entering the URL you want to convert into a smart link."
+      }
+    },
+    "tips": {
+      "title": "Tips for better performance",
+      "items": {
+        "0": "Use UTM parameters to track your marketing campaigns",
+        "1": "Generate a QR code for offline-to-online conversion",
+        "2": "Test your links before sharing them widely",
+        "3": "Monitor analytics to optimize your strategy"
+      }
+    },
+    "linkGenerator": {
+      "form": {
+        "urlInput": {
+          "placeholder": "Paste a link from Instagram, YouTube, Amazon, TikTok, Facebook, or Google Maps...",
+          "detectedPlatform": "Detected platform:",
+          "required": "Please enter a valid URL"
+        },
+        "platformSelect": {
+          "label": "Platform",
+          "placeholder": "Select platform (auto-detected if available)",
+          "options": {
+            "youtube": "YouTube",
+            "instagram": "Instagram",
+            "facebook": "Facebook",
+            "tiktok": "TikTok",
+            "googleMaps": "Google Maps",
+            "amazon": "Amazon"
+          }
+        },
+        "preview": {
+          "title": "Smart URL Preview:",
+          "format": "smarturlink.com/{platform}/[your-code]"
+        }
+      },
+      "features": {
+        "qrCode": {
+          "label": "QR Code",
+          "preview": {
+            "title": "QR Code Preview",
+            "description": "QR code will redirect to your smart link"
+          }
+        },
+        "utmParameters": {
+          "label": "UTM Parameters",
+          "title": "UTM Parameters",
+          "helpText": "Track your marketing campaigns with UTM parameters",
+          "fields": {
+            "source": {
+              "label": "Source",
+              "placeholder": "utm_source (e.g., google)"
+            },
+            "medium": {
+              "label": "Medium",
+              "placeholder": "utm_medium (e.g., cpc)"
+            },
+            "campaign": {
+              "label": "Campaign",
+              "placeholder": "utm_campaign (e.g., spring_sale)"
+            }
+          }
+        }
+      },
+      "submitButton": {
+        "default": "Create smart link",
+        "withQR": "Create smart link + QR Code",
+        "loading": "Creating your smart link..."
+      },
+      "validation": {
+        "loginRequired": "Please log in to create links",
+        "urlRequired": "Please enter a valid URL",
+        "platformRequired": "Please select a platform or enter a URL from a supported platform",
+        "invalidUrl": "Invalid URL format. Please enter a valid URL.",
+        "uniqueCodeFailed": "Failed to generate unique short code. Please try again.",
+        "createFailed": "Failed to create link. Please try again.",
+        "unexpectedError": "An unexpected error occurred"
+      },
+      "messages": {
+        "success": {
+          "title": "Smart link created successfully!",
+          "description": "URL: {smartUrl}",
+          "descriptionWithQR": "URL: {smartUrl} (QR Code enabled)",
+          "actionLabel": "View Links"
+        },
+        "error": {
+          "title": "Failed to create link",
+          "loginRedirect": "Please log in to create links"
+        }
+      },
+      "console": {
+        "creatingLink": "📝 Creating link with QR enabled:",
+        "linkCreated": "✅ Link created successfully with QR enabled:",
+        "insertError": "Database insert error:",
+        "createError": "Error creating link:"
+      }
+    }
+  },
+  "EditLink": {
+    "header": {
+      "back": "Back",
+      "title": "Edit Smart Link",
+      "subtitle": "Modify your link settings and preferences"
+    },
+    "linkInfo": {
+      "title": "Link Information",
+      "platform": "Platform",
+      "shortUrl": "Short URL",
+      "originalUrl": "Original URL"
+    },
+    "editSettings": {
+      "title": "Edit Settings",
+      "titleField": {
+        "label": "Title (Optional)",
+        "placeholder": "Enter a custom title for your link",
+        "helpText": "A custom title helps you identify this link in your dashboard"
+      },
+      "linkStatus": {
+        "label": "Link Status",
+        "helpText": "Inactive links will not redirect and show an error page"
+      },
+      "qrCode": {
+        "label": "QR Code",
+        "helpText": "Enable QR code generation for this link"
+      }
+    },
+    "qrPreview": {
+      "title": "QR Code Preview",
+      "redirectText": "QR code will redirect to: {shortUrl}"
+    },
+    "actions": {
+      "deleteLink": "Delete Link",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "deleting": "Deleting..."
+    },
+    "platforms": {
+      "instagram": "Instagram",
+      "youtube": "YouTube",
+      "amazon": "Amazon",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "googleMaps": "Google Maps"
+    },
+    "errors": {
+      "loadingTitle": "Error Loading Link",
+      "linkNotFound": "Link not found.",
+      "noPermission": "Link not found or you don't have permission to edit it.",
+      "backToLinks": "Back to My Links",
+      "loadFailed": "Failed to load link data",
+      "saveFailed": "Failed to save changes",
+      "deleteFailed": "Failed to delete link"
+    },
+    "messages": {
+      "updateSuccess": "Link updated successfully!",
+      "deleteSuccess": "Link deleted successfully!"
+    },
+    "dialogs": {
+      "deleteLink": {
+        "title": "Delete Link",
+        "description": "Are you sure you want to delete this link? This action cannot be undone. The link will stop working immediately and all analytics data will be preserved.",
+        "cancel": "Cancel",
+        "confirm": "Delete Link"
+      }
+    },
+    "console": {
+      "loadingLink": "📋 Loading link data for short code:",
+      "linkLoadError": "❌ Error loading link:",
+      "linkLoaded": "✅ Link data loaded successfully",
+      "linkLoadFailed": "💥 Error loading link data:",
+      "savingChanges": "💾 Saving link changes...",
+      "updateError": "❌ Error updating link:",
+      "linkUpdated": "✅ Link updated successfully",
+      "saveFailed": "💥 Error saving link:",
+      "deletingLink": "🗑️ Deleting link...",
+      "deleteError": "❌ Error deleting link:",
+      "linkDeleted": "✅ Link deleted successfully",
+      "deleteFailed": "💥 Error deleting link:"
+    }
+  },
+  "FAQ": {
+    "title": "Frequently Asked Questions",
+    "items": {
+      "0": {
+        "question": "How do I create a deep link?",
+        "answer": "Simply paste your URL in the link generator, and we'll automatically create a deep link that works across all platforms. We support major platforms like Instagram, TikTok, YouTube, and more."
+      },
+      "1": {
+        "question": "What's included in the free plan?",
+        "answer": "The free plan includes 500 clicks per month, unlimited link creation, and basic analytics. You can track clicks, geographic data, and device types without any cost."
+      },
+      "2": {
+        "question": "How does the pay-per-click billing work?",
+        "answer": "You only pay for clicks beyond your free monthly limit. Each additional click costs €0.003, and you're billed monthly only for what you use. No fixed fees or hidden costs."
+      },
+      "3": {
+        "question": "Can I customize my deep links?",
+        "answer": "Yes! You can add UTM parameters, customize fallback URLs, and set specific behaviors for different platforms. This helps you track campaign performance and improve user experience."
+      },
+      "4": {
+        "question": "What happens if I reach my click limit?",
+        "answer": "If you're on the free plan and reach 500 clicks, you'll need to upgrade to continue receiving clicks. For paid users, you'll be billed automatically for additional clicks at the end of your billing cycle."
+      },
+      "5": {
+        "question": "How do I track link performance?",
+        "answer": "Your dashboard shows real-time analytics including total clicks, geographic distribution, device types, and conversion rates. You can export data and integrate with popular analytics platforms."
+      }
+    },
+    "support": {
+      "title": "Need help?",
+      "description": "Our support team is here to help you get the most out of URLINK. Reach out anytime or browse our resources below.",
+      "button": "Open a support ticket"
+    }
+  },
+  "Support": {
+    "title": "Support & Help Center",
+    "sections": {
+      "commonTopics": {
+        "title": "Common Support Topics",
+        "items": {
+          "0": {
+            "title": "How to use deeplinks?",
+            "content": "• Deeplinks are smart URLs that open content directly in apps\n• To create one:\n  - Paste your URL in the link generator\n  - Choose your target platform (auto or manual)\n  - Customize settings if needed\n  - Copy and share your deeplink"
+          },
+          "1": {
+            "title": "How to upgrade?",
+            "content": "• Go to Billing & Subscription\n• Click \"Change Plan\"\n• Add your payment method\n• Start using premium features immediately"
+          },
+          "2": {
+            "title": "Where can I find my invoices?",
+            "content": "• Visit the Billing & Subscription page\n• Scroll to Billing History\n• Click \"View\" next to any invoice to download\n• We also email invoices monthly to your registered email"
+          }
+        }
+      },
+      "contactOptions": {
+        "title": "Contact Options",
+        "emailSupport": {
+          "title": "Email Support",
+          "email": "support@smarturlink.com"
+        },
+        "billingSupport": {
+          "title": "Billing Support",
+          "description": "For billing issues, please include your account email and invoice number"
+        }
+      }
+    },
+    "needHelp": {
+      "title": "Need help?",
+      "description": "Our support team is here to help you get the most out of URLINK. Reach out anytime or browse our resources below.",
+      "button": "Open a support ticket"
+    }
+  },
+  "DashboardLayout": {
+    "navigation": {
+      "createLink": {
+        "button": "Create new link",
+        "tooltip": "Start a new Smart Link"
+      },
+      "items": {
+        "dashboard": "Dashboard",
+        "myLinks": "My Links",
+        "analytics": "Analytics",
+        "faq": "FAQ",
+        "support": "Support"
+      },
+      "supportCard": {
+        "title": "Do you need help?",
+        "button": "Open a ticket"
+      }
+    },
+    "globalNav": {
+      "accessibility": {
+        "toggleSidebar": "Toggle sidebar",
+        "userAvatar": "User avatar"
+      },
+      "loading": {
+        "text": "Loading...",
+        "authError": "Authentication error"
+      },
+      "badges": {
+        "payPerClick": "Pay-per-click",
+        "freeTier": "Free Tier"
+      },
+      "userMenu": {
+        "fallbackName": "User",
+        "loadingData": "Loading...",
+        "errorLoadingData": "Error loading data",
+        "retryLoadingData": "Retry loading data",
+        "loggingOut": "Logging out...",
+        "items": {
+          "myAccount": {
+            "icon": "👤",
+            "label": "My Account"
+          },
+          "billing": {
+            "icon": "💳",
+            "label": "Billing & Usage"
+          },
+          "support": {
+            "icon": "🛠️",
+            "label": "Support"
+          },
+          "logout": {
+            "icon": "🔓",
+            "label": "Log out"
+          }
+        }
+      },
+      "messages": {
+        "logoutSuccess": "Logged out successfully",
+        "logoutFailed": "Failed to log out",
+        "logoutRetry": "Please try again",
+        "userDataNotFound": "User data not found, using defaults",
+        "loadUserDataFailed": "Failed to load user data",
+        "usingCachedData": "Using cached data. Click to retry.",
+        "retryAction": "Retry"
+      }
+    },
+    "freeClicksCard": {
+      "title": "Click Usage",
+      "loading": "Loading Click Usage...",
+      "retry": "Retry",
+      "errors": {
+        "loadFailed": "Failed to load click data"
+      },
+      "status": {
+        "unlimited": "Unlimited",
+        "unlimitedMessage": "✨ Unlimited clicks with your subscription",
+        "clicksLeft": "You have {remaining} free clicks left",
+        "unverifiedClicksLeft": "{remaining} clicks left (unverified account)",
+        "verifyEmailMessage": "Verify your email to get more free clicks",
+        "verifyEmailButton": "Verify Email for More Clicks",
+        "limitExceeded": "You've used all free clicks. Add payment method for pay-per-click.",
+        "addPaymentButton": "Add Payment Method",
+        "costEstimation": "€{cost} estimated for {count} extra clicks"
+      }
+    }
   }
 }

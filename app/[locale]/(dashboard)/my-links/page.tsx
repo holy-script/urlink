@@ -17,6 +17,7 @@ import { supabase } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { QRCodeCanvas } from 'qrcode.react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +55,8 @@ type QRFilter = 'all' | 'enabled' | 'disabled';
 export default function MyLinksPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('MyLinksPage');
+
   const [links, setLinks] = useState<SmartLink[]>([]);
   const [filteredLinks, setFilteredLinks] = useState<SmartLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -178,7 +181,7 @@ export default function MyLinksPage() {
 
   const loadLinks = async () => {
     if (!user) {
-      setError('Please log in to view your links');
+      setError(t('errors.loginRequired'));
       setIsLoading(false);
       return;
     }
@@ -280,10 +283,10 @@ export default function MyLinksPage() {
       await navigator.clipboard.writeText(text);
       setCopiedLinkId(linkId);
       setTimeout(() => setCopiedLinkId(null), 2000);
-      toast.success("Link copied to clipboard");
+      toast.success(t('messages.linkCopied'));
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.error("Failed to copy link to clipboard");
+      toast.error(t('messages.linkCopyFailed'));
     }
   };
 
@@ -291,7 +294,7 @@ export default function MyLinksPage() {
     const shortUrl = getShortUrl(link.platform, link.short_code);
     if (navigator.share) {
       navigator.share({
-        title: link.title || 'Smart Link',
+        title: link.title || t('links.untitledLink'),
         url: shortUrl
       });
     } else {
@@ -301,7 +304,7 @@ export default function MyLinksPage() {
 
   const handleEdit = (shortCode: string) => {
     if (shortCode.startsWith('demo')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('messages.demoLinkNotice'));
       router.push('/create-link');
       return;
     }
@@ -310,7 +313,7 @@ export default function MyLinksPage() {
 
   const handleToggleActive = async (linkId: string, currentStatus: boolean) => {
     if (linkId.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('messages.demoLinkNotice'));
       return;
     }
 
@@ -328,16 +331,16 @@ export default function MyLinksPage() {
         )
       );
 
-      toast.success(`Link ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      toast.success(!currentStatus ? t('messages.linkActivated') : t('messages.linkDeactivated'));
     } catch (error) {
       console.error('Error toggling link status:', error);
-      toast.error('Failed to update link status');
+      toast.error(t('messages.linkUpdateFailed'));
     }
   };
 
   const handleSoftDelete = async (linkId: string) => {
     if (linkId.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('messages.demoLinkNotice'));
       return;
     }
 
@@ -362,10 +365,10 @@ export default function MyLinksPage() {
         )
       );
 
-      toast.success('Link deleted successfully');
+      toast.success(t('messages.linkDeleted'));
     } catch (error) {
       console.error('Error deleting link:', error);
-      toast.error('Failed to delete link');
+      toast.error(t('messages.linkDeleteFailed'));
     }
   };
 
@@ -391,16 +394,16 @@ export default function MyLinksPage() {
         )
       );
 
-      toast.success('Link restored successfully');
+      toast.success(t('messages.linkRestored'));
     } catch (error) {
       console.error('Error restoring link:', error);
-      toast.error('Failed to restore link');
+      toast.error(t('messages.linkRestoreFailed'));
     }
   };
 
   const handleShowQR = (link: SmartLink) => {
     if (link.id.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('messages.demoLinkNotice'));
       return;
     }
     setSelectedLinkForQR(link);
@@ -417,7 +420,7 @@ export default function MyLinksPage() {
       link.download = `qr-code-${selectedLinkForQR.short_code}.png`;
       link.href = url;
       link.click();
-      toast.success('QR code downloaded successfully!');
+      toast.success(t('messages.qrDownloaded'));
     }
   };
 
@@ -514,7 +517,7 @@ export default function MyLinksPage() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
               <div>
-                <h3 className="font-medium text-red-800">Error Loading Links</h3>
+                <h3 className="font-medium text-red-800">{t('errors.loadingTitle')}</h3>
                 <p className="text-red-600">{error}</p>
               </div>
             </div>
@@ -524,7 +527,7 @@ export default function MyLinksPage() {
               variant="outline"
             >
               <RefreshCw className="w-4 h-4 mr-2 text-red-600" />
-              <span className="text-red-600">Try Again</span>
+              <span className="text-red-600">{t('errors.tryAgain')}</span>
             </Button>
           </Card>
         </div>
@@ -541,11 +544,11 @@ export default function MyLinksPage() {
             {/* Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">My Smart Links</h1>
+                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{t('header.title')}</h1>
                 <p className="text-gray-600 mt-1">
                   {showOnboardingOverlay
-                    ? "Here's a preview of how your links will look. Create your first link to get started!"
-                    : `Manage and track your ${filteredLinks.length} smart links`
+                    ? t('header.subtitlePreview')
+                    : t('header.subtitle', { count: filteredLinks.length })
                   }
                 </p>
               </div>
@@ -556,14 +559,14 @@ export default function MyLinksPage() {
                   className="flex items-center gap-2 bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
                 >
                   <RefreshCw className="w-4 h-4 text-gray-700" />
-                  <span className="text-gray-700">Refresh</span>
+                  <span className="text-gray-700">{t('header.actions.refresh')}</span>
                 </Button>
                 <Button
                   onClick={() => router.push('/create-link')}
                   className="bg-[#5e17eb] hover:bg-[#4e13c4] text-white flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4 text-white" />
-                  <span className="text-white">Create Link</span>
+                  <span className="text-white">{t('header.actions.createLink')}</span>
                 </Button>
               </div>
             </div>
@@ -574,8 +577,8 @@ export default function MyLinksPage() {
                 <div className="flex items-center gap-3">
                   <QrCode className="w-6 h-6 text-purple-600" />
                   <div>
-                    <h3 className="font-medium text-purple-800">Links Preview</h3>
-                    <p className="text-purple-600 text-sm">This is how your links page will look with real data. Create your first link to get started!</p>
+                    <h3 className="font-medium text-purple-800">{t('banner.preview.title')}</h3>
+                    <p className="text-purple-600 text-sm">{t('banner.preview.description')}</p>
                   </div>
                 </div>
               </Card>
@@ -589,14 +592,14 @@ export default function MyLinksPage() {
                   <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      placeholder="Search links..."
+                      placeholder={t('search.placeholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 text-gray-900 bg-gray-50 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]"
                     />
                   </div>
                   <div className="text-sm text-gray-500">
-                    Showing {filteredLinks.length} of {links.length} links
+                    {t('search.resultsCount', { filtered: filteredLinks.length, total: links.length })}
                   </div>
                 </div>
 
@@ -604,51 +607,50 @@ export default function MyLinksPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">Filters:</span>
+                    <span className="text-sm font-medium text-gray-700">{t('filters.label')}</span>
                   </div>
 
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                    {/* Status Filter - Fixed version */}
+                    {/* Status Filter */}
                     <Select value={statusFilter} onValueChange={(value: StatusFilter) => setStatusFilter(value)}>
                       <SelectTrigger className="w-full sm:w-32 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
-                        <SelectValue placeholder="Status" />
+                        <SelectValue placeholder={t('filters.status.label')} />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All Status</SelectItem>
-                        <SelectItem value="active" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Active</SelectItem>
-                        <SelectItem value="inactive" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Inactive</SelectItem>
-                        <SelectItem value="deleted" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Deleted</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.status.all')}</SelectItem>
+                        <SelectItem value="active" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.status.active')}</SelectItem>
+                        <SelectItem value="inactive" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.status.inactive')}</SelectItem>
+                        <SelectItem value="deleted" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.status.deleted')}</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    {/* Platform Filter - Fixed version */}
+                    {/* Platform Filter */}
                     <Select value={platformFilter} onValueChange={(value: PlatformFilter) => setPlatformFilter(value)}>
                       <SelectTrigger className="w-full sm:w-36 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
-                        <SelectValue placeholder="Platform" />
+                        <SelectValue placeholder={t('filters.platform.label')} />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All Platforms</SelectItem>
-                        <SelectItem value="instagram" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Instagram</SelectItem>
-                        <SelectItem value="youtube" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">YouTube</SelectItem>
-                        <SelectItem value="facebook" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Facebook</SelectItem>
-                        <SelectItem value="tiktok" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">TikTok</SelectItem>
-                        <SelectItem value="amazon" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Amazon</SelectItem>
-                        <SelectItem value="google-maps" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">Google Maps</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.all')}</SelectItem>
+                        <SelectItem value="instagram" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.instagram')}</SelectItem>
+                        <SelectItem value="youtube" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.youtube')}</SelectItem>
+                        <SelectItem value="facebook" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.facebook')}</SelectItem>
+                        <SelectItem value="tiktok" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.tiktok')}</SelectItem>
+                        <SelectItem value="amazon" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.amazon')}</SelectItem>
+                        <SelectItem value="google-maps" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.platform.googleMaps')}</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    {/* QR Filter - Fixed version */}
+                    {/* QR Filter */}
                     <Select value={qrFilter} onValueChange={(value: QRFilter) => setQRFilter(value)}>
                       <SelectTrigger className="w-full sm:w-32 bg-white text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-2 focus:ring-[#5e17eb]">
-                        <SelectValue placeholder="QR Code" />
+                        <SelectValue placeholder={t('filters.qr.label')} />
                       </SelectTrigger>
                       <SelectContent className="bg-white border-gray-300">
-                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">All QR</SelectItem>
-                        <SelectItem value="enabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">QR Enabled</SelectItem>
-                        <SelectItem value="disabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">QR Disabled</SelectItem>
+                        <SelectItem value="all" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.qr.all')}</SelectItem>
+                        <SelectItem value="enabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.qr.enabled')}</SelectItem>
+                        <SelectItem value="disabled" className="text-gray-900 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900">{t('filters.qr.disabled')}</SelectItem>
                       </SelectContent>
                     </Select>
-
 
                     {/* Clear Filters Button */}
                     {(searchQuery || statusFilter !== 'all' || platformFilter !== 'all' || qrFilter !== 'all') && (
@@ -658,7 +660,7 @@ export default function MyLinksPage() {
                         size="sm"
                         className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
                       >
-                        <span className="text-gray-700">Clear All</span>
+                        <span className="text-gray-700">{t('filters.clearAll')}</span>
                       </Button>
                     )}
                   </div>
@@ -666,7 +668,7 @@ export default function MyLinksPage() {
               </div>
             </Card>
 
-            {/* Links List - Changed from grid to single column */}
+            {/* Links List */}
             <div className="space-y-4">
               {filteredLinks.map((link: SmartLink) => {
                 const shortUrl = getShortUrl(link.platform, link.short_code);
@@ -685,12 +687,12 @@ export default function MyLinksPage() {
                               {getPlatformIcon(link.platform)}
                             </div>
                             <Badge className={`${getPlatformColor(link.platform)} font-medium text-xs`}>
-                              {link.platform.replace('-', ' ')}
+                              {t(`filters.platform.${link.platform.replace('-', '')}`) || link.platform.replace('-', ' ')}
                             </Badge>
                             <div className="flex items-center gap-2">
                               {isDeleted ? (
                                 <Badge className="bg-red-100 text-red-800 text-xs">
-                                  Deleted
+                                  {t('links.status.deleted')}
                                 </Badge>
                               ) : (
                                 <>
@@ -700,7 +702,7 @@ export default function MyLinksPage() {
                                       : 'bg-red-100 text-red-800'
                                       } text-xs`}
                                   >
-                                    {link.is_active ? 'Active' : 'Inactive'}
+                                    {link.is_active ? t('links.status.active') : t('links.status.inactive')}
                                   </Badge>
                                   <Badge
                                     className={`${link.isqrenabled
@@ -708,7 +710,7 @@ export default function MyLinksPage() {
                                       : 'bg-gray-100 text-gray-800'
                                       } text-xs`}
                                   >
-                                    {link.isqrenabled ? 'QR' : 'No QR'}
+                                    {link.isqrenabled ? t('links.status.qrEnabled') : t('links.status.qrDisabled')}
                                   </Badge>
                                 </>
                               )}
@@ -717,11 +719,11 @@ export default function MyLinksPage() {
 
                           <h3 className={`text-lg font-semibold mb-2 ${isDeleted ? 'text-red-700' : 'text-gray-900'
                             }`}>
-                            {link.title || 'Untitled Smart Link'}
+                            {link.title || t('links.untitledLink')}
                           </h3>
 
                           <div className="space-y-2">
-                            {/* Short URL - Fixed version with proper text wrapping */}
+                            {/* Short URL */}
                             <div className={`p-3 rounded-md border ${isDeleted ? 'bg-red-100 border-red-200' : 'border-gray-200'
                               }`}>
                               <div className="flex items-center gap-2 mb-1">
@@ -732,7 +734,7 @@ export default function MyLinksPage() {
                                   height={16}
                                   className="w-4 h-4"
                                 />
-                                <p className={`text-xs ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>Short URL</p>
+                                <p className={`text-xs ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>{t('links.shortUrl')}</p>
                               </div>
                               <p className={`font-mono text-sm ${isDeleted ? 'text-red-700' : 'text-[#5e17eb]'
                                 } break-all overflow-wrap-break-word word-break-break-all`}>
@@ -742,7 +744,7 @@ export default function MyLinksPage() {
 
                             {/* Original URL */}
                             <div>
-                              <p className={`text-xs mb-1 ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>Original URL</p>
+                              <p className={`text-xs mb-1 ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>{t('links.originalUrl')}</p>
                               <p className={`text-sm ${isDeleted ? 'text-red-700' : 'text-gray-700'
                                 } break-all`}>
                                 {link.original_url}
@@ -761,7 +763,7 @@ export default function MyLinksPage() {
                                 }`}>
                                 {link.clicks.toLocaleString()}
                               </span>
-                              <span className={`text-xs ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>clicks</span>
+                              <span className={`text-xs ${isDeleted ? 'text-red-600' : 'text-gray-500'}`}>{t('links.clicks')}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <Calendar className={`w-4 h-4 ${isDeleted ? 'text-red-500' : 'text-gray-500'}`} />
@@ -782,10 +784,10 @@ export default function MyLinksPage() {
                                   onClick={() => handleRestore(link.id)}
                                 >
                                   <RefreshCw className="h-4 w-4 mr-2" />
-                                  <span className="text-green-600">Restore</span>
+                                  <span className="text-green-600">{t('links.actions.restore')}</span>
                                 </Button>
                                 <span className="text-xs text-red-600">
-                                  Deleted {format(new Date(link.deleted_at!), 'MMM dd, yyyy')}
+                                  {t('links.deletedInfo', { date: format(new Date(link.deleted_at!), 'MMM dd, yyyy') })}
                                 </span>
                               </div>
                             ) : (
@@ -805,7 +807,7 @@ export default function MyLinksPage() {
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                    <p className="text-gray-700">{isCopied ? 'Copied!' : 'Copy Link'}</p>
+                                    <p className="text-gray-700">{isCopied ? t('links.actions.copied') : t('links.actions.copy')}</p>
                                   </TooltipContent>
                                 </Tooltip>
 
@@ -821,7 +823,7 @@ export default function MyLinksPage() {
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                    <p className="text-gray-700">Edit Link</p>
+                                    <p className="text-gray-700">{t('links.actions.edit')}</p>
                                   </TooltipContent>
                                 </Tooltip>
 
@@ -839,26 +841,10 @@ export default function MyLinksPage() {
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                      <p className="text-gray-700">Show QR Code</p>
+                                      <p className="text-gray-700">{t('links.actions.showQR')}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 )}
-
-                                {/* <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="text-gray-700 hover:bg-gray-200 hover:text-[#5e17eb] p-2 transition-colors"
-                                      onClick={() => handleShare(link)}
-                                    >
-                                      <Share2 className="h-4 w-4" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                    <p className="text-gray-700">Share Link</p>
-                                  </TooltipContent>
-                                </Tooltip> */}
 
                                 <Tooltip>
                                   <TooltipTrigger asChild>
@@ -872,7 +858,7 @@ export default function MyLinksPage() {
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                    <p className="text-gray-700">Open Link</p>
+                                    <p className="text-gray-700">{t('links.actions.open')}</p>
                                   </TooltipContent>
                                 </Tooltip>
 
@@ -891,11 +877,11 @@ export default function MyLinksPage() {
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                    <p className="text-gray-700">{link.is_active ? 'Deactivate' : 'Activate'}</p>
+                                    <p className="text-gray-700">{link.is_active ? t('links.actions.deactivate') : t('links.actions.activate')}</p>
                                   </TooltipContent>
                                 </Tooltip>
 
-                                {/* Delete Button - Fixed version */}
+                                {/* Delete Button */}
                                 <AlertDialog>
                                   <Tooltip>
                                     <AlertDialogTrigger asChild>
@@ -910,30 +896,29 @@ export default function MyLinksPage() {
                                       </TooltipTrigger>
                                     </AlertDialogTrigger>
                                     <TooltipContent className="bg-white text-gray-700 border border-gray-200">
-                                      <p className="text-gray-700">Delete Link</p>
+                                      <p className="text-gray-700">{t('links.actions.delete')}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                   <AlertDialogContent className="bg-white border border-gray-200">
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle className="text-gray-900">Delete Link</AlertDialogTitle>
+                                      <AlertDialogTitle className="text-gray-900">{t('dialogs.deleteLink.title')}</AlertDialogTitle>
                                       <AlertDialogDescription className="text-gray-600">
-                                        Are you sure you want to delete this link? This action will deactivate the link and move it to deleted items. You can restore it later if needed.
+                                        {t('dialogs.deleteLink.description')}
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900">
-                                        <span className="text-gray-700">Cancel</span>
+                                        <span className="text-gray-700">{t('dialogs.deleteLink.cancel')}</span>
                                       </AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() => handleSoftDelete(link.id)}
                                         className="bg-red-600 hover:bg-red-700 text-white"
                                       >
-                                        <span className="text-white">Delete Link</span>
+                                        <span className="text-white">{t('dialogs.deleteLink.confirm')}</span>
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
                                 </AlertDialog>
-
                               </>
                             )}
                           </div>
@@ -950,16 +935,16 @@ export default function MyLinksPage() {
               <Card className="p-8 text-center bg-white border border-gray-200">
                 <div className="text-gray-500">
                   <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No links found</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">{t('emptyStates.noResults.title')}</h3>
                   <p className="text-gray-500 mb-4">
-                    No links match your current filters. Try adjusting your search or filters.
+                    {t('emptyStates.noResults.description')}
                   </p>
                   <Button
                     onClick={clearAllFilters}
                     variant="outline"
                     className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
                   >
-                    <span className="text-gray-700">Clear All Filters</span>
+                    <span className="text-gray-700">{t('emptyStates.noResults.action')}</span>
                   </Button>
                 </div>
               </Card>
@@ -972,7 +957,7 @@ export default function MyLinksPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <Card className="bg-white p-6 max-w-md w-full mx-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">QR Code</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('qrCode.title')}</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -998,7 +983,7 @@ export default function MyLinksPage() {
 
                 <div>
                   <p className="text-sm text-gray-600 mb-2">
-                    {selectedLinkForQR.title || 'Smart Link'}
+                    {selectedLinkForQR.title || t('qrCode.smartLink')}
                   </p>
                   <p className="text-xs text-gray-500 font-mono">
                     {getShortUrl(selectedLinkForQR.platform, selectedLinkForQR.short_code)}
@@ -1010,7 +995,7 @@ export default function MyLinksPage() {
                   className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] text-white flex items-center gap-2"
                 >
                   <Download className="h-4 w-4 text-white" />
-                  <span className="text-white">Download QR Code</span>
+                  <span className="text-white">{t('qrCode.download')}</span>
                 </Button>
               </div>
             </Card>
@@ -1019,13 +1004,13 @@ export default function MyLinksPage() {
 
         {/* Onboarding Overlay - only shows when no real links exist */}
         {showOnboardingOverlay && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-40 p-4">
-            <div className="relative w-full overflow-y-auto">
+          <div className="absolute inset-0 bg-black/50 flex items-start justify-center z-40 p-4">
+            <div className="relative w-full overflow-y-auto mt-4">
               <OnboardingProgress
                 showAsOverlay={true}
                 onDismiss={() => {
                   // Can't dismiss if no links created
-                  toast.info('Create your first link to access your dashboard!');
+                  toast.info(t('messages.onboardingDismissed'));
                 }}
               />
             </div>

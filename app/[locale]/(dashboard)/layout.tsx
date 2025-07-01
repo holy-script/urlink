@@ -21,6 +21,7 @@ import { FreeClicksCard } from '@/components/FreeClicksCard';
 import { toast } from 'sonner';
 import { usePathname, useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -35,6 +36,7 @@ interface UserUsage {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('DashboardLayout.navigation');
 
   // Sidebar state - only for mobile
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -115,11 +117,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }, [isSidebarOpen, isMobile]);
 
   const navigationItems = [
-    { path: '/dashboard', icon: Home, label: 'Dashboard' },
-    { path: '/my-links', icon: LinkIcon, label: 'My Links' },
-    { path: '/analytics', icon: BarChart2, label: 'Analytics' },
-    { path: '/faq', icon: HelpCircle, label: 'FAQ' },
-    { path: '/support', icon: HelpCircle, label: 'Support' },
+    { path: '/dashboard', icon: Home, label: t('items.dashboard') },
+    { path: '/my-links', icon: LinkIcon, label: t('items.myLinks') },
+    { path: '/analytics', icon: BarChart2, label: t('items.analytics') },
+    { path: '/faq', icon: HelpCircle, label: t('items.faq') },
+    { path: '/support', icon: HelpCircle, label: t('items.support') },
   ];
 
   // Determine if sidebar should be visible
@@ -163,11 +165,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     onClick={() => handleNavigationClick(() => router.push('/create-link'))}
                   >
                     <Sparkles className="w-4 h-4 mr-2" />
-                    Create new link
+                    {t('createLink.button')}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Start a new Smart Link</p>
+                  <p>{t('createLink.tooltip')}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -213,14 +215,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {/* Support Card */}
             <div className="bg-white rounded-xl p-4 shadow-sm">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Do you need help?
+                {t('supportCard.title')}
               </h3>
               <Button
                 variant="outline"
                 className="w-full border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white transition-colors"
                 onClick={() => handleNavigationClick(() => router.push('/support'))}
               >
-                Open a ticket
+                {t('supportCard.button')}
               </Button>
             </div>
           </div>
@@ -245,11 +247,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   onClick={() => router.push('/create-link')}
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
-                  <span className="text-base font-medium">Create new link</span>
+                  <span className="text-base font-medium">{t('createLink.button')}</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Start a new Smart Link</p>
+                <p>{t('createLink.tooltip')}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

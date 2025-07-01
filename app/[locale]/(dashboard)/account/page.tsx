@@ -10,7 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { supabase } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
-import { AlertTriangle, Camera, Loader2, Trash, RefreshCw } from 'lucide-react';
+import { AlertTriangle, Camera, Loader2, Trash, RefreshCw, Mail, CheckCircle, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,7 @@ interface UserProfile {
   email: string; // This comes from auth user
   notification_optin: boolean;
   avatar_url?: string | null;
+  is_email_verified: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -41,9 +43,11 @@ const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export default function AccountPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('Account');
 
   const [loading, setLoading] = useState(false);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [sendingVerification, setSendingVerification] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -52,7 +56,8 @@ export default function AccountPage() {
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     email: '',
-    notification_optin: false
+    notification_optin: false,
+    is_email_verified: false
   });
 
   const [passwords, setPasswords] = useState({
@@ -69,7 +74,7 @@ export default function AccountPage() {
 
   async function loadUserProfile() {
     if (!user) {
-      setError('Please log in to view your account');
+      setError(t('errors.loginRequired'));
       setIsLoadingProfile(false);
       return;
     }
@@ -78,15 +83,16 @@ export default function AccountPage() {
       setIsLoadingProfile(true);
       setError(null);
 
-      console.log('📋 Loading user profile for:', user.id);
+      console.log(t('console.loadingProfile'), user.id);
 
-      // Load user profile from your users table (only fields that exist)
+      // Load user profile from your users table including is_email_verified
       const { data, error } = await supabase
         .from('users')
         .select(`
           name, 
           notification_optin, 
           avatar_url,
+          is_email_verified,
           created_at,
           updated_at
         `)
@@ -94,31 +100,32 @@ export default function AccountPage() {
         .single();
 
       if (error) {
-        console.error('❌ Error loading user profile:', error);
+        console.error(t('console.profileLoadError'), error);
         throw error;
       }
 
       if (!data) {
-        throw new Error('User profile not found');
+        throw new Error(t('errors.profileNotFound'));
       }
 
-      console.log('✅ User profile loaded successfully');
+      console.log(t('console.profileLoaded'));
 
       setProfile({
         name: data.name || '',
         email: user.email || '', // Get email from auth user object
         notification_optin: data.notification_optin || false,
         avatar_url: data.avatar_url,
+        is_email_verified: data.is_email_verified || false,
         created_at: data.created_at,
         updated_at: data.updated_at
       });
 
     } catch (err) {
-      console.error('💥 Error loading user profile:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load user profile';
+      console.error(t('console.profileLoadFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.loadProfileError');
       setError(errorMessage);
-      toast.error('Failed to load user profile', {
-        description: errorMessage
+      toast.error(t('messages.loadProfileError'), {
+        description: t('messages.loadProfileErrorDesc', { error: errorMessage })
       });
     } finally {
       setIsLoadingProfile(false);
@@ -131,7 +138,7 @@ export default function AccountPage() {
 
     setLoading(true);
     try {
-      console.log('📝 Updating user profile...');
+      console.log(t('console.updatingProfile'));
 
       const { error } = await supabase
         .from('users')
@@ -143,24 +150,57 @@ export default function AccountPage() {
         .eq('id', user.id);
 
       if (error) {
-        console.error('❌ Profile update error:', error);
+        console.error(t('console.profileUpdateError'), error);
         throw error;
       }
 
-      console.log('✅ Profile updated successfully');
+      console.log(t('console.profileUpdated'));
 
-      toast.success('Profile updated successfully', {
-        description: 'Your account information has been saved.'
+      toast.success(t('messages.profileUpdateSuccess'), {
+        description: t('messages.profileUpdateSuccessDesc')
       });
 
     } catch (err) {
-      console.error('💥 Error updating profile:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
-      toast.error('Failed to update profile', {
+      console.error(t('console.profileUpdateFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.profileUpdateError');
+      toast.error(t('messages.profileUpdateError'), {
         description: errorMessage
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleSendVerification() {
+    if (!user?.email) return;
+
+    setSendingVerification(true);
+    try {
+      console.log('Sending verification email to:', user.email);
+
+      // Call your Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('send-verification-email', {
+        body: { email: user.email }
+      });
+
+      if (error) {
+        console.error('Verification email error:', error);
+        throw error;
+      }
+
+      console.log('Verification email sent successfully');
+      toast.success(t('messages.verificationEmailSent'), {
+        description: t('messages.verificationEmailSentDesc')
+      });
+
+    } catch (err) {
+      console.error('Failed to send verification email:', err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.verificationEmailError');
+      toast.error(t('messages.verificationEmailError'), {
+        description: errorMessage
+      });
+    } finally {
+      setSendingVerification(false);
     }
   }
 
@@ -170,24 +210,35 @@ export default function AccountPage() {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error('File size must be less than 2MB');
+      toast.error(t('messages.fileSizeError'));
       return;
     }
 
     // Validate file type
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      toast.error('Only JPG, PNG, and WebP images are allowed');
+      toast.error(t('messages.fileTypeError'));
       return;
     }
 
     setUploadLoading(true);
     try {
-      console.log('📤 Uploading avatar...');
+      console.log(t('console.uploadingAvatar'));
+
+      // Create user-specific folder structure
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar-${Date.now()}.${fileExt}`;
+
+      // Delete existing avatar if it exists
+      if (profile.avatar_url) {
+        const oldFileName = profile.avatar_url.split('/').pop();
+        if (oldFileName) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user.id}/${oldFileName}`]);
+        }
+      }
 
       // Upload to storage
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-
       const { error: uploadError, data } = await supabase.storage
         .from('avatars')
         .upload(fileName, file, {
@@ -196,7 +247,7 @@ export default function AccountPage() {
         });
 
       if (uploadError) {
-        console.error('❌ Upload error:', uploadError);
+        console.error(t('console.avatarUploadError'), uploadError);
         throw uploadError;
       }
 
@@ -205,7 +256,7 @@ export default function AccountPage() {
         .from('avatars')
         .getPublicUrl(fileName);
 
-      console.log('📷 Avatar uploaded, updating profile...');
+      console.log(t('console.avatarUploaded'));
 
       // Update user profile with new avatar URL
       const { error: updateError } = await supabase
@@ -217,19 +268,17 @@ export default function AccountPage() {
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('❌ Profile update error:', updateError);
+        console.error(t('console.profileUpdateError'), updateError);
         throw updateError;
       }
 
       setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
-
-      console.log('✅ Avatar updated successfully');
-      toast.success('Profile picture updated successfully');
+      toast.success(t('messages.avatarUploadSuccess'));
 
     } catch (err) {
-      console.error('💥 Error uploading avatar:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to upload profile picture';
-      toast.error('Failed to upload profile picture', {
+      console.error(t('console.avatarUploadFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.avatarUploadError');
+      toast.error(t('messages.avatarUploadError'), {
         description: errorMessage
       });
     } finally {
@@ -242,20 +291,18 @@ export default function AccountPage() {
 
     setUploadLoading(true);
     try {
-      console.log('🗑️ Removing avatar...');
+      console.log(t('console.removingAvatar'));
 
-      // Extract filename from URL
-      const fileName = profile.avatar_url.split('/').pop();
-      if (fileName) {
-        // Delete from storage
-        const { error: deleteError } = await supabase.storage
-          .from('avatars')
-          .remove([fileName]);
+      // Extract filename from URL and remove from storage
+      const fileName = profile.avatar_url.split('/').slice(-2).join('/'); // Gets "userId/filename"
 
-        if (deleteError) {
-          console.warn('⚠️ Storage deletion warning:', deleteError);
-          // Continue anyway, sometimes file might not exist
-        }
+      const { error: deleteError } = await supabase.storage
+        .from('avatars')
+        .remove([fileName]);
+
+      if (deleteError) {
+        console.warn(t('console.avatarDeleteWarning'), deleteError);
+        // Continue anyway, sometimes file might not exist
       }
 
       // Update user profile to remove avatar URL
@@ -268,19 +315,17 @@ export default function AccountPage() {
         .eq('id', user.id);
 
       if (updateError) {
-        console.error('❌ Profile update error:', updateError);
+        console.error(t('console.avatarRemoveError'), updateError);
         throw updateError;
       }
 
       setProfile(prev => ({ ...prev, avatar_url: null }));
-
-      console.log('✅ Avatar removed successfully');
-      toast.success('Profile picture removed successfully');
+      toast.success(t('messages.avatarRemoveSuccess'));
 
     } catch (err) {
-      console.error('💥 Error removing avatar:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to remove profile picture';
-      toast.error('Failed to remove profile picture', {
+      console.error(t('console.avatarRemoveFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.avatarRemoveError');
+      toast.error(t('messages.avatarRemoveError'), {
         description: errorMessage
       });
     } finally {
@@ -292,39 +337,39 @@ export default function AccountPage() {
     e.preventDefault();
 
     if (passwords.new !== passwords.confirm) {
-      toast.error('New passwords don\'t match');
+      toast.error(t('messages.passwordMismatch'));
       return;
     }
 
     if (passwords.new.length < 6) {
-      toast.error('Password must be at least 6 characters long');
+      toast.error(t('messages.passwordTooShort'));
       return;
     }
 
     setLoading(true);
     try {
-      console.log('🔒 Updating password...');
+      console.log(t('console.updatingPassword'));
 
       const { error } = await supabase.auth.updateUser({
         password: passwords.new
       });
 
       if (error) {
-        console.error('❌ Password update error:', error);
+        console.error(t('console.passwordUpdateError'), error);
         throw error;
       }
 
       setPasswords({ current: '', new: '', confirm: '' });
 
-      console.log('✅ Password updated successfully');
-      toast.success('Password updated successfully', {
-        description: 'Your password has been changed.'
+      console.log(t('console.passwordUpdated'));
+      toast.success(t('messages.passwordUpdateSuccess'), {
+        description: t('messages.passwordUpdateSuccessDesc')
       });
 
     } catch (err) {
-      console.error('💥 Error updating password:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update password';
-      toast.error('Failed to update password', {
+      console.error(t('console.passwordUpdateFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.passwordUpdateError');
+      toast.error(t('messages.passwordUpdateError'), {
         description: errorMessage
       });
     } finally {
@@ -333,41 +378,41 @@ export default function AccountPage() {
   }
 
   async function handleDeleteAccount() {
-    if (!user || deleteConfirmation !== 'DELETE') return;
+    if (!user || deleteConfirmation !== t('dialogs.deleteAccount.confirmation.deleteText')) return;
 
     setLoading(true);
     try {
-      console.log('🚨 Deleting account...');
+      console.log(t('console.deletingAccount'));
 
       // Use your soft delete function from the database schema
       const { error: deletionError } = await supabase
         .rpc('soft_delete_user_and_links', { p_user_id: user.id });
 
       if (deletionError) {
-        console.error('❌ Deletion error:', deletionError);
+        console.error(t('console.accountDeleteError'), deletionError);
         throw deletionError;
       }
 
-      console.log('✅ Account soft deleted successfully');
+      console.log(t('console.accountDeleted'));
 
       // Sign out the user
       const { error: signOutError } = await supabase.auth.signOut();
       if (signOutError) {
-        console.error('❌ Sign out error:', signOutError);
+        console.error(t('console.signOutError'), signOutError);
       }
 
-      toast.success('Account deleted successfully', {
-        description: 'Your account and all associated data have been deleted.'
+      toast.success(t('messages.accountDeleteSuccess'), {
+        description: t('messages.accountDeleteSuccessDesc')
       });
 
       // Redirect to home page
       router.push('/');
 
     } catch (err) {
-      console.error('💥 Error deleting account:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete account';
-      toast.error('Failed to delete account', {
-        description: `${errorMessage} Please try again.`
+      console.error(t('console.accountDeleteFailed'), err);
+      const errorMessage = err instanceof Error ? err.message : t('messages.accountDeleteError');
+      toast.error(t('messages.accountDeleteError'), {
+        description: t('messages.accountDeleteErrorDesc', { error: errorMessage })
       });
     } finally {
       setLoading(false);
@@ -394,15 +439,15 @@ export default function AccountPage() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-yellow-500" />
               <div>
-                <h3 className="font-medium text-yellow-800">Authentication Required</h3>
-                <p className="text-yellow-600">Please log in to view your account settings.</p>
+                <h3 className="font-medium text-yellow-800">{t('errors.authRequired.title')}</h3>
+                <p className="text-yellow-600">{t('errors.authRequired.description')}</p>
               </div>
             </div>
             <Button
               onClick={() => router.push('/auth/login')}
               className="mt-4"
             >
-              Go to Login
+              {t('errors.authRequired.button')}
             </Button>
           </Card>
         </div>
@@ -430,7 +475,7 @@ export default function AccountPage() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-red-500" />
               <div>
-                <h3 className="font-medium text-red-800">Error Loading Account</h3>
+                <h3 className="font-medium text-red-800">{t('errors.loadingAccount.title')}</h3>
                 <p className="text-red-600">{error}</p>
               </div>
             </div>
@@ -440,7 +485,7 @@ export default function AccountPage() {
               variant="outline"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              {t('errors.loadingAccount.button')}
             </Button>
           </Card>
         </div>
@@ -448,30 +493,24 @@ export default function AccountPage() {
     );
   }
 
+  // Define keys for delete warning items
+  const warningItemKeys = ['0', '1', '2', '3', '4'] as const;
+
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto w-full">
         <div className="flex items-center justify-between mb-6 sm:mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">My Account</h1>
-          {/* <Button
-            onClick={loadUserProfile}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 border-gray-300 hover:border-gray-400 focus:ring-2 focus:ring-[#5e17eb] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button> */}
+          <h1 className="text-2xl font-bold text-gray-900">{t('header.title')}</h1>
         </div>
 
         {/* Personal Information */}
         <Card className="p-4 mb-6 sm:p-6 sm:mb-8 bg-white shadow-lg shadow-[#5e17eb]/20">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">Personal Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">{t('sections.personalInfo.title')}</h2>
 
           {/* Profile Picture Section with Shadcn Avatar */}
           <div className="mb-6 sm:mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-3 sm:mb-4">
-              Profile Picture
+              {t('sections.personalInfo.profilePicture.label')}
             </label>
             <div className="flex flex-col space-y-4 sm:flex-row sm:items-start sm:space-y-0 sm:space-x-6">
               <div className="relative mx-auto sm:mx-0">
@@ -502,17 +541,17 @@ export default function AccountPage() {
                       </label>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Upload new photo</p>
+                      <p>{t('sections.personalInfo.profilePicture.uploadTooltip')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
               <div className="space-y-2 text-center sm:text-left">
                 <p className="text-sm text-gray-500">
-                  Upload a new profile picture or remove the current one
+                  {t('sections.personalInfo.profilePicture.description')}
                 </p>
                 <p className="text-xs text-gray-400">
-                  JPG, PNG or WebP. Max 2MB.
+                  {t('sections.personalInfo.profilePicture.sizeLimit')}
                 </p>
                 {profile.avatar_url && (
                   <Button
@@ -523,7 +562,7 @@ export default function AccountPage() {
                     className="text-red-600 hover:text-red-700 w-full sm:w-auto"
                   >
                     <Trash className="w-4 h-4 mr-2" />
-                    Remove
+                    {t('sections.personalInfo.profilePicture.removeButton')}
                   </Button>
                 )}
               </div>
@@ -532,24 +571,24 @@ export default function AccountPage() {
 
           <form onSubmit={handleProfileUpdate} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Full Name</label>
+              <label className="text-sm font-medium text-gray-700">{t('sections.personalInfo.fullName.label')}</label>
               <Input
                 value={profile.name || ''}
                 onChange={(e) => setProfile(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Your name"
+                placeholder={t('sections.personalInfo.fullName.placeholder')}
                 className="w-full text-gray-900 bg-gray-50"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Email</label>
+              <label className="text-sm font-medium text-gray-700">{t('sections.personalInfo.email.label')}</label>
               <Input
                 value={profile.email}
                 disabled
                 className="w-full text-gray-500 bg-gray-100 cursor-not-allowed"
               />
               <p className="text-xs text-gray-500">
-                Email cannot be changed. Contact support if you need to update your email.
+                {t('sections.personalInfo.email.disclaimer')}
               </p>
             </div>
 
@@ -566,7 +605,7 @@ export default function AccountPage() {
                 htmlFor="notifications"
                 className="text-sm text-gray-700 leading-5"
               >
-                Receive product updates and notifications about your smart links
+                {t('sections.personalInfo.notifications.label')}
               </label>
             </div>
 
@@ -576,46 +615,109 @@ export default function AccountPage() {
                 disabled={loading}
                 className="w-full sm:w-auto bg-[#5e17eb] hover:bg-[#4e13c4] text-white"
               >
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? t('sections.personalInfo.saving') : t('sections.personalInfo.saveButton')}
               </Button>
             </div>
           </form>
         </Card>
 
+        {/* Email Verification Status */}
+        <Card className="p-4 mb-6 sm:p-6 sm:mb-8 bg-white shadow-lg shadow-[#5e17eb]/20">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">
+            {t('sections.emailVerification.title')}
+          </h2>
+
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0">
+              {profile.is_email_verified ? (
+                <CheckCircle className="w-6 h-6 text-green-500" />
+              ) : (
+                <XCircle className="w-6 h-6 text-red-500" />
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    {profile.is_email_verified
+                      ? t('sections.emailVerification.verified.title')
+                      : t('sections.emailVerification.unverified.title')
+                    }
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {profile.is_email_verified
+                      ? t('sections.emailVerification.verified.description')
+                      : t('sections.emailVerification.unverified.description')
+                    }
+                  </p>
+                  {profile.is_email_verified && profile.updated_at && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {t('sections.emailVerification.verified.verifiedAt')} {' '}
+                      {new Date(profile.updated_at).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+
+                {!profile.is_email_verified && (
+                  <Button
+                    onClick={handleSendVerification}
+                    disabled={sendingVerification}
+                    className="bg-[#5e17eb] hover:bg-[#4e13c4] text-white"
+                    size="sm"
+                  >
+                    {sendingVerification ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {t('sections.emailVerification.sending')}
+                      </>
+                    ) : (
+                      <>
+                        <Mail className="w-4 h-4 mr-2" />
+                        {t('sections.emailVerification.resendButton')}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Change Password */}
         <Card className="p-4 mb-6 sm:p-6 sm:mb-8 bg-white shadow-lg shadow-[#5e17eb]/20">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">Change Password</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 sm:text-xl sm:mb-6">{t('sections.changePassword.title')}</h2>
           <form onSubmit={handlePasswordChange} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Current Password</label>
+              <label className="text-sm font-medium text-gray-700">{t('sections.changePassword.currentPassword.label')}</label>
               <Input
                 type="password"
                 value={passwords.current}
                 onChange={(e) => setPasswords(prev => ({ ...prev, current: e.target.value }))}
-                placeholder="Enter current password"
+                placeholder={t('sections.changePassword.currentPassword.placeholder')}
                 className="w-full text-gray-900 bg-gray-50"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">New Password</label>
+              <label className="text-sm font-medium text-gray-700">{t('sections.changePassword.newPassword.label')}</label>
               <Input
                 type="password"
                 value={passwords.new}
                 onChange={(e) => setPasswords(prev => ({ ...prev, new: e.target.value }))}
-                placeholder="Enter new password (min 6 characters)"
+                placeholder={t('sections.changePassword.newPassword.placeholder')}
                 className="w-full text-gray-900 bg-gray-50"
                 minLength={6}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Confirm New Password</label>
+              <label className="text-sm font-medium text-gray-700">{t('sections.changePassword.confirmPassword.label')}</label>
               <Input
                 type="password"
                 value={passwords.confirm}
                 onChange={(e) => setPasswords(prev => ({ ...prev, confirm: e.target.value }))}
-                placeholder="Confirm new password"
+                placeholder={t('sections.changePassword.confirmPassword.placeholder')}
                 className="w-full text-gray-900 bg-gray-50"
                 minLength={6}
               />
@@ -628,19 +730,19 @@ export default function AccountPage() {
                 disabled={loading || !passwords.new || !passwords.confirm}
                 className="w-full sm:w-auto border-[#5e17eb] text-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
               >
-                {loading ? 'Updating...' : 'Update Password'}
+                {loading ? t('sections.changePassword.updating') : t('sections.changePassword.updateButton')}
               </Button>
               <Button
                 type='button'
                 variant="link"
                 onClick={() => {
-                  toast.info('Reset Password link sent to your email', {
-                    description: 'Please check your inbox.'
+                  toast.info(t('messages.passwordResetSent'), {
+                    description: t('messages.passwordResetSentDesc')
                   });
                 }}
                 className="w-full sm:w-auto text-[#5e17eb] hover:text-[#4e13c4] text-sm sm:text-base"
               >
-                Forgot your password?
+                {t('sections.changePassword.forgotPassword')}
               </Button>
             </div>
           </form>
@@ -648,16 +750,16 @@ export default function AccountPage() {
 
         {/* Delete Account */}
         <Card className="p-4 border-red-200 sm:p-6 bg-red-50 mb-6 sm:mb-8">
-          <h2 className="text-lg font-semibold text-red-600 mb-4 sm:text-xl sm:mb-6">Delete Your Account</h2>
+          <h2 className="text-lg font-semibold text-red-600 mb-4 sm:text-xl sm:mb-6">{t('sections.deleteAccount.title')}</h2>
           <p className="text-gray-600 mb-4 text-sm sm:text-base sm:mb-6">
-            This action is irreversible. All your smart links, analytics data, and settings will be permanently deleted.
+            {t('sections.deleteAccount.description')}
           </p>
           <Button
             variant="destructive"
             onClick={() => setShowDeleteDialog(true)}
             className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
           >
-            Delete My Account
+            {t('sections.deleteAccount.deleteButton')}
           </Button>
         </Card>
 
@@ -667,26 +769,26 @@ export default function AccountPage() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-red-600 text-lg">
                 <AlertTriangle className="h-5 w-5" />
-                Delete Account Permanently
+                {t('dialogs.deleteAccount.title')}
               </DialogTitle>
               <DialogDescription className="space-y-3 pt-3">
                 <div className="bg-red-50 border border-red-100 rounded-lg p-3 sm:p-4">
-                  <h4 className="font-medium text-red-900 mb-1 text-sm sm:text-base">Warning: This cannot be undone</h4>
+                  <h4 className="font-medium text-red-900 mb-1 text-sm sm:text-base">{t('dialogs.deleteAccount.warning.title')}</h4>
                   <ul className="text-xs text-red-700 space-y-1 sm:text-sm">
-                    <li>• All your smart links will stop working immediately</li>
-                    <li>• Your click analytics data will be deleted</li>
-                    <li>• Your account settings will be lost</li>
-                    <li>• Any remaining free clicks will be forfeited</li>
-                    <li>• This action is permanent and immediate</li>
+                    {warningItemKeys.map((key) => (
+                      <li key={key}>• {t(`dialogs.deleteAccount.warning.items.${key}`)}</li>
+                    ))}
                   </ul>
                 </div>
                 <p className="text-gray-600 text-sm sm:text-base">
-                  To confirm deletion, please type <span className="font-mono font-bold">DELETE</span> below:
+                  {t('dialogs.deleteAccount.confirmation.instruction', {
+                    deleteText: t('dialogs.deleteAccount.confirmation.deleteText')
+                  })}
                 </p>
                 <Input
                   value={deleteConfirmation}
                   onChange={(e) => setDeleteConfirmation(e.target.value)}
-                  placeholder="Type DELETE to confirm"
+                  placeholder={t('dialogs.deleteAccount.confirmation.placeholder')}
                   className="font-mono bg-gray-50 text-gray-900 border-gray-300 focus:border-[#5e17eb] focus:ring-[#5e17eb] w-full"
                   autoComplete="off"
                   autoCapitalize="off"
@@ -703,15 +805,15 @@ export default function AccountPage() {
                 }}
                 className="w-full order-2 sm:order-1 sm:w-auto text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Cancel
+                {t('dialogs.deleteAccount.buttons.cancel')}
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDeleteAccount}
-                disabled={deleteConfirmation !== 'DELETE' || loading}
+                disabled={deleteConfirmation !== t('dialogs.deleteAccount.confirmation.deleteText') || loading}
                 className="w-full order-1 sm:order-2 sm:w-auto bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Deleting...' : 'Yes, delete my account'}
+                {loading ? t('dialogs.deleteAccount.buttons.deleting') : t('dialogs.deleteAccount.buttons.confirm')}
               </Button>
             </DialogFooter>
           </DialogContent>

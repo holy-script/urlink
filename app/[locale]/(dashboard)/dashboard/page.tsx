@@ -17,6 +17,7 @@ import { supabase } from '@/utils/supabase/client';
 import { useAuth } from '@/context/AuthContext';
 import { QRCodeCanvas } from 'qrcode.react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -120,6 +121,8 @@ const useLocalStorageState = <T,>(
 export default function Dashboard() {
   const router = useRouter();
   const { user } = useAuth();
+  const t = useTranslations('Dashboard');
+
   const [links, setLinks] = useState<SmartLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -241,7 +244,7 @@ export default function Dashboard() {
 
   const loadDashboardData = async () => {
     if (!user) {
-      setError('Please log in to view your dashboard');
+      setError(t('errors.loginRequired'));
       setIsLoading(false);
       return;
     }
@@ -573,9 +576,9 @@ export default function Dashboard() {
 
     } catch (err) {
       console.error('💥 Error loading dashboard data:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to load dashboard data';
+      const errorMessage = err instanceof Error ? err.message : t('messages.dashboardLoadFailed');
       setError(errorMessage);
-      toast.error('Failed to load dashboard data', {
+      toast.error(t('messages.dashboardLoadFailed'), {
         description: errorMessage
       });
     } finally {
@@ -593,10 +596,10 @@ export default function Dashboard() {
       await navigator.clipboard.writeText(text);
       setCopiedLinkId(linkId);
       setTimeout(() => setCopiedLinkId(null), 2000);
-      toast.success("Link copied to clipboard");
+      toast.success(t('messages.linkCopied'));
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.error("Failed to copy link to clipboard");
+      toast.error(t('messages.linkCopyFailed'));
     }
   };
 
@@ -604,7 +607,7 @@ export default function Dashboard() {
     const shortUrl = getShortUrl(link.platform, link.short_code);
     if (navigator.share) {
       navigator.share({
-        title: link.title || 'Smart Link',
+        title: link.title || t('qrCode.smartLink'),
         url: shortUrl
       });
     } else {
@@ -614,7 +617,7 @@ export default function Dashboard() {
 
   const handleEdit = (shortCode: string) => {
     if (shortCode.startsWith('demo')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('links.demo.message'));
       router.push('/create-link');
       return;
     }
@@ -623,7 +626,7 @@ export default function Dashboard() {
 
   const handleToggleActive = async (linkId: string, currentStatus: boolean) => {
     if (linkId.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('links.demo.message'));
       return;
     }
 
@@ -641,16 +644,17 @@ export default function Dashboard() {
         )
       );
 
-      toast.success(`Link ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      const status = !currentStatus ? 'activated' : 'deactivated';
+      toast.success(t('messages.linkActivated', { status }));
     } catch (error) {
       console.error('Error toggling link status:', error);
-      toast.error('Failed to update link status');
+      toast.error(t('messages.linkUpdateFailed'));
     }
   };
 
   const handleSoftDelete = async (linkId: string) => {
     if (linkId.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('links.demo.message'));
       return;
     }
 
@@ -669,16 +673,16 @@ export default function Dashboard() {
         prevLinks.filter(link => link.id !== linkId)
       );
 
-      toast.success('Link deleted successfully');
+      toast.success(t('messages.linkDeleted'));
     } catch (error) {
       console.error('Error deleting link:', error);
-      toast.error('Failed to delete link');
+      toast.error(t('messages.linkDeleteFailed'));
     }
   };
 
   const handleShowQR = (link: SmartLink) => {
     if (link.id.startsWith('mock-')) {
-      toast.info('This is a demo link. Create your first real link to get started!');
+      toast.info(t('links.demo.message'));
       return;
     }
     setSelectedLinkForQR(link);
@@ -695,14 +699,14 @@ export default function Dashboard() {
       link.download = `qr-code-${selectedLinkForQR.short_code}.png`;
       link.href = url;
       link.click();
-      toast.success('QR code downloaded successfully!');
+      toast.success(t('messages.qrDownloaded'));
     }
   };
 
   const handleDismissOnboarding = () => {
     setOnboardingDismissed(true);
     setShowOnboardingOverlay(false);
-    toast.success('Onboarding dismissed. You can complete the remaining steps anytime from your account settings.');
+    toast.success(t('onboarding.dismissed'));
   };
 
   const handleVideoTutorial = (videoUrl: string, title: string) => {
@@ -784,8 +788,8 @@ export default function Dashboard() {
     if (!stats.isEmailVerified) {
       return {
         type: 'warning' as const,
-        message: `Email verification required`,
-        action: 'Verify Email',
+        message: t('status.emailVerificationRequired'),
+        action: t('status.verifyEmail'),
         actionUrl: '/account'
       };
     }
@@ -793,8 +797,8 @@ export default function Dashboard() {
     if (stats.clicksRemaining === 0 && !stats.hasActiveSubscription) {
       return {
         type: 'error' as const,
-        message: 'You\'ve used all free clicks. Subscribe to continue.',
-        action: 'View Plans',
+        message: t('status.allClicksUsed'),
+        action: t('status.viewPlans'),
         actionUrl: '/billing'
       };
     }
@@ -802,8 +806,8 @@ export default function Dashboard() {
     if (stats.clicksRemaining <= 50 && !stats.hasActiveSubscription) {
       return {
         type: 'warning' as const,
-        message: `${stats.clicksRemaining} free clicks remaining`,
-        action: 'View Plans',
+        message: t('status.freeClicksRemaining', { remaining: stats.clicksRemaining }),
+        action: t('status.viewPlans'),
         actionUrl: '/billing'
       };
     }
@@ -821,7 +825,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-3">
           <AlertTriangle className="w-6 h-6 text-red-500" />
           <div>
-            <h3 className="font-medium text-red-800">Error Loading Dashboard</h3>
+            <h3 className="font-medium text-red-800">{t('errors.loadingTitle')}</h3>
             <p className="text-red-600">{error}</p>
           </div>
         </div>
@@ -831,7 +835,7 @@ export default function Dashboard() {
           variant="outline"
         >
           <RefreshCw className="w-4 h-4 mr-2 text-red-600" />
-          <span className="text-red-600">Try Again</span>
+          <span className="text-red-600">{t('errors.tryAgain')}</span>
         </Button>
       </Card>
     );
@@ -855,12 +859,12 @@ export default function Dashboard() {
               <div className='flex items-center gap-4'>
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    Welcome back! 👋
+                    {t('welcome.title')}
                   </h1>
                   <p className="text-gray-600">
                     {showOnboardingOverlay
-                      ? "Complete the remaining steps to unlock all features!"
-                      : "Here's what's happening with your smart links today."
+                      ? t('welcome.subtitleOnboarding')
+                      : t('welcome.subtitle')
                     }
                   </p>
                 </div>
@@ -872,7 +876,7 @@ export default function Dashboard() {
                 className="flex items-center gap-2 bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900"
               >
                 <RefreshCw className="w-4 h-4 text-gray-700" />
-                <span className="text-gray-700">Refresh</span>
+                <span className="text-gray-700">{t('actions.refresh')}</span>
               </Button>
             </div>
           </div>
@@ -883,8 +887,8 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <Play className="w-6 h-6 text-purple-600" />
                 <div>
-                  <h3 className="font-medium text-purple-800">Complete Your Setup</h3>
-                  <p className="text-purple-600 text-sm">You've created your first link! Complete your profile and billing setup to unlock all features.</p>
+                  <h3 className="font-medium text-purple-800">{t('onboarding.banner.title')}</h3>
+                  <p className="text-purple-600 text-sm">{t('onboarding.banner.description')}</p>
                 </div>
               </div>
             </Card>
@@ -928,7 +932,7 @@ export default function Dashboard() {
             <Card className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-blue-600">Total Clicks</p>
+                  <p className="text-sm font-medium text-blue-600">{t('stats.totalClicks')}</p>
                   <p className="text-2xl font-bold text-blue-900">{stats.totalClicks.toLocaleString()}</p>
                 </div>
                 <MousePointerClick className="w-8 h-8 text-blue-500" />
@@ -938,7 +942,7 @@ export default function Dashboard() {
             <Card className="p-4 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-600">Clicks Today</p>
+                  <p className="text-sm font-medium text-green-600">{t('stats.clicksToday')}</p>
                   <p className="text-2xl font-bold text-green-900">{stats.clicksToday}</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-500" />
@@ -948,7 +952,7 @@ export default function Dashboard() {
             <Card className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-purple-600">Total Links</p>
+                  <p className="text-sm font-medium text-purple-600">{t('stats.totalLinks')}</p>
                   <p className="text-2xl font-bold text-purple-900">{stats.totalLinks}</p>
                 </div>
                 <Globe className="w-8 h-8 text-purple-500" />
@@ -958,10 +962,10 @@ export default function Dashboard() {
             <Card className={`p-4 bg-gradient-to-r ${stats.isEmailVerified ? 'from-emerald-50 to-emerald-100 border-emerald-200' : 'from-orange-50 to-orange-100 border-orange-200'}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm font-medium ${stats.isEmailVerified ? 'text-emerald-600' : 'text-orange-600'}`}>Account Status</p>
+                  <p className={`text-sm font-medium ${stats.isEmailVerified ? 'text-emerald-600' : 'text-orange-600'}`}>{t('stats.accountStatus')}</p>
                   <p className={`text-lg font-bold ${stats.hasActiveSubscription ? 'text-emerald-900' : stats.isEmailVerified ? 'text-emerald-900' : 'text-orange-900'}`}>
-                    {stats.hasActiveSubscription ? 'Subscribed' :
-                      stats.isEmailVerified ? 'Verified' : 'Unverified'}
+                    {stats.hasActiveSubscription ? t('stats.subscribed') :
+                      stats.isEmailVerified ? t('stats.verified') : t('stats.unverified')}
                   </p>
                 </div>
                 <Users className={`w-8 h-8 ${stats.isEmailVerified ? 'text-emerald-500' : 'text-orange-500'}`} />
@@ -972,31 +976,31 @@ export default function Dashboard() {
           {/* Recent Links Table */}
           <Card className="bg-white shadow-lg shadow-[#5e17eb]/20 rounded-xl">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-xl font-bold text-gray-800">Recent Smart Links</CardTitle>
+              <CardTitle className="text-xl font-bold text-gray-800">{t('links.title')}</CardTitle>
               <Button
                 onClick={() => router.push('/my-links')}
                 variant="outline"
                 size="sm"
                 className="bg-white text-[#5e17eb] border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
               >
-                <span className="text-[#5e17eb] hover:text-white">View All Links</span>
+                <span className="text-[#5e17eb] hover:text-white">{t('actions.viewAllLinks')}</span>
               </Button>
             </CardHeader>
             <CardContent className="overflow-x-auto">
               <div className="rounded-lg overflow-hidden border border-gray-200">
                 <Table>
                   <TableCaption className="text-sm text-white p-4 bg-[#5e17eb]/70 mt-0 hover:bg-[#5e17eb]/80">
-                    Your most recently created smart links
+                    {t('links.caption')}
                   </TableCaption>
                   <TableHeader>
                     <TableRow className="bg-[#5e17eb]/70 hover:bg-[#5e17eb]/80 transition-colors">
-                      <TableHead className="text-white font-medium">Platform</TableHead>
-                      <TableHead className="text-white font-medium">Short Link</TableHead>
-                      <TableHead className="text-white font-medium">Destination</TableHead>
-                      <TableHead className="text-white font-medium">Created</TableHead>
-                      <TableHead className="text-white font-medium">Clicks</TableHead>
-                      <TableHead className="text-white font-medium">Status</TableHead>
-                      <TableHead className="text-white font-medium">Actions</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.platform')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.shortLink')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.destination')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.created')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.clicks')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.status')}</TableHead>
+                      <TableHead className="text-white font-medium">{t('links.headers.actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1039,7 +1043,7 @@ export default function Dashboard() {
                                 ? 'bg-green-100 text-green-800'
                                 : 'bg-red-100 text-red-800'
                                 }`}>
-                                {link.is_active ? 'Active' : 'Inactive'}
+                                {link.is_active ? t('links.status.active') : t('links.status.inactive')}
                               </span>
                               {link.isqrenabled && (
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -1065,7 +1069,7 @@ export default function Dashboard() {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                  <p className="text-gray-700">{isCopied ? 'Copied!' : 'Copy Link'}</p>
+                                  <p className="text-gray-700">{isCopied ? t('links.tooltips.copied') : t('links.tooltips.copyLink')}</p>
                                 </TooltipContent>
                               </Tooltip>
 
@@ -1081,7 +1085,7 @@ export default function Dashboard() {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                  <p className="text-gray-700">Edit Link</p>
+                                  <p className="text-gray-700">{t('links.tooltips.editLink')}</p>
                                 </TooltipContent>
                               </Tooltip>
 
@@ -1098,26 +1102,10 @@ export default function Dashboard() {
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                    <p className="text-gray-700">Show QR Code</p>
+                                    <p className="text-gray-700">{t('links.tooltips.showQRCode')}</p>
                                   </TooltipContent>
                                 </Tooltip>
                               )}
-
-                              {/* <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-gray-700 hover:bg-gray-200 hover:text-[#5e17eb] p-2 transition-colors"
-                                    onClick={() => handleShare(link)}
-                                  >
-                                    <Share2 className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                  <p className="text-gray-700">Share Link</p>
-                                </TooltipContent>
-                              </Tooltip> */}
 
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -1131,7 +1119,7 @@ export default function Dashboard() {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                  <p className="text-gray-700">Open Link</p>
+                                  <p className="text-gray-700">{t('links.tooltips.openLink')}</p>
                                 </TooltipContent>
                               </Tooltip>
 
@@ -1150,7 +1138,7 @@ export default function Dashboard() {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                  <p className="text-gray-700">{link.is_active ? 'Deactivate' : 'Activate'}</p>
+                                  <p className="text-gray-700">{link.is_active ? t('links.tooltips.deactivate') : t('links.tooltips.activate')}</p>
                                 </TooltipContent>
                               </Tooltip>
 
@@ -1167,26 +1155,26 @@ export default function Dashboard() {
                                       </Button>
                                     </TooltipTrigger>
                                     <TooltipContent className='bg-white text-gray-700 shadow-lg shadow-[#5e17eb]/20 rounded-lg p-2 border border-gray-200'>
-                                      <p className="text-gray-700">Delete Link</p>
+                                      <p className="text-gray-700">{t('links.tooltips.deleteLink')}</p>
                                     </TooltipContent>
                                   </Tooltip>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent className="bg-white border border-gray-200">
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle className="text-gray-900">Delete Link</AlertDialogTitle>
+                                    <AlertDialogTitle className="text-gray-900">{t('dialogs.deleteLink.title')}</AlertDialogTitle>
                                     <AlertDialogDescription className="text-gray-600">
-                                      Are you sure you want to delete this link? This action will deactivate the link and move it to deleted items.
+                                      {t('dialogs.deleteLink.description')}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel className="bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900">
-                                      <span className="text-gray-700">Cancel</span>
+                                      <span className="text-gray-700">{t('dialogs.deleteLink.cancel')}</span>
                                     </AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() => handleSoftDelete(link.id)}
                                       className="bg-red-600 hover:bg-red-700 text-white"
                                     >
-                                      <span className="text-white">Delete Link</span>
+                                      <span className="text-white">{t('dialogs.deleteLink.confirm')}</span>
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -1208,14 +1196,14 @@ export default function Dashboard() {
             <div className="xl:col-span-2">
               <Card className="bg-white shadow-lg shadow-[#5e17eb]/20 rounded-xl">
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-xl font-bold text-gray-800">Performance Analytics</CardTitle>
+                  <CardTitle className="text-xl font-bold text-gray-800">{t('analytics.title')}</CardTitle>
                   <Button
                     onClick={() => router.push('/analytics')}
                     variant="outline"
                     size="sm"
                     className="bg-white text-[#5e17eb] border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white"
                   >
-                    <span className="text-[#5e17eb] hover:text-white">View Detailed Analytics</span>
+                    <span className="text-[#5e17eb] hover:text-white">{t('actions.viewDetailedAnalytics')}</span>
                   </Button>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -1225,7 +1213,7 @@ export default function Dashboard() {
                       <div className="w-full">
                         <Card className="bg-gray-50 shadow-md shadow-[#5e17eb]/10 rounded-lg">
                           <CardHeader className="pb-3">
-                            <CardTitle className="text-base font-semibold text-gray-700">Clicks by Type</CardTitle>
+                            <CardTitle className="text-base font-semibold text-gray-700">{t('analytics.clicksByType')}</CardTitle>
                           </CardHeader>
                           <CardContent className="pt-0">
                             <div className="w-full h-64 p-2">
@@ -1240,7 +1228,7 @@ export default function Dashboard() {
                       <div className="w-full">
                         <Card className="bg-gray-50 shadow-md shadow-[#5e17eb]/10 rounded-lg">
                           <CardHeader className="pb-3">
-                            <CardTitle className="text-base font-semibold text-gray-700">Clicks by Device</CardTitle>
+                            <CardTitle className="text-base font-semibold text-gray-700">{t('analytics.clicksByDevice')}</CardTitle>
                           </CardHeader>
                           <CardContent className="pt-0">
                             <div className="w-full h-64 p-2">
@@ -1254,8 +1242,8 @@ export default function Dashboard() {
 
                   {analyticsData.length === 0 && deviceData.length === 0 && (
                     <div className="text-center py-8">
-                      <p className="text-gray-500">No analytics data available yet.</p>
-                      <p className="text-sm text-gray-400 mt-1">Start sharing your links to see insights!</p>
+                      <p className="text-gray-500">{t('analytics.noData')}</p>
+                      <p className="text-sm text-gray-400 mt-1">{t('analytics.noDataSubtext')}</p>
                     </div>
                   )}
                 </CardContent>
@@ -1268,7 +1256,7 @@ export default function Dashboard() {
                 <CardHeader>
                   <CardTitle className="text-xl font-bold text-gray-800 flex items-center gap-2">
                     <Play className="w-5 h-5 text-[#5e17eb]" />
-                    Getting Started
+                    {t('gettingStarted.title')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -1276,15 +1264,15 @@ export default function Dashboard() {
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left h-auto p-4 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:text-gray-900"
-                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', 'Creating Your First Smart Link')}
+                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', t('gettingStarted.tutorials.createLink.title'))}
                     >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-[#5e17eb]/10 rounded-lg">
                           <Play className="w-4 h-4 text-[#5e17eb]" />
                         </div>
                         <div className="text-left">
-                          <p className="font-medium text-gray-900">Creating Your First Smart Link</p>
-                          <p className="text-sm text-gray-500">Learn how to create deep links</p>
+                          <p className="font-medium text-gray-900">{t('gettingStarted.tutorials.createLink.title')}</p>
+                          <p className="text-sm text-gray-500">{t('gettingStarted.tutorials.createLink.description')}</p>
                         </div>
                       </div>
                     </Button>
@@ -1292,15 +1280,15 @@ export default function Dashboard() {
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left h-auto p-4 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:text-gray-900"
-                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', 'Understanding Analytics')}
+                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', t('gettingStarted.tutorials.analytics.title'))}
                     >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-[#5e17eb]/10 rounded-lg">
                           <BookOpen className="w-4 h-4 text-[#5e17eb]" />
                         </div>
                         <div className="text-left">
-                          <p className="font-medium text-gray-900">Understanding Analytics</p>
-                          <p className="text-sm text-gray-500">Track your link performance</p>
+                          <p className="font-medium text-gray-900">{t('gettingStarted.tutorials.analytics.title')}</p>
+                          <p className="text-sm text-gray-500">{t('gettingStarted.tutorials.analytics.description')}</p>
                         </div>
                       </div>
                     </Button>
@@ -1308,15 +1296,15 @@ export default function Dashboard() {
                     <Button
                       variant="outline"
                       className="w-full justify-start text-left h-auto p-4 bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:text-gray-900"
-                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', 'Advanced Features')}
+                      onClick={() => handleVideoTutorial('https://www.youtube.com/embed/dQw4w9WgXcQ', t('gettingStarted.tutorials.advanced.title'))}
                     >
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-[#5e17eb]/10 rounded-lg">
                           <Globe className="w-4 h-4 text-[#5e17eb]" />
                         </div>
                         <div className="text-left">
-                          <p className="font-medium text-gray-900">Advanced Features</p>
-                          <p className="text-sm text-gray-500">QR codes and customization</p>
+                          <p className="font-medium text-gray-900">{t('gettingStarted.tutorials.advanced.title')}</p>
+                          <p className="text-sm text-gray-500">{t('gettingStarted.tutorials.advanced.description')}</p>
                         </div>
                       </div>
                     </Button>
@@ -1332,7 +1320,7 @@ export default function Dashboard() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <Card className="bg-white p-6 max-w-md w-full mx-auto">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">QR Code</h3>
+                <h3 className="text-lg font-semibold text-gray-900">{t('qrCode.title')}</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -1358,7 +1346,7 @@ export default function Dashboard() {
 
                 <div>
                   <p className="text-sm text-gray-600 mb-2">
-                    {selectedLinkForQR.title || 'Smart Link'}
+                    {selectedLinkForQR.title || t('qrCode.smartLink')}
                   </p>
                   <p className="text-xs text-gray-500 font-mono">
                     {getShortUrl(selectedLinkForQR.platform, selectedLinkForQR.short_code)}
@@ -1370,7 +1358,7 @@ export default function Dashboard() {
                   className="w-full bg-[#5e17eb] hover:bg-[#4e13c4] text-white flex items-center gap-2"
                 >
                   <Download className="h-4 w-4 text-white" />
-                  <span className="text-white">Download QR Code</span>
+                  <span className="text-white">{t('qrCode.download')}</span>
                 </Button>
               </div>
             </Card>
@@ -1410,7 +1398,7 @@ export default function Dashboard() {
                 onDismiss={() => {
                   setOnboardingDismissed(true);
                   setShowOnboardingOverlay(false);
-                  toast.success('Onboarding dismissed. You can complete the remaining steps anytime from your account settings.');
+                  toast.success(t('onboarding.dismissed'));
                 }}
               />
             </div>
